@@ -1,0 +1,727 @@
+// ============================================
+// 宁夏丝路非遗地理志 - 专业设计系统
+// 基于 ui-ux-pro-max & frontend-design 技能指导
+// ============================================
+
+// ===================
+// 色彩系统 - 丝路文化主题
+// ===================
+:root {
+  // 主色调 - 丝路赭石色系
+  --color-primary: #8B4513;           // 赭石色
+  --color-primary-dark: #5D3A1A;      // 深赭石
+  --color-primary-light: #A0522D;     // 浅赭石
+  
+  // 辅色 - 鎏金色系
+  --color-secondary: #D4A017;         // 鎏金
+  --color-secondary-dark: #B8860B;    // 深金
+  --color-secondary-light: #F0C040;   // 亮金
+  
+  // 强调色 - 科技蓝绿
+  --color-accent: #2E7D32;            // 文化绿
+  --color-accent-blue: #1565C0;       // 科技蓝
+  
+  // 背景色系 - 宣纸质感
+  --color-background: #FFF8E7;        // 米白
+  --color-surface: #F5F0E6;           // 宣纸白
+  --color-sand: #E8DCC8;              // 沙色
+  --color-paper: #FDFBF7;             // 古纸白
+  
+  // 文字色系
+  --color-text: #3E2723;              // 深棕文字
+  --color-text-medium: #5D4037;       // 中棕
+  --color-text-light: #8D6E63;        // 浅棕
+  --color-text-muted: #A1887F;        // 辅助文字
+  
+  // 边框/分割线
+  --color-border: #D7CCC8;            // 浅棕边框
+  --color-border-light: #ECE0D6;      // 极浅边框
+  --color-divider: #EFEBE9;           // 分隔线
+  
+  // 状态色
+  --color-success: #558B2F;           // 成功绿
+  --color-warning: #F9A825;           // 警告黄
+  --color-error: #C62828;             // 错误红
+  
+  // ===================
+  // 字体系统
+  // ===================
+  --font-display: 'Noto Serif TC', '思源宋体', 'SimSun', 'STSong', serif;
+  --font-body: 'Noto Sans TC', '思源黑体', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  // ===================
+  // 间距系统 (8pt基准)
+  // ===================
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  --spacing-4xl: 96px;
+  
+  // ===================
+  // 圆角系统
+  // ===================
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  
+  // ===================
+  // 阴影系统
+  // ===================
+  --shadow-xs: 0 1px 2px rgba(139, 69, 19, 0.08);
+  --shadow-sm: 0 2px 8px rgba(139, 69, 19, 0.12);
+  --shadow-md: 0 4px 16px rgba(139, 69, 19, 0.16);
+  --shadow-lg: 0 8px 32px rgba(139, 69, 19, 0.20);
+  --shadow-xl: 0 16px 48px rgba(139, 69, 19, 0.24);
+  --shadow-glow: 0 0 20px rgba(212, 160, 23, 0.3);
+  
+  // ===================
+  // 动画时间
+  // ===================
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 800ms;
+  
+  // ===================
+  // 层级系统
+  // ===================
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+}
+
+// ============================================
+// 全局基础样式
+// ============================================
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  
+  // 支持减少动画偏好
+  @media (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+  background: var(--color-background);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ============================================
+// 标题系统 - 传统优雅风格
+// ============================================
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.1rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+// ============================================
+// 链接样式
+// ============================================
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+  cursor: pointer;
+  
+  &:hover {
+    color: var(--color-secondary);
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// ============================================
+// 容器系统
+// ============================================
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  
+  @media (max-width: 768px) {
+    padding: 0 var(--spacing-md);
+  }
+}
+
+.container-narrow {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.container-wide {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl);
+}
+
+// ============================================
+// 页面区块
+// ============================================
+
+.section {
+  padding: var(--spacing-4xl) 0;
+  position: relative;
+  
+  @media (max-width: 768px) {
+    padding: var(--spacing-2xl) 0;
+  }
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+  position: relative;
+  
+  h2 {
+    margin-bottom: var(--spacing-md);
+    
+    // 标题装饰 - 金色横线
+    &::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--color-secondary), 
+        transparent
+      );
+      margin: var(--spacing-md) auto 0;
+      border-radius: 2px;
+    }
+  }
+  
+  // 副标题
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+}
+
+// ============================================
+// 卡片系统 - 博物馆质感
+// ============================================
+
+.card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 250, 240, 0.95),
+    rgba(245, 240, 230, 0.95)
+  );
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--duration-normal) ease;
+  position: relative;
+  
+  // 微妙阴影层次
+  box-shadow: 
+    var(--shadow-sm),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 
+      var(--shadow-lg),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border-color: var(--color-secondary);
+    
+    // 金色光晕
+    &::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-secondary);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}
+
+// 高级卡片 - 带丝绸纹理
+.card-silk {
+  background: 
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><pattern id="silk" width="4" height="4"><path d="M0 0 L4 4 M4 0 L0 4" stroke="%23D4A017" stroke-width="0.3" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23silk)"/></svg>'),
+    linear-gradient(135deg, rgba(255, 250, 240, 0.98), rgba(245, 240, 230, 0.98));
+  background-blend-mode: overlay;
+}
+
+// ============================================
+// 按钮系统
+// ============================================
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-normal) ease;
+  border: none;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+  
+  // 内部波纹效果
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+  
+  &:active::after {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+// 主按钮 - 金色渐变
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary));
+  color: white;
+  box-shadow: var(--shadow-sm);
+  
+  &:hover {
+    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+    transform: translateY(-2px);
+    box-shadow: 
+      var(--shadow-md),
+      var(--shadow-glow);
+  }
+}
+
+// 次按钮 - 赭石边框
+.btn-secondary {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  
+  &:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+  }
+}
+
+// 辅助按钮
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  
+  &:hover {
+    background: var(--color-surface);
+    color: var(--color-primary);
+  }
+}
+
+// ============================================
+// 标签/徽章系统
+// ============================================
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: linear-gradient(135deg, 
+    rgba(212, 160, 23, 0.15), 
+    rgba(184, 134, 11, 0.1)
+  );
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: var(--spacing-xs);
+  transition: all var(--duration-fast) ease;
+  
+  &:hover {
+    background: linear-gradient(135deg, 
+      rgba(212, 160, 23, 0.25), 
+      rgba(184, 134, 11, 0.2)
+    );
+  }
+}
+
+// ============================================
+// 动画系统
+// ============================================
+
+// 基础淡入
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 从左滑入
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// 从右滑入
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// 数字跳动
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// 波纹流动（丝路河流效果）
+@keyframes waveFlow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// 金色闪烁
+@keyframes goldShimmer {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+// 入场延迟类
+.animate-fade-in {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.6s ease forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.6s ease forwards;
+}
+
+// 动画延迟
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+// ============================================
+// 背景纹理系统
+// ============================================
+
+// 宣纸纹理
+.texture-paper {
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(139, 69, 19, 0.02) 1px,
+      rgba(139, 69, 19, 0.02) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(139, 69, 19, 0.01) 1px,
+      rgba(139, 69, 19, 0.01) 2px
+    );
+}
+
+// 丝绸纹理
+.texture-silk {
+  background: 
+    linear-gradient(
+      45deg,
+      rgba(212, 160, 23, 0.03) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(212, 160, 23, 0.03) 50%,
+      rgba(212, 160, 23, 0.03) 75%,
+      transparent 75%
+    );
+  background-size: 4px 4px;
+}
+
+// 沙丘纹理
+.texture-dune {
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(232, 220, 200, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(232, 220, 200, 0.3) 0%, transparent 40%);
+}
+
+// ============================================
+// 响应式系统
+// ============================================
+
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: 1440px) {
+    @content;
+  }
+}
+
+// ============================================
+// 滚动条美化
+// ============================================
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, 
+    var(--color-secondary-dark), 
+    var(--color-primary)
+  );
+  border-radius: var(--radius-sm);
+  
+  &:hover {
+    background: var(--color-primary);
+  }
+}
+
+// ============================================
+// Element Plus 主题覆盖
+// ============================================
+
+.el-button--primary {
+  background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary)) !important;
+  border-color: var(--color-secondary-dark) !important;
+  
+  &:hover {
+    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light)) !important;
+    border-color: var(--color-secondary) !important;
+  }
+}
+
+.el-card {
+  background: linear-gradient(135deg, rgba(255, 250, 240, 0.95), rgba(245, 240, 230, 0.95)) !important;
+  border-color: var(--color-border-light) !important;
+  
+  &:hover {
+    border-color: var(--color-secondary) !important;
+    box-shadow: var(--shadow-lg) !important;
+  }
+}
+
+.el-input__wrapper {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  
+  &:hover, &:focus {
+    border-color: var(--color-secondary) !important;
+    box-shadow: 0 0 0 1px var(--color-secondary) !important;
+  }
+}
+
+// ============================================
+// 辅助类
+// ============================================
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.hidden { display: none; }
+.visible { display: block; }
+
+.flex { display: flex; }
+.flex-center { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.relative { position: relative; }
+.absolute { position: absolute; }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+
+// ============================================
+// 无障碍支持
+// ============================================
+
+// 跳转到主内容链接
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  z-index: 9999;
+  
+  &:focus {
+    top: 0;
+  }
+}
+
+// 仅屏幕阅读器可见
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
