@@ -314,7 +314,7 @@ const designProcess = ref([
     icon: '🎨',
     title: '产品设计',
     desc: '结合目标用户需求和市场趋势，将设计元素应用到具体产品形态上',
-    activities: ['产品功能定义',3D 建模与渲染',打样与反馈调整']
+    activities: ['产品功能定义', '3D 建模与渲染', '打样与反馈调整']
   },
   {
     icon: '🛠️',
@@ -952,3 +952,4 @@ const products = ref([
     border: none;
   }
 }
+</style>
