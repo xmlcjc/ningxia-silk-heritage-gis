@@ -399,7 +399,7 @@ export const heritageData = [
   }
 ]
 
-export const categories = ['全部', '传统技艺', '传统音乐', '传统美术', '传统舞蹈', '传统戏剧', '传统民俗', '传统体育', '其他']
+export const categories = ['全部', '传统技艺', '传统音乐', '传统美术', '传统舞蹈', '传统戏剧', '传统民俗', '传统体育']
 export const cities = ['全部', '银川市', '石嘴山市', '吴忠市', '固原市', '中卫市']
 export const periods = ['全部', '汉唐', '宋元', '明清', '近现代', '当代']
 export const levels = ['全部', '国家级', '自治区级', '市级', '县级']
@@ -550,93 +550,4 @@ export const yellowRiver = {
     [106.763, 39.536], [106.776, 39.598], [106.765, 39.662], [106.791, 39.687]
   ],
   color: '#1E88E5'
-}
-
-export const projectResults = [
-  {
-    id: 1,
-    title: '宁夏丝路非遗地理数据库',
-    type: '数据成果',
-    description: '收录200余项非遗项目，包含地理坐标、历史渊源、传承信息等完整数据',
-    coverImage: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'GIS动态地图网页',
-    type: '技术成果',
-    description: '基于WebGIS技术的互动地图，支持时空可视化、图层切换、点位查询等功能',
-    coverImage: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop'
-  },
-  {
-    id: 4,
-    title: '数字化保护白皮书',
-    type: '研究报告',
-    description: '系统阐述宁夏丝路非遗数字化保护的理论、方法和实践路径',
-    coverImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
-  }
-]
-
-export const newsData = [
-  {
-    id: 1,
-    title: '项目组赴固原市开展非遗田野调查',
-    date: '2024-03-15',
-    category: '调研动态',
-    summary: '项目组历时7天，深入固原市5个区县，走访非遗传承人30余位，收集珍贵资料。',
-    coverImage: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop'
-  },
-  {
-    id: 2,
-    title: 'GIS动态地图平台进入测试阶段',
-    date: '2024-03-01',
-    category: '平台测试',
-    summary: 'WebGIS地图平台核心功能开发完成，开始内部测试，预计4月上线。',
-    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop'
-  },
-  {
-    id: 3,
-    title: '宁夏非遗保护论坛成功举办',
-    date: '2024-02-20',
-    category: '非遗活动',
-    summary: '项目组联合文旅厅举办非遗保护论坛，邀请10余位专家学者共话非遗传承。',
-    coverImage: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=400&h=300&fit=crop'
-  }
-]
-
-export const timelineData = [
-  {
-    phase: 1,
-    title: '调研建档与数据筹备',
-    period: '第1-3个月',
-    tasks: ['文献资料搜集', '田野调查', '数据整理入库', 'GIS数据库设计'],
-    status: '进行中'
-  },
-  {
-    phase: 2,
-    title: 'GIS平台与网页开发',
-    period: '第4-6个月',
-    tasks: ['WebGIS地图开发', '前端页面开发', '后端接口开发', '系统联调'],
-    status: '待开始'
-  },
-  {
-    phase: 3,
-    title: '内容研发与品牌推广',
-    period: '第7-9个月',
-    tasks: ['品牌策划', '宣传推广', '合作单位对接', '应用案例整理'],
-    status: '待开始'
-  },
-  {
-    phase: 4,
-    title: '落地运营与模式优化',
-    period: '第10-12个月',
-    tasks: ['平台上线', '用户运营', '合作拓展', '模式总结'],
-    status: '待开始'
-  }
-]
-
-export const statisticsData = {
-  heritageCount: 216,
-  cityCoverage: 5,
-  categoryCount: 10,
-  inheritorStories: 68
 }

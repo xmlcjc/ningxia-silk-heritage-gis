@@ -21,12 +21,12 @@
             </div>
             <div class="stat-divider">|</div>
             <div class="stat-item">
-              <span class="stat-number">{{ categories.length }}</span>
+              <span class="stat-number">{{ categories.length - 1 }}</span>
               <span class="stat-label">遗产类别</span>
             </div>
             <div class="stat-divider">|</div>
             <div class="stat-item">
-              <span class="stat-number">{{ cities.length }}</span>
+              <span class="stat-number">{{ cities.length - 1 }}</span>
               <span class="stat-label">覆盖地市</span>
             </div>
           </div>
@@ -734,9 +734,5 @@ const goToDetail = (id) => {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-}
-
-.text-center {
-  text-align: center;
 }
 </style>

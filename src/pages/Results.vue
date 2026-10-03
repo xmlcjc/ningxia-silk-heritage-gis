@@ -1241,8 +1241,4 @@ const partnerData = ref({
     }
   }
 }
-
-.text-center {
-  text-align: center;
-}
 </style>

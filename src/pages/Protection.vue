@@ -132,9 +132,6 @@
   </div>
 </template>
 
-<script setup>
-</script>
-
 <style scoped>
 .page-header {
   background: linear-gradient(135deg, #8B5A2B 0%, #A0522D 100%);

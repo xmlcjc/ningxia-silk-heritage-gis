@@ -230,7 +230,7 @@
             <h2>宁夏丝路非遗GIS地图</h2>
             <p class="info-desc">
               交互式地图汇聚宁夏境内 20 项代表性非物质文化遗产的空间分布与关联信息。
-              平台以地理坐标为索引，将非遗项目与萧关道、环灵道、长安西域道三条丝路古道叠合呈现，
+              平台以地理坐标为索引，将非遗项目与萧关道、环灵道、长安西域道、灵州道四条丝路古道叠合呈现，
               支持图层切换、分类筛选、时间轴联动与点位详情查看，
               直观展现丝路非遗在宁夏大地上的传播路径、时空分布格局与历史演变脉络。
             </p>
@@ -245,11 +245,11 @@
                 <span>覆盖地市</span>
               </div>
               <div class="info-stat">
-                <strong>3</strong>
+                <strong>4</strong>
                 <span>丝路古道</span>
               </div>
               <div class="info-stat">
-                <strong>9</strong>
+                <strong>7</strong>
                 <span>遗产类别</span>
               </div>
             </div>
@@ -266,7 +266,7 @@
                 <span class="feature-icon-mini">🛤️</span>
                 <div class="feature-text">
                   <strong>丝路古道线路</strong>
-                  <span>三条古道叠合呈现</span>
+                  <span>四条古道叠合呈现</span>
                 </div>
               </div>
               <div class="info-feature">
@@ -371,7 +371,7 @@ import { ref } from 'vue'
 const stats = ref([
   { value: '20+', label: '已建档非遗项目', type: 'gold', percent: 80 },
   { value: '5', label: '覆盖地市', type: 'gold', percent: 100 },
-  { value: '6', label: '遗产类别', type: 'green', percent: 60 },
+  { value: '7', label: '遗产类别', type: 'green', percent: 60 },
   { value: '15+', label: '传承人故事', type: 'accent', percent: 70 }
 ])
 

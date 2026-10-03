@@ -535,18 +535,6 @@ const timeMarks = { 0: '汉唐', 1: '宋元', 2: '明清', 3: '近现代', 4: '�
 const periodMap = ['汉唐', '宋元', '明清', '近现代', '当代']
 const currentPeriod = computed(() => periodMap[timeValue.value])
 
-// 筛选计数
-const filterCount = computed(() => {
-  let count = 0
-  if (filters.value.city) count++
-  if (filters.value.category) count++
-  if (filters.value.period) count++
-  if (filters.value.level) count++
-  if (searchKeyword.value) count++
-  if (timePeriodEnabled.value) count++
-  return count
-})
-
 // 筛选数据（支持时间轴）
 const filteredData = computed(() => {
   return heritageData.filter(item => {
@@ -761,7 +749,6 @@ const renderMarkers = (data) => {
 
   if (!data || data.length === 0) return
 
-  const bounds = []
   data.forEach((item, idx) => {
     if (!item.lat || !item.lng) return
     // 错峰延迟：点位像小草一样依次破土而出
@@ -773,7 +760,6 @@ const renderMarkers = (data) => {
       })
     marker.item = item
     marker.addTo(markerLayer)
-    bounds.push([item.lat, item.lng])
   })
 
   // 同时在热力图层生成 circleMarker
@@ -829,12 +815,12 @@ const renderRoutes = () => {
         opacity: 0
       }).addTo(routeLayer)
 
-      polyline.on('click', () => toggleRouteFocus(route))
-      hitArea.on('click', () => toggleRouteFocus(route))
-      polyline.on('mouseover', () => emphasizeRoute(route, true))
-      polyline.on('mouseout', () => emphasizeRoute(route, false))
-      hitArea.on('mouseover', () => emphasizeRoute(route, true))
-      hitArea.on('mouseout', () => emphasizeRoute(route, false))
+      // 彩色线与透明点击区共用同一组交互
+      ;[polyline, hitArea].forEach(ln => {
+        ln.on('click', () => toggleRouteFocus(route))
+        ln.on('mouseover', () => emphasizeRoute(route, true))
+        ln.on('mouseout', () => emphasizeRoute(route, false))
+      })
 
       paths.push(polyline)
       hitAreas.push(hitArea)
@@ -1264,13 +1250,6 @@ watch([
   if (ch) choroplethLayer.addTo(leafletMap); else leafletMap.removeLayer(choroplethLayer)
 }, { flush: 'post' })
 
-const toggleTimePeriod = () => {
-  timePeriodEnabled.value = !timePeriodEnabled.value
-  if (!timePeriodEnabled.value && leafletMap) {
-    leafletMap.closePopup()
-  }
-}
-
 // ========== ECharts 图表 ==========
 const chartOptionCategory = (data) => ({
   tooltip: { trigger: 'item', formatter: '{b}: {c}项 ({d}%)' },
@@ -1425,11 +1404,6 @@ const linkChartFilter = (field, value) => {
   filters.value[field] = filters.value[field] === value ? '' : value
   viewMode.value = 'map'
   setTimeout(() => fitAllMarkers(), 450)
-}
-
-const showDetail = (item) => {
-  selectedItem.value = item
-  detailDialogVisible.value = true
 }
 
 const goToDetail = (id) => {
@@ -2130,76 +2104,6 @@ onBeforeUnmount(() => {
       color: white;
       font-size: 13px;
       font-weight: 600;
-    }
-  }
-}
-
-.stats-summary {
-  background: var(--color-background);
-  padding: var(--spacing-md);
-  border-radius: var(--radius-lg);
-  
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--color-border-light);
-    }
-    
-    .stat-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--color-text-light);
-      
-      .stat-icon {
-        font-size: 14px;
-      }
-    }
-    
-    .stat-value {
-      font-weight: 600;
-      color: var(--color-primary);
-      
-      em {
-        font-style: normal;
-        font-size: 12px;
-        color: var(--color-text-muted);
-        margin-left: 2px;
-      }
-    }
-  }
-}
-
-.view-toggle-section {
-  .toggle-buttons {
-    display: flex;
-    gap: var(--spacing-sm);
-    
-    .toggle-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 10px 16px;
-      background: var(--color-background);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      
-      &.active {
-        background: var(--color-secondary);
-        border-color: var(--color-secondary);
-        color: white;
-      }
     }
   }
 }

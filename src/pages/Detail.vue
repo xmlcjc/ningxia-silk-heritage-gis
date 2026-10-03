@@ -363,12 +363,6 @@ onMounted(() => {
   margin-top: var(--spacing-xs);
 }
 
-.two-column-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-lg);
-}
-
 .detail-sidebar {
   position: sticky;
   top: 100px;
@@ -519,10 +513,6 @@ onMounted(() => {
 
   .detail-sidebar {
     position: static;
-  }
-
-  .two-column-info {
-    grid-template-columns: 1fr;
   }
 }
 
