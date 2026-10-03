@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿<template>
   <footer class="layout-footer">
     <!-- 顶部装饰波浪 -->
     <div class="footer-wave">
