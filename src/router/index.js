@@ -32,16 +32,6 @@ const routes = [
     component: () => import('../pages/Protection.vue')
   },
   {
-    path: '/study',
-    name: 'Study',
-    component: () => import('../pages/Study.vue')
-  },
-  {
-    path: '/creative',
-    name: 'Creative',
-    component: () => import('../pages/Creative.vue')
-  },
-  {
     path: '/results',
     name: 'Results',
     component: () => import('../pages/Results.vue')
@@ -50,6 +40,11 @@ const routes = [
     path: '/about',
     name: 'About',
     component: () => import('../pages/About.vue')
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../pages/NotFound.vue')
   }
 ]
 

@@ -49,69 +49,33 @@
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">项目成果</h2>
-          <p class="section-subtitle">六大核心成果 · 全方位展示项目价值</p>
+          <p class="section-subtitle">三大核心成果 · 全方位展示项目价值</p>
         </div>
         
-        <div class="results-tabs">
-          <div class="tabs-header">
-            <button 
-              v-for="tab in resultTabs" 
-              :key="tab.key"
-              class="tab-btn"
-              :class="{ 'active': activeResultTab === tab.key }"
-              @click="activeResultTab = tab.key"
-            >
-              {{ tab.label }}
-            </button>
-          </div>
-          
-          <div class="tabs-content">
-            <div v-show="activeResultTab === 'all'" class="tab-panel">
-              <div class="results-grid">
-                <div class="result-card card-silk" v-for="(result, index) in resultsData" :key="result.id"
-                     :style="{ animationDelay: (index * 0.1) + 's' }">
-                  <div class="card-image-wrapper">
-                    <div class="result-placeholder" :style="{ backgroundColor: result.color || '#F5F0E6' }">
-                      <span class="placeholder-icon">{{ result.icon || '📁' }}</span>
-                    </div>
-                    <div class="result-badge" :class="'type-' + result.typeCategory">
-                      {{ result.type }}
-                    </div>
-                    <div class="image-overlay">
-                      <span class="overlay-btn">查看详情 →</span>
-                    </div>
-                  </div>
-                  
-                  <div class="card-body">
-                    <h3 class="result-title">{{ result.title }}</h3>
-                    <p class="result-desc">{{ result.description }}</p>
-                    
-                    <div class="result-meta">
-                      <span class="meta-tag" v-if="result.size">📦 {{ result.size }}</span>
-                      <span class="meta-tag" v-if="result.date">📅 {{ result.date }}</span>
-                    </div>
-                  </div>
-                </div>
+        <div class="results-grid">
+          <div class="result-card card-silk" v-for="(result, index) in resultsData" :key="result.id"
+               :style="{ animationDelay: (index * 0.1) + 's' }"
+               @click="goToResult(result.link)">
+            <div class="card-image-wrapper">
+              <div class="result-placeholder" :style="{ backgroundColor: result.color || '#F5F0E6' }">
+                <span class="placeholder-icon">{{ result.icon || '📁' }}</span>
+              </div>
+              <div class="result-badge" :class="'type-' + result.typeCategory">
+                {{ result.type }}
+              </div>
+              <div class="image-overlay">
+                <span class="overlay-btn">点击查看 →</span>
               </div>
             </div>
             
-            <div v-for="cat in uniqueCategories" :key="cat" v-show="activeResultTab === cat" class="tab-panel">
-              <div class="results-grid">
-                <div class="result-card card-silk" v-for="result in getResultsByCategory(cat)" :key="result.id">
-                  <div class="card-image-wrapper">
-                    <div class="result-placeholder" :style="{ backgroundColor: result.color || '#F5F0E6' }">
-                      <span class="placeholder-icon">{{ result.icon || '📁' }}</span>
-                    </div>
-                    <div class="result-badge" :class="'type-' + result.typeCategory">
-                      {{ result.type }}
-                    </div>
-                  </div>
-                  
-                  <div class="card-body">
-                    <h3 class="result-title">{{ result.title }}</h3>
-                    <p class="result-desc">{{ result.description }}</p>
-                  </div>
-                </div>
+            <div class="card-body">
+              <h3 class="result-title">{{ result.title }}</h3>
+              <p class="result-desc">{{ result.description }}</p>
+              
+              <div class="result-meta">
+                <span class="meta-tag" v-if="result.size">📦 {{ result.size }}</span>
+                <span class="meta-tag" v-if="result.date">📅 {{ result.date }}</span>
+                <span class="meta-tag go-tag">🔗 {{ result.linkText }}</span>
               </div>
             </div>
           </div>
@@ -319,44 +283,28 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-const activeResultTab = ref('all')
+const router = useRouter()
 const activeNewsFilter = ref('all')
 const showMoreCount = ref(0)
 
+const goToResult = (link) => {
+  if (link) router.push(link)
+}
+
 // 模拟数据
 const resultsData = ref([
-  { id: 1, title: '宁夏丝路非遗地理数据库', type: '数据库', typeCategory: 'database', description: '涵盖 20+ 项非遗项目的完整数字档案', color: '#E8DCC8', icon: '🗄️', date: '2024-06', size: '500MB' },
-  { id: 2, title: 'GIS 动态地图网页平台', type: '平台', typeCategory: 'platform', description: '支持交互式地图探索与数据分析', color: '#F5F0E6', icon: '🌐', date: '2024-08', size: '在线' },
-  { id: 3, title: '《宁夏丝路非遗研学手册》', type: '出版物', typeCategory: 'publication', description: '3 条主题研学路线与课程内容', color: '#E3D4C1', icon: '📖', date: '2024-09', size: 'PDF' },
-  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '非遗保护策略与建议报告', color: '#DED3C2', icon: '📄', date: '2024-10' },
-  { id: 5, title: '非遗研学课程', type: '课程', typeCategory: 'course', description: '面向青少年与公众的教育课程', color: '#E0D0C0', icon: '🎬', date: '2024-11' },
-  { id: 6, title: '文创产品系列', type: '产品', typeCategory: 'product', description: '融合丝路元素的文创设计', color: '#F0E8D8', icon: '🎁', date: '2024-12' }
+  { id: 1, title: '宁夏丝路非遗地理数据库', type: '数据库', typeCategory: 'database', description: '涵盖 20+ 项非遗项目的完整数字档案，包含历史渊源、工艺流程、保护现状与地理坐标等多维信息', color: '#E8DCC8', icon: '🗄️', date: '2024-06', size: '500MB', link: '/archive', linkText: '前往数字档案' },
+  { id: 2, title: 'GIS 动态地图网页平台', type: '平台', typeCategory: 'platform', description: '基于 WebGIS 的交互式地图，支持时空可视化、图层切换、点位查询与数据统计分析', color: '#F5F0E6', icon: '🌐', date: '2024-08', size: '在线', link: '/map', linkText: '打开GIS地图' },
+  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '系统阐述宁夏丝路非遗数字化保护的理论、方法与实践路径，提出保护与振兴策略建议', color: '#DED3C2', icon: '📄', date: '2024-10', link: '/project', linkText: '查看项目概况' }
 ])
-
-const resultTabs = ref([
-  { key: 'all', label: '全部成果' },
-  { key: 'database', label: '数据库' },
-  { key: 'platform', label: '平台' },
-  { key: 'publication', label: '出版物' },
-  { key: 'report', label: '报告' },
-  { key: 'course', label: '课程' },
-  { key: 'product', label: '产品' }
-])
-
-const uniqueCategories = computed(() => [...new Set(resultsData.value.map(r => r.typeCategory))])
-
-const getResultsByCategory = (cat) => {
-  return resultsData.value.filter(r => r.typeCategory === cat)
-}
 
 const newsData = ref([
   { id: 1, title: '项目组参加宁夏文化遗产保护论坛', category: '活动', summary: '2024 年 10 月 15 日，项目组代表受邀参加宁夏文化遗产保护论坛，分享了 GIS 技术在非遗保护中的应用实践。', date: '2024-10-15', tags: ['论坛', '交流'], color: '#E8DCC8' },
-  { id: 2, title: '《研学手册》正式出版发行', category: '成果', summary: '经过半年多的编写和完善，《宁夏丝路非遗研学手册》终于正式出版，将在宁夏各地中小学推广使用。', date: '2024-09-20', tags: ['出版', '教育'], color: '#F5F0E6' },
   { id: 3, title: '贺兰砚制作技艺实地调研', category: '调研', summary: '项目组前往贺兰县，对贺兰砚制作技艺进行深度调研，采访了多位非遗传承人，收集了大量第一手资料。', date: '2024-08-10', tags: ['调研', '贺兰砚'], color: '#E3D4C1' },
   { id: 4, title: 'GIS 平台正式上线运行', category: '成果', summary: '宁夏丝路非遗 GIS 展示平台正式上线，公众可以通过网页访问，探索宁夏非遗的空间分布。', date: '2024-07-01', tags: ['上线', 'GIS'], color: '#DED3C2' },
-  { id: 5, title: '与银川市博物馆建立合作', category: '合作', summary: '项目组与银川市博物馆达成合作协议，将在展品数字化、展览策划等方面开展深度合作。', date: '2024-06-15', tags: ['合作', '博物馆'], color: '#E0D0C0' },
-  { id: 6, title: '首届非遗研学夏令营成功举办', category: '活动', summary: '来自银川市的 50 名中小学生参加了为期三天的非遗研学夏令营，体验了贺兰砚制作和回族刺绣。', date: '2024-07-20', tags: ['研学', '夏令营'], color: '#F0E8D8' }
+  { id: 5, title: '与银川市博物馆建立合作', category: '合作', summary: '项目组与银川市博物馆达成合作协议，将在展品数字化、展览策划等方面开展深度合作。', date: '2024-06-15', tags: ['合作', '博物馆'], color: '#E0D0C0' }
 ])
 
 const uniqueNewsCategories = computed(() => [...new Set(newsData.value.map(n => n.category))])
@@ -379,8 +327,8 @@ const showMoreNews = () => {
 const timelineData = ref([
   { phase: '一', period: '1-3 个月', title: '调研建档与数据筹备', tasks: ['非遗资源调研', '数据采集整理', '数据库结构设计', '文献资料收集'], status: '已完成', completion: 100 },
   { phase: '二', period: '4-6 个月', title: 'GIS 平台与网页开发', tasks: ['GIS 数据库构建', 'WebGIS 平台开发', '网页界面设计', '小程序开发'], status: '进行中', completion: 65 },
-  { phase: '三', period: '7-9 个月', title: '内容研发与品牌推广', tasks: ['研学手册编写', '文创产品设计', '品牌宣传推广', '课程内容开发'], status: '待启动', completion: 0 },
-  { phase: '四', period: '10-12 个月', title: '落地运营与模式优化', tasks: ['研学路线落地', '文创产品投产', '运营模式优化', '成果总结推广'], status: '待启动', completion: 0 }
+  { phase: '三', period: '7-9 个月', title: '内容研发与品牌推广', tasks: ['品牌宣传推广', '合作单位对接', '内容审核优化', '应用案例整理'], status: '待启动', completion: 0 },
+  { phase: '四', period: '10-12 个月', title: '落地运营与模式优化', tasks: ['平台运营推广', '合作渠道拓展', '运营模式优化', '成果总结推广'], status: '待启动', completion: 0 }
 ])
 
 const completedPhases = computed(() => timelineData.value.filter(t => t.status === '已完成').length)
@@ -591,49 +539,6 @@ const partnerData = ref({
   background: var(--color-background);
 }
 
-.results-tabs {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.tabs-header {
-  display: flex;
-  gap: var(--spacing-sm);
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: var(--spacing-xl);
-}
-
-.tab-btn {
-  padding: 8px 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  color: var(--color-text);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--color-secondary);
-  }
-  
-  &.active {
-    background: var(--color-secondary);
-    border-color: var(--color-secondary);
-    color: white;
-  }
-}
-
-.tabs-content {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -645,6 +550,7 @@ const partnerData = ref({
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-xl);
   overflow: hidden;
+  cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
@@ -688,10 +594,7 @@ const partnerData = ref({
     
     &.type-database { background: rgba(21, 101, 192, 0.9); }
     &.type-platform { background: rgba(46, 125, 50, 0.9); }
-    &.type-publication { background: rgba(251, 192, 45, 0.9); }
     &.type-report { background: rgba(244, 67, 54, 0.9); }
-    &.type-course { background: rgba(156, 39, 176, 0.9); }
-    &.type-product { background: rgba(233, 30, 99, 0.9); }
   }
   
   .image-overlay {
@@ -745,6 +648,11 @@ const partnerData = ref({
     color: var(--color-secondary-dark);
     border-radius: var(--radius-sm);
     font-size: 12px;
+  }
+
+  .go-tag {
+    font-weight: 600;
+    background: rgba(212, 160, 23, 0.18);
   }
 }
 

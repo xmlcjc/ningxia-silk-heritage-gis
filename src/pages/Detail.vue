@@ -83,30 +83,11 @@
               </div>
             </div>
 
-            <div class="two-column-info">
-              <div class="detail-section card">
-                <h2 class="section-title-inner">保护现状</h2>
-                <p>{{ heritage.protectionStatus }}</p>
-                <div class="status-badge" style="margin-top: var(--spacing-md);">
-                  <el-tag type="success">保护状态良好</el-tag>
-                </div>
-              </div>
-              <div class="detail-section card">
-                <h2 class="section-title-inner">研学价值</h2>
-                <p>{{ heritage.studyValue }}</p>
-                <router-link to="/study" class="btn btn-primary" style="margin-top: var(--spacing-md); display: inline-block;">
-                  查看研学路线
-                </router-link>
-              </div>
-            </div>
-
             <div class="detail-section card">
-              <h2 class="section-title-inner">文创转化方向</h2>
-              <p>{{ heritage.creativeDirection }}</p>
-              <div class="creative-tags" style="margin-top: var(--spacing-md);">
-                <el-tag v-for="tag in heritage.tags" :key="tag" style="margin-right: var(--spacing-xs); margin-bottom: var(--spacing-xs);">
-                  {{ tag }}
-                </el-tag>
+              <h2 class="section-title-inner">保护现状</h2>
+              <p>{{ heritage.protectionStatus }}</p>
+              <div class="status-badge" style="margin-top: var(--spacing-md);">
+                <el-tag type="success">保护状态良好</el-tag>
               </div>
             </div>
           </div>
@@ -171,7 +152,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Location, User, Position, Picture, MapLocation, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { heritageData } from '../data/heritageData'
@@ -216,12 +197,22 @@ const goToDetail = (id) => {
   }
 }
 
-onMounted(() => {
-  const id = parseInt(route.params.id)
+const loadHeritage = (id) => {
   heritage.value = heritageData.find(h => h.id === id)
   if (heritage.value) {
     processSteps.value = heritage.value.process.split('→')
   }
+}
+
+watch(() => route.params.id, (newId) => {
+  loadHeritage(parseInt(newId))
+  nextTick(() => {
+    scrollToTop()
+  })
+})
+
+onMounted(() => {
+  loadHeritage(parseInt(route.params.id))
   nextTick(() => {
     scrollToTop()
   })

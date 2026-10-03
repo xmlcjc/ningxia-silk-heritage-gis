@@ -90,7 +90,7 @@
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">研究方向</h2>
-          <p class="section-subtitle">四大研究领域 · 推动文化科技创新</p>
+          <p class="section-subtitle">三大研究领域 · 推动文化科技创新</p>
         </div>
         
         <div class="research-grid">
@@ -239,8 +239,7 @@ const form = ref({
 const teamSkills = ref([
   { icon: '🗺️', name: 'GIS 技术', desc: '空间数据分析与可视化' },
   { icon: '💻', name: 'Web 开发', desc: '全栈开发与用户体验设计' },
-  { icon: '📚', name: '文化研究', desc: '丝路文化与非遗学术探讨' },
-  { icon: '🎨', name: '文创设计', desc: '文化元素提取与应用转化' }
+  { icon: '📚', name: '文化研究', desc: '丝路文化与非遗学术探讨' }
 ])
 
 // 使命价值观
@@ -284,12 +283,6 @@ const researchAreas = ref([
     title: '乡村振兴', 
     desc: '研究非遗保护与乡村振兴的协同路径，促进地方经济社会发展',
     tags: ['文旅融合', '产业振兴', '社区发展']
-  },
-  { 
-    icon: '🎨', 
-    title: '文创设计', 
-    desc: '提取非遗文化元素，进行文创产品设计，实现非遗的活态传承',
-    tags: ['文化 IP', '产品设计', '品牌塑造']
   }
 ])
 
@@ -502,11 +495,11 @@ const submitForm = () => {
 
 .team-skills {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-lg);
-  
+
   @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
   
   @media (max-width: 576px) {
@@ -656,11 +649,11 @@ const submitForm = () => {
 
 .research-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-xl);
-  
+
   @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
   
   @media (max-width: 576px) {

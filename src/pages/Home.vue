@@ -52,14 +52,6 @@
               <span class="nav-dot"></span>
               数字档案
             </router-link>
-            <router-link to="/study" class="nav-link">
-              <span class="nav-dot"></span>
-              研学课程
-            </router-link>
-            <router-link to="/creative" class="nav-link">
-              <span class="nav-dot"></span>
-              文创展示
-            </router-link>
           </div>
         </div>
       </div>
@@ -230,72 +222,93 @@
       </div>
     </section>
 
-    <!-- ==================== 地图预览 ==================== -->
+    <!-- ==================== GIS平台介绍 ==================== -->
     <section class="section map-preview-section">
       <div class="container">
         <div class="map-preview-wrapper card-silk">
           <div class="map-preview-info">
-            <div class="info-badge">GIS平台</div>
             <h2>宁夏丝路非遗GIS地图</h2>
             <p class="info-desc">
-              交互式地图展示宁夏境内非遗点位分布，支持图层切换、时间轴联动、点位详情查看，
-              呈现丝路非遗的时空分布格局与传播脉络。
+              交互式地图汇聚宁夏境内 20 项代表性非物质文化遗产的空间分布与关联信息。
+              平台以地理坐标为索引，将非遗项目与萧关道、环灵道、长安西域道三条丝路古道叠合呈现，
+              支持图层切换、分类筛选、时间轴联动与点位详情查看，
+              直观展现丝路非遗在宁夏大地上的传播路径、时空分布格局与历史演变脉络。
             </p>
+
+            <div class="info-stats">
+              <div class="info-stat">
+                <strong>20</strong>
+                <span>非遗项目</span>
+              </div>
+              <div class="info-stat">
+                <strong>5</strong>
+                <span>覆盖地市</span>
+              </div>
+              <div class="info-stat">
+                <strong>3</strong>
+                <span>丝路古道</span>
+              </div>
+              <div class="info-stat">
+                <strong>9</strong>
+                <span>遗产类别</span>
+              </div>
+            </div>
+
             <div class="info-features">
               <div class="info-feature">
                 <span class="feature-icon-mini">📍</span>
-                <span>非遗点位标注</span>
+                <div class="feature-text">
+                  <strong>非遗点位标注</strong>
+                  <span>按地理坐标准确定位</span>
+                </div>
               </div>
               <div class="info-feature">
                 <span class="feature-icon-mini">🛤️</span>
-                <span>丝路古道线路</span>
+                <div class="feature-text">
+                  <strong>丝路古道线路</strong>
+                  <span>三条古道叠合呈现</span>
+                </div>
               </div>
               <div class="info-feature">
                 <span class="feature-icon-mini">📊</span>
-                <span>数据统计分析</span>
+                <div class="feature-text">
+                  <strong>数据统计分析</strong>
+                  <span>多维度图表可视化</span>
+                </div>
+              </div>
+              <div class="info-feature">
+                <span class="feature-icon-mini">🔍</span>
+                <div class="feature-text">
+                  <strong>分类筛选检索</strong>
+                  <span>类别地区时期快速定位</span>
+                </div>
+              </div>
+              <div class="info-feature">
+                <span class="feature-icon-mini">⏳</span>
+                <div class="feature-text">
+                  <strong>时间轴联动</strong>
+                  <span>追溯历史传播脉络</span>
+                </div>
+              </div>
+              <div class="info-feature">
+                <span class="feature-icon-mini">📖</span>
+                <div class="feature-text">
+                  <strong>档案详情查看</strong>
+                  <span>一键直达数字档案</span>
+                </div>
               </div>
             </div>
-            <router-link to="/map" class="btn btn-primary">
-              进入地图探索
-              <svg viewBox="0 0 24 24" width="16" height="16">
-                <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-              </svg>
-            </router-link>
-          </div>
-          
-          <div class="map-preview-visual">
-            <div class="visual-container">
-              <!-- 模拟地图 -->
-              <div class="mock-map">
-                <div class="map-base">
-                  <!-- 宁夏轮廓 -->
-                  <svg class="ningxia-outline" viewBox="0 0 200 300">
-                    <path class="outline-path" stroke="#8B4513" stroke-width="2" fill="#F5F0E6"
-                      d="M50,50 L150,50 L180,100 L150,200 L100,250 L50,200 L30,100 Z"/>
-                  </svg>
-                  <!-- 非遗点位 -->
-                  <div class="heritage-point" style="top: 30%; left: 60%">
-                    <span class="point-pulse"></span>
-                    <span class="point-marker">📍</span>
-                  </div>
-                  <div class="heritage-point" style="top: 50%; left: 40%">
-                    <span class="point-pulse"></span>
-                    <span class="point-marker">📍</span>
-                  </div>
-                  <div class="heritage-point" style="top: 70%; left: 55%">
-                    <span class="point-pulse"></span>
-                    <span class="point-marker">📍</span>
-                  </div>
-                  <!-- 丝路线路 -->
-                  <div class="silk-route">
-                    <svg viewBox="0 0 200 300">
-                      <path class="route-line" stroke="#D4A017" stroke-width="3" fill="none"
-                        d="M80,50 Q100,150 120,250" stroke-dasharray="8,4"/>
-                    </svg>
-                  </div>
-                </div>
-                <div class="map-label">宁夏回族自治区</div>
-              </div>
+
+            <div class="info-actions">
+              <router-link to="/map" class="btn btn-primary">
+                进入地图探索
+                <svg viewBox="0 0 24 24" width="16" height="16">
+                  <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                </svg>
+              </router-link>
+              <router-link to="/archive" class="btn btn-outline">
+                浏览数字档案
+              </router-link>
             </div>
           </div>
         </div>
@@ -307,7 +320,7 @@
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">项目成果</h2>
-          <p class="section-subtitle">数字化保护 · 研学教育 · 文创开发</p>
+          <p class="section-subtitle">数字化保护 · 时空展示 · 传承传播</p>
         </div>
         
         <div class="results-grid">
@@ -359,8 +372,6 @@ const stats = ref([
   { value: '20+', label: '已建档非遗项目', type: 'gold', percent: 80 },
   { value: '5', label: '覆盖地市', type: 'gold', percent: 100 },
   { value: '6', label: '遗产类别', type: 'green', percent: 60 },
-  { value: '3', label: '研学路线', type: 'green', percent: 40 },
-  { value: '12', label: '文创产品', type: 'accent', percent: 50 },
   { value: '15+', label: '传承人故事', type: 'accent', percent: 70 }
 ])
 
@@ -385,18 +396,6 @@ const features = ref([
     link: '/archive'
   },
   { 
-    icon: '🎓', 
-    title: '研学课程', 
-    description: '设计丝路非遗研学路线与课程内容，推动教育传播',
-    link: '/study'
-  },
-  { 
-    icon: '🎨', 
-    title: '文创展示', 
-    description: '非遗元素提取与文创产品设计转化，推动产业开发',
-    link: '/creative'
-  },
-  { 
     icon: '🛡️', 
     title: '保护与振兴策略', 
     description: '基于GIS分析提出分级保护与乡村振兴协同建议',
@@ -418,7 +417,7 @@ const innovations = ref([
   },
   {
     title: '全链条保护路径',
-    description: '构建"保护—展示—教育—文创—传播"的完整保护传播链条',
+    description: '构建"保护—展示—研究—传播"的完整保护传播链条',
     tags: ['全链条', '保护', '传播']
   }
 ])
@@ -445,7 +444,7 @@ const timeline = ref([
     phase: '三',
     period: '7-9个月',
     title: '内容研发与品牌推广',
-    tasks: ['研学手册编写', '文创产品设计', '品牌宣传推广', '课程内容开发'],
+    tasks: ['品牌宣传推广', '合作单位对接', '内容审核优化', '应用案例整理'],
     status: 'pending',
     statusText: '待启动'
   },
@@ -453,14 +452,14 @@ const timeline = ref([
     phase: '四',
     period: '10-12个月',
     title: '落地运营与模式优化',
-    tasks: ['研学路线落地', '文创产品投产', '运营模式优化', '成果总结推广'],
+    tasks: ['平台运营推广', '合作渠道拓展', '运营模式优化', '成果总结推广'],
     status: 'pending',
     statusText: '待启动'
   }
 ])
 
 const currentPhase = ref(1)
-const timelineProgress = ref(25)
+const timelineProgress = ref(41)
 
 // 项目成果
 const results = ref([
@@ -479,32 +478,11 @@ const results = ref([
     description: '支持交互式地图探索与数据分析'
   },
   {
-    icon: '📖',
-    type: 'publication',
-    typeLabel: '出版物',
-    title: '研学手册',
-    description: '3条主题研学路线与课程内容'
-  },
-  {
     icon: '📄',
     type: 'report',
     typeLabel: '报告',
     title: '数字化保护白皮书',
     description: '非遗保护策略与建议报告'
-  },
-  {
-    icon: '🎬',
-    type: 'course',
-    typeLabel: '课程',
-    title: '非遗研学课程',
-    description: '面向青少年与公众的教育课程'
-  },
-  {
-    icon: '🎁',
-    type: 'product',
-    typeLabel: '文创',
-    title: '文创产品系列',
-    description: '融合丝路元素的文创设计'
   }
 ])
 </script>
@@ -888,13 +866,13 @@ const results = ref([
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-lg);
   position: relative;
   z-index: 1;
   
   @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
   
   @media (max-width: 768px) {
@@ -960,7 +938,7 @@ const results = ref([
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-xl);
   
   @media (max-width: 1024px) {
@@ -1318,154 +1296,138 @@ const results = ref([
 }
 
 .map-preview-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
-  
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .map-preview-info {
   padding: var(--spacing-2xl);
   display: flex;
   flex-direction: column;
-  
-  .info-badge {
-    display: inline-block;
-    background: var(--color-secondary);
-    color: white;
-    padding: 4px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: var(--spacing-md);
-  }
-  
+
   h2 {
-    font-size: 2rem;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: var(--color-primary);
     margin-bottom: var(--spacing-lg);
   }
   
   .info-desc {
     color: var(--color-text-light);
-    line-height: 1.8;
+    line-height: 2;
+    font-size: 1.05rem;
     margin-bottom: var(--spacing-xl);
   }
 }
 
-.info-features {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+// 数据概览条
+.info-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 0;
   margin-bottom: var(--spacing-xl);
-  
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+
+  .info-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    strong {
+      font-size: 2rem;
+      line-height: 1.1;
+      color: var(--color-secondary);
+      font-family: var(--font-title);
+    }
+
+    span {
+      font-size: 0.9rem;
+      color: var(--color-text-light);
+    }
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// 功能特性网格
+.info-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+
   .info-feature {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
-    color: var(--color-text);
-    
+    padding: var(--spacing-md);
+    background: var(--color-background);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: var(--color-secondary);
+      transform: translateY(-2px);
+    }
+
     .feature-icon-mini {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+
+      strong {
+        font-size: 0.95rem;
+        color: var(--color-primary);
+      }
+
+      span {
+        font-size: 0.8rem;
+        color: var(--color-text-light);
+      }
     }
   }
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.map-preview-visual {
-  background: linear-gradient(135deg, #E8DCC8, #D4C4AD);
-  min-height: 400px;
+// 操作按钮
+.info-actions {
   display: flex;
-  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
   justify-content: center;
-  
-  @media (max-width: 1024px) {
-    order: -1;
-    min-height: 300px;
+}
+
+.btn-outline {
+  border: 2px solid var(--color-secondary);
+  color: var(--color-secondary);
+
+  &:hover {
+    background: rgba(212, 160, 23, 0.1);
+    border-color: var(--color-secondary-dark);
+    color: var(--color-secondary-dark);
+    transform: translateY(-2px);
   }
-}
-
-.visual-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-}
-
-.mock-map {
-  position: relative;
-  width: 280px;
-  height: 400px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.map-base {
-  position: absolute;
-  inset: 0;
-  
-  .ningxia-outline {
-    width: 100%;
-    height: 100%;
-    
-    .outline-path {
-      fill: rgba(245, 240, 230, 0.8);
-      stroke: var(--color-primary);
-      stroke-width: 2;
-    }
-  }
-}
-
-.heritage-point {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  .point-pulse {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background: rgba(212, 160, 23, 0.3);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  
-  .point-marker {
-    font-size: 1.2rem;
-    position: relative;
-    z-index: 1;
-  }
-}
-
-.silk-route {
-  position: absolute;
-  inset: 0;
-  
-  .route-line {
-    stroke-dasharray: 8, 4;
-    animation: waveFlow 10s linear infinite;
-  }
-}
-
-.map-label {
-  position: absolute;
-  bottom: var(--spacing-lg);
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(139, 69, 19, 0.8);
-  color: white;
-  padding: 4px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  white-space: nowrap;
 }
 
 // ============================================

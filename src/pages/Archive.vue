@@ -114,38 +114,16 @@
             </h3>
             <p class="results-desc">涵盖传统技艺、民间文学、传统音乐等多个领域</p>
           </div>
-          
-          <div class="view-toggle">
-            <button 
-              class="view-btn active" 
-              :class="{ 'active': viewMode === 'grid' }"
-              @click="viewMode = 'grid'"
-            >
-              📋 网格视图
-            </button>
-            <button 
-              class="view-btn"
-              :class="{ 'active': viewMode === 'list' }"
-              @click="viewMode = 'list'"
-            >
-              📄 列表视图
-            </button>
-          </div>
         </div>
 
         <!-- 档案结果 -->
-        <div 
-          class="archive-results"
-          :class="'view-' + viewMode"
-        >
-          <!-- 网格视图 -->
-          <div v-if="viewMode === 'grid'" class="archive-grid">
-            <div 
-              class="heritage-card" 
-              v-for="item in paginatedData" 
-              :key="item.id"
-              @click="goToDetail(item.id)"
-            >
+        <div class="archive-grid">
+          <div
+            class="heritage-card"
+            v-for="item in paginatedData"
+            :key="item.id"
+            @click="goToDetail(item.id)"
+          >
               <div class="card-image-wrapper">
                 <div class="image-placeholder" :style="{ backgroundColor: item.color || '#F5F0E6' }">
                   <span class="placeholder-char">{{ item.name.charAt(0) }}</span>
@@ -179,42 +157,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- 列表视图 -->
-          <div v-else class="archive-list">
-            <div 
-              class="heritage-list-item" 
-              v-for="item in paginatedData" 
-              :key="item.id"
-              @click="goToDetail(item.id)"
-            >
-              <div class="list-image">
-                <div class="image-placeholder-sm">
-                  <span class="placeholder-char-sm">{{ item.name.charAt(0) }}</span>
-                </div>
-              </div>
-              
-              <div class="list-content">
-                <div class="list-header">
-                  <h3 class="list-title">{{ item.name }}</h3>
-                  <span class="list-badge">{{ item.level }}</span>
-                </div>
-                
-                <p class="list-desc">{{ item.intro }}</p>
-                
-                <div class="list-meta">
-                  <span class="list-tag">{{ item.category }}</span>
-                  <span class="list-tag">{{ item.city }}</span>
-                  <span class="list-tag">{{ item.period }}</span>
-                </div>
-              </div>
-              
-              <div class="list-action">
-                <span class="action-arrow">→</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- 分页 -->
@@ -254,9 +196,8 @@ const filterCategory = ref('')
 const filterCity = ref('')
 const filterPeriod = ref('')
 const sortBy = ref('new')
-const currentPage = ref(1)
 const pageSize = ref(12)
-const viewMode = ref('grid')
+const currentPage = ref(1)
 
 // 筛选和排序
 const filteredData = computed(() => {
@@ -563,51 +504,14 @@ const goToDetail = (id) => {
   }
 }
 
-.view-toggle {
-  display: flex;
-  gap: var(--spacing-sm);
-  
-  .view-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text-light);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    
-    &:hover {
-      border-color: var(--color-secondary);
-    }
-    
-    &.active {
-      background: var(--color-secondary);
-      border-color: var(--color-secondary);
-      color: white;
-    }
-  }
-}
-
 // ============================================
 // 档案网格视图
 // ============================================
 
-.archive-results {
-  &.view-grid .archive-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-xl);
-  }
-  
-  &.view-list .archive-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
-  }
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
 }
 
 .heritage-card {
@@ -758,125 +662,6 @@ const goToDetail = (id) => {
     .meta-icon {
       font-size: 14px;
     }
-  }
-}
-
-// ============================================
-// 列表视图
-// ============================================
-
-.heritage-list-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: var(--color-secondary);
-    box-shadow: var(--shadow-md);
-    
-    .action-arrow {
-      transform: translateX(4px);
-      color: var(--color-secondary);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-.list-image {
-  flex-shrink: 0;
-  
-  .image-placeholder-sm {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #E8DCC8, #D4C4AD);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .placeholder-char-sm {
-    font-size: 2rem;
-    font-weight: 700;
-    color: rgba(139, 69, 19, 0.3);
-  }
-}
-
-.list-content {
-  flex: 1;
-}
-
-.list-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-.list-title {
-  font-size: 1.1rem;
-  color: var(--color-primary);
-  margin: 0;
-}
-
-.list-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  background: rgba(212, 160, 23, 0.15);
-  color: var(--color-secondary-dark);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.list-desc {
-  font-size: 0.9rem;
-  color: var(--color-text-light);
-  line-height: 1.6;
-  margin: 0 0 var(--spacing-sm) 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.list-meta {
-  display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  
-  .list-tag {
-    display: inline-block;
-    padding: 2px 8px;
-    background: rgba(139, 69, 19, 0.08);
-    color: var(--color-text-muted);
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-  }
-}
-
-.list-action {
-  flex-shrink: 0;
-  
-  .action-arrow {
-    font-size: 1.5rem;
-    color: var(--color-text-light);
-    transition: all 0.3s ease;
   }
 }
 

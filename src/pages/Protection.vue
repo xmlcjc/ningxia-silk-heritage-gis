@@ -74,16 +74,6 @@
         </div>
         <div class="combine-grid">
           <div class="combine-card card">
-            <div class="combine-icon">🎓</div>
-            <h3>非遗+研学</h3>
-            <p>开发非遗研学课程和路线，让学生在实践中了解和学习非遗，促进非遗传承</p>
-            <div class="combine-tags">
-              <span>研学旅行</span>
-              <span>教育传承</span>
-              <span>实践体验</span>
-            </div>
-          </div>
-          <div class="combine-card card">
             <div class="combine-icon">🧳</div>
             <h3>非遗+旅游</h3>
             <p>将非遗元素融入旅游产品，打造非遗体验旅游，增加游客参与感，带动地方经济</p>
@@ -91,16 +81,6 @@
               <span>文旅融合</span>
               <span>体验旅游</span>
               <span>经济发展</span>
-            </div>
-          </div>
-          <div class="combine-card card">
-            <div class="combine-icon">🎨</div>
-            <h3>非遗+文创</h3>
-            <p>提取非遗文化元素，设计开发文创产品，让非遗走进现代生活，实现活态传承</p>
-            <div class="combine-tags">
-              <span>创意设计</span>
-              <span>产品开发</span>
-              <span>品牌打造</span>
             </div>
           </div>
           <div class="combine-card card">

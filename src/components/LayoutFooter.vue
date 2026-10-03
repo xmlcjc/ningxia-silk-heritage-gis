@@ -58,12 +58,6 @@
                     数字档案
                   </router-link>
                 </li>
-                <li>
-                  <router-link to="/study">
-                    <span class="link-dot"></span>
-                    研学课程
-                  </router-link>
-                </li>
               </ul>
             </div>
             
@@ -83,12 +77,6 @@
                   <router-link to="/protection">
                     <span class="link-dot"></span>
                     保护路径
-                  </router-link>
-                </li>
-                <li>
-                  <router-link to="/creative">
-                    <span class="link-dot"></span>
-                    文创展示
                   </router-link>
                 </li>
                 <li>
@@ -134,41 +122,9 @@
             </div>
           </div>
         </div>
-        
-        <!-- 特色展示条 -->
-        <div class="footer-features">
-          <div class="feature-item">
-            <span class="feature-icon">🗺️</span>
-            <div class="feature-content">
-              <span class="feature-title">GIS可视化</span>
-              <span class="feature-desc">交互式地图展示</span>
-            </div>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">⏳</span>
-            <div class="feature-content">
-              <span class="feature-title">时空演变</span>
-              <span class="feature-desc">历史脉络追溯</span>
-            </div>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">🎓</span>
-            <div class="feature-content">
-              <span class="feature-title">研学教育</span>
-              <span class="feature-desc">非遗文化传承</span>
-            </div>
-          </div>
-          <div class="feature-item">
-            <span class="feature-icon">🎨</span>
-            <div class="feature-content">
-              <span class="feature-title">文创开发</span>
-              <span class="feature-desc">文化价值转化</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-    
+
     <!-- 底部版权区 -->
     <div class="footer-bottom">
       <div class="container">
@@ -421,68 +377,6 @@
     background: rgba(212, 160, 23, 0.15);
     border-radius: var(--radius-sm);
     color: var(--color-secondary);
-  }
-}
-
-// ============================================
-// 特色展示条
-// ============================================
-
-.footer-features {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl);
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-md);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(212, 160, 23, 0.1);
-    transform: translateY(-2px);
-    
-    .feature-icon {
-      transform: scale(1.1);
-    }
-  }
-  
-  .feature-icon {
-    font-size: 1.8rem;
-    transition: transform 0.3s ease;
-  }
-  
-  .feature-content {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .feature-title {
-    color: white;
-    font-size: 0.95rem;
-    font-weight: 500;
-  }
-  
-  .feature-desc {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.8rem;
   }
 }
 

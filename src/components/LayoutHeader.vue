@@ -5,8 +5,9 @@
       <div class="top-pattern"></div>
     </div>
     
-    <div class="container">
-      <div class="header-content">
+    <div class="header-bar">
+      <div class="container">
+        <div class="header-content">
         <!-- Logo区域 -->
         <router-link to="/" class="logo">
           <div class="logo-wrapper">
@@ -60,6 +61,7 @@
             </span>
           </button>
         </div>
+        </div>
       </div>
     </div>
     
@@ -79,8 +81,6 @@ const navItems = [
   { path: '/project', name: '项目概况' },
   { path: '/map', name: 'GIS地图' },
   { path: '/archive', name: '数字档案' },
-  { path: '/study', name: '研学课程' },
-  { path: '/creative', name: '文创展示' },
   { path: '/results', name: '项目成果' },
   { path: '/about', name: '关于我们' }
 ]
@@ -148,12 +148,8 @@ onUnmounted(() => {
   100% { transform: translateX(0); }
 }
 
-// 头部主体
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md) 0;
+// 头部全宽背景条
+.header-bar {
   background: linear-gradient(
     135deg,
     rgba(93, 58, 26, 0.98) 0%,
@@ -161,7 +157,7 @@ onUnmounted(() => {
     rgba(160, 82, 45, 0.98) 100%
   );
   position: relative;
-  
+
   // 丝绸纹理背景
   &::before {
     content: '';
@@ -170,6 +166,15 @@ onUnmounted(() => {
     background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D4A017' fill-opacity='0.05'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z'/%3E%3C/g%3E%3C/svg%3E");
     pointer-events: none;
   }
+}
+
+// 头部主体
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) 0;
+  position: relative;
 }
 
 // 底部装饰线
@@ -185,9 +190,12 @@ onUnmounted(() => {
 
 // 滚动效果
 .header-scrolled {
+  .header-bar {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
   .header-content {
     padding: var(--spacing-sm) 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 }
 
