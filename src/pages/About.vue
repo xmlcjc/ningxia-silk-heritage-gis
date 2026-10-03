@@ -48,7 +48,7 @@
             
             <div class="team-skills">
               <div class="skill-item" v-for="(skill, index) in teamSkills" :key="index">
-                <div class="skill-icon">{{ skill.icon }}</div>
+                <div class="skill-icon"><Icon :icon="'gis:' + skill.icon" /></div>
                 <div class="skill-info">
                   <h4>{{ skill.name }}</h4>
                   <p>{{ skill.desc }}</p>
@@ -66,13 +66,13 @@
       <div class="container">
         <div class="section-header light">
           <h2 class="section-title">项目使命</h2>
-          <p class="section-subtitle">让非遗在数字地图上"看得见、查得到、讲得清、传得开"</p>
+          <p class="section-subtitle">让非遗在数字地图上“看得见、查得到、讲得清、传得开”</p>
         </div>
         
         <div class="mission-values">
           <div class="value-card" v-for="(value, index) in missionValues" :key="index">
             <div class="value-visual">
-              <span class="value-icon">{{ value.icon }}</span>
+              <Icon class="value-icon" :icon="'gis:' + value.icon" />
               <div class="value-bg"></div>
             </div>
             <div class="value-content">
@@ -97,7 +97,7 @@
           <div class="research-card" v-for="(area, index) in researchAreas" :key="index"
                :style="{ animationDelay: (index * 0.1) + 's' }">
             <div class="card-number">{{ index + 1 }}</div>
-            <div class="card-icon">{{ area.icon }}</div>
+            <Icon class="card-icon" :icon="'gis:' + area.icon" />
             <h3>{{ area.title }}</h3>
             <p>{{ area.desc }}</p>
             <ul class="research-tags">
@@ -122,7 +122,7 @@
             <div class="contact-cards">
               <div class="contact-card" v-for="(item, index) in contactItems" :key="index">
                 <div class="contact-icon-wrapper">
-                  <span class="contact-icon">{{ item.icon }}</span>
+                  <Icon class="contact-icon" :icon="'gis:' + item.icon" />
                   <div class="icon-bg"></div>
                 </div>
                 <div class="contact-text">
@@ -193,7 +193,7 @@
           <div class="partner-card" v-for="(partner, index) in partners" :key="index">
             <div class="partner-logo-wrapper">
               <div class="partner-placeholder">
-                <span class="placeholder-icon">🏛️</span>
+                <Icon class="placeholder-icon" icon="gis:pyramid" />
               </div>
             </div>
             <h4>{{ partner.name }}</h4>
@@ -212,10 +212,10 @@
           <p>无论你是研究者、开发者还是文化爱好者，这里都有你发挥作用的空间</p>
           <div class="cta-buttons">
             <a href="mailto:contact@silkheritage-nx.cn" class="btn-primary">
-              <span>📧</span> 联系我们
+              <Icon icon="gis:map-send" width="16" height="16" /> 联系我们
             </a>
             <router-link to="/project" class="btn-ghost">
-              <span>📖</span> 了解项目
+              <Icon icon="gis:map-book" width="16" height="16" /> 了解项目
             </router-link>
           </div>
         </div>
@@ -226,6 +226,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Icon } from '@iconify/vue'
 import { ElMessage } from 'element-plus'
 
 const form = ref({
@@ -237,28 +238,28 @@ const form = ref({
 
 // 团队技能
 const teamSkills = ref([
-  { icon: '🗺️', name: 'GIS 技术', desc: '空间数据分析与可视化' },
-  { icon: '💻', name: 'Web 开发', desc: '全栈开发与用户体验设计' },
-  { icon: '📚', name: '文化研究', desc: '丝路文化与非遗学术探讨' }
+  { icon: 'map', name: 'GIS 技术', desc: '空间数据分析与可视化' },
+  { icon: 'globe-gear', name: 'Web 开发', desc: '全栈开发与用户体验设计' },
+  { icon: 'map-book', name: '文化研究', desc: '丝路文化与非遗学术探讨' }
 ])
 
 // 使命价值观
 const missionValues = ref([
-  { 
-    icon: '🛡️', 
-    title: '保护传承', 
+  {
+    icon: 'globe-shield',
+    title: '保护传承',
     desc: '建立完整的非遗数字档案，确保珍贵文化遗产永久保存',
     quote: '守护每一份珍贵的文化记忆'
   },
-  { 
-    icon: '⚡', 
-    title: '创新驱动', 
+  {
+    icon: 'location-arrow',
+    title: '创新驱动',
     desc: '运用现代技术手段，为传统非遗注入新活力',
     quote: '用科技点亮传统文化'
   },
-  { 
-    icon: '🤝', 
-    title: '开放合作', 
+  {
+    icon: 'globe-share',
+    title: '开放合作',
     desc: '汇聚各方力量，共建共享非遗保护成果',
     quote: '凝聚合力，共创未来'
   }
@@ -266,21 +267,21 @@ const missionValues = ref([
 
 // 研究方向
 const researchAreas = ref([
-  { 
-    icon: '🗺️', 
-    title: 'GIS 与文化遗产', 
+  {
+    icon: 'map',
+    title: 'GIS 与文化遗产',
     desc: '运用地理信息系统技术，研究文化遗产的空间分布特征与演变规律',
     tags: ['空间分析', '遗产地图', '时空演变']
   },
-  { 
-    icon: '🌐', 
-    title: '数字人文', 
+  {
+    icon: 'globe',
+    title: '数字人文',
     desc: '探索数字化技术在人文研究中的应用，推动人文研究的创新发展',
     tags: ['数字方法', '文本挖掘', '数据可视化']
   },
-  { 
-    icon: '🌱', 
-    title: '乡村振兴', 
+  {
+    icon: 'poi-home',
+    title: '乡村振兴',
     desc: '研究非遗保护与乡村振兴的协同路径，促进地方经济社会发展',
     tags: ['文旅融合', '产业振兴', '社区发展']
   }
@@ -288,9 +289,9 @@ const researchAreas = ref([
 
 // 联系方式
 const contactItems = ref([
-  { icon: '📍', label: '地址', value: '宁夏银川市西夏区文萃北街' },
-  { icon: '📧', label: '邮箱', value: 'contact@silkheritage-nx.cn' },
-  { icon: '📞', label: '电话', value: '0951-12345678' }
+  { icon: 'poi', label: '地址', value: '宁夏银川市西夏区文萃北街' },
+  { icon: 'map-send', label: '邮箱', value: 'contact@silkheritage-nx.cn' },
+  { icon: 'phone-map', label: '电话', value: '0951-12345678' }
 ])
 
 // 合作单位
@@ -516,8 +517,8 @@ const submitForm = () => {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  transition: all 0.3s ease;
-  
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-md);
@@ -584,8 +585,11 @@ const submitForm = () => {
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   text-align: center;
-  transition: all 0.3s ease;
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -619,7 +623,7 @@ const submitForm = () => {
   background: radial-gradient(circle, var(--color-secondary), transparent);
   border-radius: 50%;
   opacity: 0.1;
-  transition: all 0.3s ease;
+  transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
 }
 
 .value-content h3 {
@@ -668,8 +672,11 @@ const submitForm = () => {
   padding: var(--spacing-2xl);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -695,7 +702,7 @@ const submitForm = () => {
   justify-content: center;
   font-weight: 700;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s var(--ease-out);
 }
 
 .card-icon {
@@ -773,8 +780,8 @@ const submitForm = () => {
   background: var(--color-background);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  transition: all 0.3s ease;
-  
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-md);
@@ -867,8 +874,8 @@ const submitForm = () => {
       border-radius: var(--radius-md);
       font-size: 14px;
       color: var(--color-text);
-      transition: all 0.3s ease;
-      
+      transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
       &:focus {
         outline: none;
         border-color: var(--color-secondary);
@@ -891,13 +898,15 @@ const submitForm = () => {
   width: 100%;
   padding: 14px 24px;
   background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
-  color: white;
+  color: var(--color-gold-ink);
   border: none;
   border-radius: var(--radius-full);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
   
   &:hover {
     transform: translateY(-2px);
@@ -910,7 +919,7 @@ const submitForm = () => {
   
   .btn-arrow {
     font-size: 1.2rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s var(--ease-out);
   }
 }
 
@@ -958,8 +967,8 @@ const submitForm = () => {
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   text-align: center;
-  transition: all 0.3s ease;
-  
+  transition: background-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+
   &:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-4px);
@@ -1044,14 +1053,18 @@ const submitForm = () => {
   font-size: 15px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
 }
 
 .btn-primary {
   background: var(--color-secondary);
-  color: white;
+  color: var(--color-gold-ink);
   border: none;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);

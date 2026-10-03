@@ -11,7 +11,7 @@
         <!-- Logo区域 -->
         <router-link to="/" class="logo">
           <div class="logo-wrapper">
-            <span class="logo-icon">🏜️</span>
+            <Icon class="logo-icon" icon="gis:compass-rose" />
             <div class="logo-text-group">
               <span class="logo-text">宁夏丝路非遗地理志</span>
               <span class="logo-sub">Ningxia Silk Road Heritage GIS</span>
@@ -46,9 +46,7 @@
         <!-- 右侧工具栏 -->
         <div class="header-actions">
           <router-link to="/map" class="action-btn action-primary">
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
+            <Icon icon="gis:poi" width="18" height="18" />
             <span>进入地图</span>
           </router-link>
           
@@ -72,6 +70,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { Icon } from '@iconify/vue'
 
 const isNavOpen = ref(false)
 const isScrolled = ref(false)
@@ -116,7 +115,7 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
 }
 
 // 顶部装饰条
@@ -214,8 +213,8 @@ onUnmounted(() => {
     gap: var(--spacing-md);
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-lg);
-    transition: all 0.3s ease;
-    
+    transition: background-color 0.3s var(--ease-out);
+
     &:hover {
       background: rgba(212, 160, 23, 0.1);
     }
@@ -224,7 +223,7 @@ onUnmounted(() => {
   .logo-icon {
     font-size: 2rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    transition: transform 0.3s ease;
+    transition: transform 0.3s var(--ease-out);
   }
   
   &:hover .logo-icon {
@@ -298,7 +297,7 @@ onUnmounted(() => {
   font-weight: 500;
   text-decoration: none;
   border-radius: var(--radius-full);
-  transition: all 0.3s ease;
+  transition: color 0.3s var(--ease-out), background-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
   white-space: nowrap;
   
   .nav-text {
@@ -315,7 +314,7 @@ onUnmounted(() => {
     height: 3px;
     background: var(--color-secondary);
     border-radius: var(--radius-full);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s var(--ease-out);
   }
   
   &:hover {
@@ -369,8 +368,12 @@ onUnmounted(() => {
   font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.3s ease;
-  
+  transition:
+    color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+
   svg {
     flex-shrink: 0;
   }
@@ -378,13 +381,13 @@ onUnmounted(() => {
 
 .action-primary {
   background: linear-gradient(135deg, var(--color-secondary), rgba(212, 160, 23, 0.9));
-  color: white;
+  color: var(--color-gold-ink);
   box-shadow: 0 2px 8px rgba(212, 160, 23, 0.3);
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(212, 160, 23, 0.4);
-    color: white;
+    color: var(--color-gold-ink);
   }
   
   @media (max-width: 1024px) {
@@ -422,8 +425,8 @@ onUnmounted(() => {
       height: 2px;
       background: white;
       border-radius: 2px;
-      transition: all 0.3s ease;
-      
+      transition: width 0.3s var(--ease-out), transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
+
       &:nth-child(1) {
         width: 100%;
       }
@@ -495,7 +498,7 @@ onUnmounted(() => {
     background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s var(--ease-out), visibility 0.3s var(--ease-out);
     
     &.nav-open {
       opacity: 1;
@@ -521,7 +524,7 @@ onUnmounted(() => {
       );
       padding: 80px var(--spacing-lg) var(--spacing-lg);
       transform: translateX(100%);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s var(--ease-out);
       border-radius: 0;
       gap: 4px;
       overflow-y: auto;
@@ -561,7 +564,7 @@ onUnmounted(() => {
     border-radius: var(--radius-full);
     cursor: pointer;
     z-index: 1001;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s var(--ease-out);
     
     &:hover {
       background: rgba(255, 255, 255, 0.2);

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <footer class="layout-footer">
     <!-- 顶部装饰波浪 -->
     <div class="footer-wave">
@@ -14,7 +14,7 @@
           <!-- 品牌区域 -->
           <div class="footer-brand">
             <div class="brand-logo">
-              <span class="logo-icon">🏜️</span>
+              <Icon class="logo-icon" icon="gis:compass-rose" />
               <div class="logo-text">
                 <h3>宁夏丝路非遗地理志</h3>
                 <span class="logo-sub">Ningxia Silk Road Heritage GIS</span>
@@ -36,7 +36,7 @@
           <div class="footer-nav">
             <div class="nav-group">
               <h4 class="nav-title">
-                <span class="title-icon">📍</span>
+                <Icon class="title-icon" icon="gis:poi" />
                 快速导航
               </h4>
               <ul class="nav-list">
@@ -63,7 +63,7 @@
             
             <div class="nav-group">
               <h4 class="nav-title">
-                <span class="title-icon">📚</span>
+                <Icon class="title-icon" icon="gis:map-book" />
                 研究内容
               </h4>
               <ul class="nav-list">
@@ -90,31 +90,25 @@
             
             <div class="nav-group">
               <h4 class="nav-title">
-                <span class="title-icon">📞</span>
+                <Icon class="title-icon" icon="gis:phone-map" />
                 联系我们
               </h4>
               <ul class="nav-list contact-list">
                 <li>
                   <span class="contact-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                      <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
+                    <Icon icon="gis:poi" width="18" height="18" />
                   </span>
                   <span>宁夏银川市西夏区</span>
                 </li>
                 <li>
                   <span class="contact-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                      <path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                    </svg>
+                    <Icon icon="gis:map-send" width="18" height="18" />
                   </span>
                   <span>contact@silkheritage-nx.cn</span>
                 </li>
                 <li>
                   <span class="contact-icon">
-                    <svg viewBox="0 0 24 24" width="18" height="18">
-                      <path fill="currentColor" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
+                    <Icon icon="gis:phone-map" width="18" height="18" />
                   </span>
                   <span>0951-12345678</span>
                 </li>
@@ -141,8 +135,14 @@
           
           <div class="copyright">
             <p class="copyright-text">© 2024 宁夏丝路非遗地理志 · 保留所有权利</p>
+            <p class="icon-credit">
+              地图图标
+              <a href="https://github.com/viglino/font-gis" target="_blank" rel="noopener">Font-GIS</a>
+              by Jean-Marc Viglino ·
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+            </p>
             <p class="project-note">
-              <span class="note-icon">📚</span>
+              <Icon class="note-icon" icon="gis:map-book" />
               大学生创新创业训练计划项目
             </p>
           </div>
@@ -156,7 +156,7 @@
 </template>
 
 <script setup>
-// 无需额外脚本
+import { Icon } from '@iconify/vue'
 </script>
 
 <style lang="scss" scoped>
@@ -263,8 +263,8 @@
     border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 500;
-    transition: all 0.3s ease;
-    
+    transition: transform 0.3s var(--ease-out);
+
     &:hover {
       transform: translateY(-2px);
     }
@@ -336,14 +336,14 @@
     text-decoration: none;
     font-size: 0.95rem;
     padding: 6px 0;
-    transition: all 0.3s ease;
-    
+    transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+
     .link-dot {
       width: 6px;
       height: 6px;
       background: transparent;
       border-radius: 50%;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s var(--ease-out);
     }
     
     &:hover {
@@ -409,13 +409,23 @@
   gap: var(--spacing-sm);
   
   .link-item {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 12px;
     color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
-    
+    transition: color var(--duration-fast) var(--ease-out);
+
     &:hover {
       color: var(--color-secondary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
     }
   }
   
@@ -433,9 +443,25 @@
   }
   
   .copyright-text {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 250, 0.6);
     font-size: 0.9rem;
     margin-bottom: 4px;
+  }
+
+  .icon-credit {
+    margin: 0 0 4px;
+    color: rgba(255, 255, 250, 0.5);
+    font-size: 0.78rem;
+
+    a {
+      color: rgba(212, 175, 55, 0.85);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-secondary);
+        text-decoration: underline;
+      }
+    }
   }
   
   .project-note {

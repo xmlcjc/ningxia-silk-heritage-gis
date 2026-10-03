@@ -55,7 +55,7 @@
           
           <div class="intro-points">
             <div class="point-card" v-for="(point, index) in introPoints" :key="index">
-              <div class="point-icon">{{ point.icon }}</div>
+              <Icon class="point-icon" :icon="'gis:' + point.icon" />
               <div class="point-content">
                 <h4>{{ point.title }}</h4>
                 <p>{{ point.desc }}</p>
@@ -84,7 +84,7 @@
               :class="{ 'active': activeBasisTab === tab.key }"
               @click="activeBasisTab = tab.key"
             >
-              <span class="tab-icon">{{ tab.icon }}</span>
+              <Icon class="tab-icon" :icon="'gis:' + tab.icon" />
               <span class="tab-label">{{ tab.label }}</span>
             </button>
           </div>
@@ -95,7 +95,7 @@
               <div class="panel-grid">
                 <div class="panel-card">
                   <div class="card-header">
-                    <span class="header-icon">🎯</span>
+                    <Icon class="header-icon" icon="gis:location-arrow" />
                     <h3>研究目的</h3>
                   </div>
                   <ul class="card-list">
@@ -120,26 +120,26 @@
                 
                 <div class="panel-card">
                   <div class="card-header">
-                    <span class="header-icon">💡</span>
+                    <Icon class="header-icon" icon="gis:poi-info" />
                     <h3>研究意义</h3>
                   </div>
                   <div class="meaning-grid">
                     <div class="meaning-item">
-                      <div class="meaning-icon">📚</div>
+                      <Icon class="meaning-icon" icon="gis:map-book" />
                       <div class="meaning-content">
                         <h4>学术意义</h4>
                         <p>拓展GIS技术在文化遗产保护领域的应用，丰富数字人文研究方法</p>
                       </div>
                     </div>
                     <div class="meaning-item">
-                      <div class="meaning-icon">🛠️</div>
+                      <Icon class="meaning-icon" icon="gis:map-options" />
                       <div class="meaning-content">
                         <h4>实践意义</h4>
                         <p>为宁夏非遗保护提供技术平台，服务地方文化建设与经济发展</p>
                       </div>
                     </div>
                     <div class="meaning-item">
-                      <div class="meaning-icon">🌐</div>
+                      <Icon class="meaning-icon" icon="gis:globe" />
                       <div class="meaning-content">
                         <h4>社会意义</h4>
                         <p>提升公众对丝路非遗的认知，促进文化传承与传播</p>
@@ -155,7 +155,7 @@
               <div class="status-grid">
                 <div class="status-card">
                   <div class="status-header">
-                    <span class="status-flag">🌍</span>
+                    <Icon class="status-flag" icon="gis:earth" />
                     <h3>国外研究现状</h3>
                   </div>
                   <p>
@@ -172,7 +172,7 @@
                 
                 <div class="status-card">
                   <div class="status-header">
-                    <span class="status-flag">🇨🇳</span>
+                    <Icon class="status-flag" icon="gis:earth-asia" />
                     <h3>国内研究现状</h3>
                   </div>
                   <p>
@@ -194,7 +194,7 @@
               <div class="prep-grid">
                 <div class="prep-card" v-for="(prep, index) in preparations" :key="index">
                   <div class="prep-icon-wrapper">
-                    <span class="prep-icon">{{ prep.icon }}</span>
+                    <Icon class="prep-icon" :icon="'gis:' + prep.icon" />
                     <div class="prep-icon-bg"></div>
                   </div>
                   <h4>{{ prep.title }}</h4>
@@ -286,7 +286,7 @@
         <div class="innovation-showcase">
           <div class="innovation-card" v-for="(item, index) in innovations" :key="index">
             <div class="innovation-visual">
-              <span class="visual-icon">{{ item.icon }}</span>
+              <Icon class="visual-icon" :icon="'gis:' + item.icon" />
               <div class="visual-bg"></div>
             </div>
             <div class="innovation-content">
@@ -315,24 +315,36 @@
         <div class="outcomes-grid">
           <div class="outcome-card card-white">
             <div class="card-header-white">
-              <span class="header-icon">🎯</span>
+              <Icon class="header-icon" icon="gis:location-arrow" />
               <h3>预期目标</h3>
             </div>
             <ul class="outcome-list">
               <li>
-                <span class="check-icon">✅</span>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
                 完成宁夏丝路非遗地理数据库建设，收录非遗项目200项以上
               </li>
               <li>
-                <span class="check-icon">✅</span>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
                 开发完成WebGIS展示平台，实现时空可视化等核心功能
               </li>
               <li>
-                <span class="check-icon">✅</span>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
                 发表学术论文1-2篇，形成研究报告1份
               </li>
               <li>
-                <span class="check-icon">✅</span>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
                 为3-5项非遗项目提供数字化保护方案
               </li>
             </ul>
@@ -340,12 +352,12 @@
           
           <div class="outcome-card card-white">
             <div class="card-header-white">
-              <span class="header-icon">🏆</span>
+              <Icon class="header-icon" icon="gis:flag-finish" />
               <h3>成果形式</h3>
             </div>
             <div class="成果-items">
               <div class="成果-item" v-for="(item, index) in outcomes" :key="index">
-                <span class="item-icon">{{ item.icon }}</span>
+                <Icon class="item-icon" :icon="'gis:' + item.icon" />
                 <span class="item-text">{{ item.text }}</span>
               </div>
             </div>
@@ -358,29 +370,30 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Icon } from '@iconify/vue'
 
 const activeBasisTab = ref('purpose')
 
 // 项目简介要点
 const introPoints = ref([
-  { icon: '📊', title: 'GIS数据库构建', desc: '系统搜集整理宁夏丝路非遗资源，构建地理信息数据库' },
-  { icon: '🗺️', title: '时空可视化展示', desc: '运用WebGIS技术，实现非遗资源的时空分布展示' },
-  { icon: '🔗', title: '保护路径探索', desc: '探索非遗保护与乡村振兴、文旅融合的协同路径' }
+  { icon: 'map-stat', title: 'GIS数据库构建', desc: '系统搜集整理宁夏丝路非遗资源，构建地理信息数据库' },
+  { icon: 'map', title: '时空可视化展示', desc: '运用WebGIS技术，实现非遗资源的时空分布展示' },
+  { icon: 'network', title: '保护路径探索', desc: '探索非遗保护与乡村振兴、文旅融合的协同路径' }
 ])
 
 // 立项依据标签页
 const basisTabs = ref([
-  { key: 'purpose', label: '研究目的与意义', icon: '🎯' },
-  { key: 'status', label: '国内外研究现状', icon: '📚' },
-  { key: 'preparation', label: '项目前期准备', icon: '📋' }
+  { key: 'purpose', label: '研究目的与意义', icon: 'location-arrow' },
+  { key: 'status', label: '国内外研究现状', icon: 'map-book' },
+  { key: 'preparation', label: '项目前期准备', icon: 'map-legend' }
 ])
 
 // 前期准备
 const preparations = ref([
-  { icon: '📚', title: '文献资料', desc: '已搜集相关文献100余篇，包括宁夏地方志、非遗保护报告、GIS应用案例等', stat: '100+', statLabel: '篇文献' },
-  { icon: '🗺️', title: '数据基础', desc: '已初步整理宁夏非遗名录200余项，获取宁夏基础地理数据', stat: '200+', statLabel: '项非遗' },
-  { icon: '💻', title: '技术储备', desc: '团队成员已掌握GIS、Web开发、数据可视化等相关技术', stat: '5', statLabel: '项技术' },
-  { icon: '👥', title: '团队构成', desc: '由地理信息、计算机、历史文化等多学科背景成员组成', stat: '跨学科', statLabel: '多领域' }
+  { icon: 'map-book', title: '文献资料', desc: '已搜集相关文献100余篇，包括宁夏地方志、非遗保护报告、GIS应用案例等', stat: '100+', statLabel: '篇文献' },
+  { icon: 'map', title: '数据基础', desc: '已初步整理宁夏非遗名录200余项，获取宁夏基础地理数据', stat: '200+', statLabel: '项非遗' },
+  { icon: 'globe-gear', title: '技术储备', desc: '团队成员已掌握GIS、Web开发、数据可视化等相关技术', stat: '5', statLabel: '项技术' },
+  { icon: 'map-users', title: '团队构成', desc: '由地理信息、计算机、历史文化等多学科背景成员组成', stat: '跨学科', statLabel: '多领域' }
 ])
 
 // 研究内容
@@ -432,19 +445,19 @@ const phases = ref([
 // 创新点
 const innovations = ref([
   {
-    icon: '🔬',
+    icon: 'theodolite',
     title: '跨学科融合创新',
     desc: '将GIS技术与历史文化研究、非遗保护深度融合，形成数字人文新范式',
     tags: ['GIS', '历史', '非遗', '数字人文']
   },
   {
-    icon: '⏳',
+    icon: 'map-time',
     title: '时空可视化技术',
     desc: '地图与时间轴联动，直观呈现非遗的空间分布格局与历史演变过程',
     tags: ['可视化', '时空分析', 'WebGIS']
   },
   {
-    icon: '🔗',
+    icon: 'network',
     title: '全链条保护路径',
     desc: '构建"保护—展示—研究—传播"四位一体的非遗传承体系',
     tags: ['全链条', '保护', '传播']
@@ -453,10 +466,10 @@ const innovations = ref([
 
 // 成果形式
 const outcomes = ref([
-  { icon: '📊', text: '宁夏丝路非遗地理数据库' },
-  { icon: '🌐', text: 'WebGIS动态展示平台网站' },
-  { icon: '📄', text: '学术论文与研究报告' },
-  { icon: '📋', text: '数字化保护白皮书' }
+  { icon: 'map-stat', text: '宁夏丝路非遗地理数据库' },
+  { icon: 'globe', text: 'WebGIS动态展示平台网站' },
+  { icon: 'map-book', text: '学术论文与研究报告' },
+  { icon: 'map-legend', text: '数字化保护白皮书' }
 ])
 </script>
 
@@ -622,8 +635,8 @@ const outcomes = ref([
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  transition: all 0.3s ease;
-  
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-md);
@@ -658,7 +671,8 @@ const outcomes = ref([
 .section-bg {
   position: absolute;
   inset: 0;
-  background: 
+  pointer-events: none;
+  background:
     radial-gradient(ellipse at 20% 30%, rgba(212, 160, 23, 0.05) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 70%, rgba(46, 139, 87, 0.05) 0%, transparent 40%);
 }
@@ -687,16 +701,19 @@ const outcomes = ref([
   color: var(--color-text);
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition:
+    border-color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
   }
-  
+
   &.active {
     background: var(--color-secondary);
     border-color: var(--color-secondary);
-    color: white;
+    color: var(--color-gold-ink);
   }
   
   .tab-icon {
@@ -949,8 +966,8 @@ const outcomes = ref([
   padding: var(--spacing-xl);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -1042,7 +1059,8 @@ const outcomes = ref([
 .section-bg-alt {
   position: absolute;
   inset: 0;
-  background: 
+  pointer-events: none;
+  background:
     linear-gradient(45deg, rgba(139, 69, 19, 0.03) 0%, transparent 50%),
     linear-gradient(-45deg, rgba(212, 160, 23, 0.03) 0%, transparent 50%);
 }
@@ -1185,8 +1203,11 @@ const outcomes = ref([
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   text-align: center;
-  transition: all 0.3s ease;
-  
+  transition:
+    border-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-lg);
@@ -1219,7 +1240,7 @@ const outcomes = ref([
     background: radial-gradient(circle, var(--color-secondary), transparent);
     border-radius: 50%;
     opacity: 0.1;
-    transition: all 0.3s ease;
+    transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
   }
 }
 

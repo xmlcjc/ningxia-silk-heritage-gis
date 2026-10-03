@@ -53,7 +53,7 @@
                 class="search-input"
               >
                 <template #prefix>
-                  <span class="search-icon">🔍</span>
+                  <Icon class="search-icon" icon="gis:zoom-in" />
                 </template>
               </el-input>
               <span class="search-hint">输入关键词快速定位</span>
@@ -101,7 +101,7 @@
             </div>
             
             <button class="btn-reset" @click="resetFilters">
-              <span>🔄</span> 重置
+              <Icon icon="gis:rotate" width="14" height="14" /> 重置
             </button>
           </div>
         </div>
@@ -139,7 +139,7 @@
               <div class="card-body">
                 <div class="card-tags">
                   <span class="tag tag-category">{{ item.category }}</span>
-                  <span class="tag tag-location">📍 {{ item.city }}</span>
+                  <span class="tag tag-location"><Icon icon="gis:poi" width="12" height="12" /> {{ item.city }}</span>
                 </div>
                 
                 <h3 class="card-title">{{ item.name }}</h3>
@@ -147,11 +147,15 @@
                 
                 <div class="card-meta">
                   <span class="meta-item">
-                    <span class="meta-icon">⏳</span>
+                    <Icon class="meta-icon" icon="gis:map-time" />
                     {{ item.period }}
                   </span>
                   <span class="meta-item">
-                    <span class="meta-icon">👁️</span>
+                    <svg class="meta-icon" viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
                     {{ item.views || 0 }}
                   </span>
                 </div>
@@ -175,7 +179,7 @@
 
         <!-- 空状态 -->
         <div v-if="filteredData.length === 0" class="empty-state">
-          <div class="empty-icon">🔍</div>
+          <div class="empty-icon"><Icon icon="gis:zoom-in" width="48" height="48" /></div>
           <h3>未找到相关非遗项目</h3>
           <p>尝试调整筛选条件或修改搜索关键词</p>
           <button class="btn-clear" @click="resetFilters">清除所有筛选</button>
@@ -188,6 +192,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
 import { heritageData, categories, cities, periods } from '../data/heritageData'
 
 const router = useRouter()
@@ -464,8 +469,8 @@ const goToDetail = (id) => {
   color: var(--color-text);
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: border-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     color: var(--color-secondary);
@@ -520,8 +525,11 @@ const goToDetail = (id) => {
   border-radius: var(--radius-xl);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -581,18 +589,18 @@ const goToDetail = (id) => {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s var(--ease-out);
     
     .overlay-btn {
       display: inline-block;
-      padding: 10px 24px;
+      padding: 12px 24px;
       background: var(--color-secondary);
-      color: white;
+      color: var(--color-gold-ink);
       border-radius: var(--radius-full);
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       transform: translateY(10px);
-      transition: transform 0.3s ease;
+      transition: transform 0.3s var(--ease-out);
     }
     
     &:hover .overlay-btn {
@@ -722,14 +730,14 @@ const goToDetail = (id) => {
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-xl);
   background: var(--color-secondary);
-  color: white;
+  color: var(--color-gold-ink);
   border: none;
   border-radius: var(--radius-full);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);

@@ -9,7 +9,7 @@
       <div class="container">
         <div class="hero-content">
           <div class="hero-badge">
-            <span class="badge-icon">🏆</span>
+            <Icon class="badge-icon" icon="gis:flag-finish" />
             <span class="badge-text">阶段性成果展示</span>
           </div>
           <h1 class="hero-title">项目成果与资讯</h1>
@@ -45,7 +45,7 @@
         <div class="section-header">
           <div class="header-decoration">
             <span class="deco-line"></span>
-            <span class="deco-icon">📊</span>
+            <Icon class="deco-icon" icon="gis:map-stat" />
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">项目成果</h2>
@@ -58,7 +58,7 @@
                @click="goToResult(result.link)">
             <div class="card-image-wrapper">
               <div class="result-placeholder" :style="{ backgroundColor: result.color || '#F5F0E6' }">
-                <span class="placeholder-icon">{{ result.icon || '📁' }}</span>
+                <Icon class="placeholder-icon" :icon="'gis:' + (result.icon || 'folder-map')" />
               </div>
               <div class="result-badge" :class="'type-' + result.typeCategory">
                 {{ result.type }}
@@ -73,9 +73,9 @@
               <p class="result-desc">{{ result.description }}</p>
               
               <div class="result-meta">
-                <span class="meta-tag" v-if="result.size">📦 {{ result.size }}</span>
-                <span class="meta-tag" v-if="result.date">📅 {{ result.date }}</span>
-                <span class="meta-tag go-tag">🔗 {{ result.linkText }}</span>
+                <span class="meta-tag" v-if="result.size"><Icon icon="gis:cube-3d" width="13" height="13" style="vertical-align:-2px" /> {{ result.size }}</span>
+                <span class="meta-tag" v-if="result.date"><Icon icon="gis:map-time" width="13" height="13" style="vertical-align:-2px" /> {{ result.date }}</span>
+                <span class="meta-tag go-tag"><Icon icon="gis:network" width="13" height="13" style="vertical-align:-2px" /> {{ result.linkText }}</span>
               </div>
             </div>
           </div>
@@ -204,7 +204,7 @@
         
         <div class="pagination-section" v-if="filteredNews.length > pageSize * maxNewsPage">
           <button class="load-more" @click="showMoreNews">
-            <span class="btn-icon">📰</span>
+            <Icon class="btn-icon" icon="gis:story-map" />
             <span>加载更多资讯</span>
           </button>
         </div>
@@ -227,7 +227,7 @@
             <h4 class="category-title">指导单位</h4>
             <div class="partner-list">
               <div class="partner-item" v-for="p in partnerData.guidance" :key="p">
-                <span class="partner-logo">🏛️</span>
+                <Icon class="partner-logo" icon="gis:pyramid" />
                 <span class="partner-name">{{ p }}</span>
               </div>
             </div>
@@ -237,7 +237,7 @@
             <h4 class="category-title">主办单位</h4>
             <div class="partner-list">
               <div class="partner-item" v-for="p in partnerData.host" :key="p">
-                <span class="partner-logo">🎓</span>
+                <Icon class="partner-logo" icon="gis:map-book" />
                 <span class="partner-name">{{ p }}</span>
               </div>
             </div>
@@ -247,7 +247,7 @@
             <h4 class="category-title">支持单位</h4>
             <div class="partner-list">
               <div class="partner-item" v-for="p in partnerData.support" :key="p">
-                <span class="partner-logo">🤝</span>
+                <Icon class="partner-logo" icon="gis:globe-share" />
                 <span class="partner-name">{{ p }}</span>
               </div>
             </div>
@@ -271,9 +271,9 @@
             </button>
           </div>
           <div class="social-links">
-            <a href="#" class="social-icon" title="微信公众号">📱</a>
-            <a href="#" class="social-icon" title="微博">👁️</a>
-            <a href="#" class="social-icon" title="知乎">📚</a>
+            <a href="#" class="social-icon" title="微信公众号"><Icon icon="gis:phone-map" /></a>
+            <a href="#" class="social-icon" title="微博"><Icon icon="gis:earth-network" /></a>
+            <a href="#" class="social-icon" title="知乎"><Icon icon="gis:map-book" /></a>
           </div>
         </div>
       </div>
@@ -284,6 +284,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
 
 const router = useRouter()
 const activeNewsFilter = ref('all')
@@ -295,9 +296,9 @@ const goToResult = (link) => {
 
 // 模拟数据
 const resultsData = ref([
-  { id: 1, title: '宁夏丝路非遗地理数据库', type: '数据库', typeCategory: 'database', description: '涵盖 20+ 项非遗项目的完整数字档案，包含历史渊源、工艺流程、保护现状与地理坐标等多维信息', color: '#E8DCC8', icon: '🗄️', date: '2024-06', size: '500MB', link: '/archive', linkText: '前往数字档案' },
-  { id: 2, title: 'GIS 动态地图网页平台', type: '平台', typeCategory: 'platform', description: '基于 WebGIS 的交互式地图，支持时空可视化、图层切换、点位查询与数据统计分析', color: '#F5F0E6', icon: '🌐', date: '2024-08', size: '在线', link: '/map', linkText: '打开GIS地图' },
-  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '系统阐述宁夏丝路非遗数字化保护的理论、方法与实践路径，提出保护与振兴策略建议', color: '#DED3C2', icon: '📄', date: '2024-10', link: '/project', linkText: '查看项目概况' }
+  { id: 1, title: '宁夏丝路非遗地理数据库', type: '数据库', typeCategory: 'database', description: '涵盖 20+ 项非遗项目的完整数字档案，包含历史渊源、工艺流程、保护现状与地理坐标等多维信息', color: '#E8DCC8', icon: 'layers', date: '2024-06', size: '500MB', link: '/archive', linkText: '前往数字档案' },
+  { id: 2, title: 'GIS 动态地图网页平台', type: '平台', typeCategory: 'platform', description: '基于 WebGIS 的交互式地图，支持时空可视化、图层切换、点位查询与数据统计分析', color: '#F5F0E6', icon: 'globe', date: '2024-08', size: '在线', link: '/map', linkText: '打开GIS地图' },
+  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '系统阐述宁夏丝路非遗数字化保护的理论、方法与实践路径，提出保护与振兴策略建议', color: '#DED3C2', icon: 'map-book', date: '2024-10', link: '/project', linkText: '查看项目概况' }
 ])
 
 const newsData = ref([
@@ -551,12 +552,12 @@ const partnerData = ref({
   border-radius: var(--radius-xl);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
-    
+
     .image-overlay {
       opacity: 1;
     }
@@ -605,7 +606,7 @@ const partnerData = ref({
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s var(--ease-out);
     
     .overlay-btn {
       display: inline-block;
@@ -700,7 +701,7 @@ const partnerData = ref({
   height: 100%;
   background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
   border-radius: 3px;
-  transition: width 0.5s ease;
+  transition: width 0.5s var(--ease-out);
 }
 
 .timeline-items {
@@ -745,14 +746,14 @@ const partnerData = ref({
   justify-content: center;
   position: relative;
   z-index: 1;
-  transition: all 0.3s ease;
-  
+  transition: background-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &.active {
     background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
     box-shadow: 0 0 20px rgba(212, 160, 23, 0.4);
-    
+
     .phase-num {
-      color: white;
+      color: var(--color-gold-ink);
     }
   }
   
@@ -897,17 +898,20 @@ const partnerData = ref({
   color: var(--color-text-light);
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition:
+    border-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     color: var(--color-secondary);
   }
-  
+
   &.active {
     background: var(--color-secondary);
     border-color: var(--color-secondary);
-    color: white;
+    color: var(--color-gold-ink);
   }
 }
 
@@ -922,8 +926,8 @@ const partnerData = ref({
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -1048,14 +1052,14 @@ const partnerData = ref({
   gap: var(--spacing-sm);
   padding: 12px 32px;
   background: var(--color-secondary);
-  color: white;
+  color: var(--color-gold-ink);
   border: none;
   border-radius: var(--radius-full);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
@@ -1121,8 +1125,8 @@ const partnerData = ref({
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  
+  transition: background-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+
   &:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateX(4px);
@@ -1196,18 +1200,18 @@ const partnerData = ref({
     gap: 8px;
     padding: 14px 28px;
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-gold-ink);
     border: none;
     border-radius: var(--radius-full);
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-lg);
-      
+
       .btn-arrow {
         transform: translateX(4px);
       }
@@ -1232,8 +1236,8 @@ const partnerData = ref({
     font-size: 1.5rem;
     color: white;
     text-decoration: none;
-    transition: all 0.3s ease;
-    
+    transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+
     &:hover {
       background: var(--color-secondary);
       border-color: var(--color-secondary);

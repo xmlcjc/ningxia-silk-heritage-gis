@@ -60,4 +60,8 @@ const router = createRouter({
   }
 })
 
+// 懒加载分包期间给出轻量进度反馈（本地 Mock 下瞬时，弱网下可见）
+router.beforeEach(() => { document.body.style.cursor = 'progress' })
+router.afterEach(() => { document.body.style.cursor = '' })
+
 export default router

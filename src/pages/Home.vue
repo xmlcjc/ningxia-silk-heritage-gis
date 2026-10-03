@@ -27,7 +27,7 @@
           <!-- 副标题 -->
           <p class="hero-subtitle animate-fade-in delay-3">
             让丝路非遗在数字地图上
-            <span class="highlight">"看得见、查得到、讲得清、传得开"</span>
+            <span class="highlight">看得见、查得到、讲得清、传得开</span>
           </p>
           
           <!-- 行动按钮 -->
@@ -93,7 +93,7 @@
                 本项目以<span class="highlight-text">GIS技术</span>为核心，系统搜集宁夏境内丝路相关非遗资源，
                 构建非遗地理数据库，通过<span class="highlight-text">空间分析</span>和
                 <span class="highlight-text">WebGIS可视化</span>展示非遗分布格局、传播脉络和历史演变，
-                并探索<span class="highlight-text">"非遗保护+乡村振兴+文旅融合"</span>的协同路径。
+                并探索<span class="highlight-text">“非遗保护+乡村振兴+文旅融合”</span>的协同路径。
               </p>
             </div>
             
@@ -146,7 +146,7 @@
           <div class="feature-card" v-for="(feature, index) in features" :key="index"
                :style="{ animationDelay: (index * 0.1) + 's' }">
             <div class="feature-icon-wrapper">
-              <div class="feature-icon">{{ feature.icon }}</div>
+              <div class="feature-icon"><Icon :icon="'gis:' + feature.icon" /></div>
               <div class="feature-icon-bg"></div>
             </div>
             <h3 class="feature-title">{{ feature.title }}</h3>
@@ -256,42 +256,42 @@
 
             <div class="info-features">
               <div class="info-feature">
-                <span class="feature-icon-mini">📍</span>
+                <Icon class="feature-icon-mini" icon="gis:poi" />
                 <div class="feature-text">
                   <strong>非遗点位标注</strong>
                   <span>按地理坐标准确定位</span>
                 </div>
               </div>
               <div class="info-feature">
-                <span class="feature-icon-mini">🛤️</span>
+                <Icon class="feature-icon-mini" icon="gis:route" />
                 <div class="feature-text">
                   <strong>丝路古道线路</strong>
                   <span>四条古道叠合呈现</span>
                 </div>
               </div>
               <div class="info-feature">
-                <span class="feature-icon-mini">📊</span>
+                <Icon class="feature-icon-mini" icon="gis:map-stat" />
                 <div class="feature-text">
                   <strong>数据统计分析</strong>
                   <span>多维度图表可视化</span>
                 </div>
               </div>
               <div class="info-feature">
-                <span class="feature-icon-mini">🔍</span>
+                <Icon class="feature-icon-mini" icon="gis:zoom-in" />
                 <div class="feature-text">
                   <strong>分类筛选检索</strong>
                   <span>类别地区时期快速定位</span>
                 </div>
               </div>
               <div class="info-feature">
-                <span class="feature-icon-mini">⏳</span>
+                <Icon class="feature-icon-mini" icon="gis:map-time" />
                 <div class="feature-text">
                   <strong>时间轴联动</strong>
                   <span>追溯历史传播脉络</span>
                 </div>
               </div>
               <div class="info-feature">
-                <span class="feature-icon-mini">📖</span>
+                <Icon class="feature-icon-mini" icon="gis:map-book" />
                 <div class="feature-text">
                   <strong>档案详情查看</strong>
                   <span>一键直达数字档案</span>
@@ -328,7 +328,7 @@
                :class="'result-' + result.type">
             <div class="result-image">
               <div class="image-placeholder">
-                <span class="placeholder-icon">{{ result.icon }}</span>
+                <Icon class="placeholder-icon" :icon="'gis:' + result.icon" />
               </div>
             </div>
             <div class="result-content">
@@ -366,6 +366,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Icon } from '@iconify/vue'
 
 // 统计数据
 const stats = ref([
@@ -377,27 +378,27 @@ const stats = ref([
 
 // 核心功能
 const features = ref([
-  { 
-    icon: '🗺️', 
-    title: 'GIS地图展示', 
+  {
+    icon: 'map',
+    title: 'GIS地图展示',
     description: '交互式地图展示非遗点位分布，支持多图层切换与空间分析',
     link: '/map'
   },
-  { 
-    icon: '⏳', 
-    title: '时间轴传播演变', 
+  {
+    icon: 'map-time',
+    title: '时间轴传播演变',
     description: '动态展示不同历史时期非遗传播路径与演变过程',
     link: '/map'
   },
-  { 
-    icon: '📚', 
-    title: '非遗数字档案', 
+  {
+    icon: 'map-book',
+    title: '非遗数字档案',
     description: '完整的非遗项目数字档案，包含图文、视频、传承信息',
     link: '/archive'
   },
-  { 
-    icon: '🛡️', 
-    title: '保护与振兴策略', 
+  {
+    icon: 'globe-shield',
+    title: '保护与振兴策略',
     description: '基于GIS分析提出分级保护与乡村振兴协同建议',
     link: '/protection'
   }
@@ -464,21 +465,21 @@ const timelineProgress = ref(41)
 // 项目成果
 const results = ref([
   {
-    icon: '📊',
+    icon: 'map-stat',
     type: 'database',
     typeLabel: '数据库',
     title: '宁夏丝路非遗地理数据库',
     description: '涵盖20+项非遗项目的完整数字档案'
   },
   {
-    icon: '🌐',
+    icon: 'globe',
     type: 'platform',
     typeLabel: '平台',
     title: 'GIS动态地图网页',
     description: '支持交互式地图探索与数据分析'
   },
   {
-    icon: '📄',
+    icon: 'map-book',
     type: 'report',
     typeLabel: '报告',
     title: '数字化保护白皮书',
@@ -628,9 +629,10 @@ const results = ref([
     position: relative;
     
     &::before, &::after {
-      content: '"';
       color: var(--color-secondary);
     }
+    &::before { content: '\201C'; }   // “
+    &::after { content: '\201D'; }    // ”
   }
 }
 
@@ -668,8 +670,8 @@ const results = ref([
     font-size: 14px;
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius-sm);
-    transition: all var(--duration-fast) ease;
-    
+    transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+
     &:hover {
       color: white;
       background: rgba(255, 255, 255, 0.1);
@@ -698,7 +700,7 @@ const results = ref([
   }
   
   .wave-path {
-    transition: fill var(--duration-normal) ease;
+    transition: fill var(--duration-normal) var(--ease-out);
   }
 }
 
@@ -783,6 +785,8 @@ const results = ref([
 }
 
 .intro-paragraph {
+  max-width: 40em;           // 行长约 40 汉字，符合中文阅读舒适区
+  margin: 0 auto;
   font-size: 1.15rem;
   line-height: 2;
   color: var(--color-text);
@@ -887,8 +891,11 @@ const results = ref([
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   text-align: center;
-  transition: all var(--duration-normal) ease;
-  
+  transition:
+    background-color var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+
   &:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-4px);
@@ -921,7 +928,7 @@ const results = ref([
   height: 4px;
   background: var(--color-secondary);
   border-radius: var(--radius-sm);
-  transition: width var(--duration-slow) ease;
+  transition: width var(--duration-slow) var(--ease-out);
 }
 
 .stat-gold .stat-bar { background: var(--color-secondary); }
@@ -957,10 +964,13 @@ const results = ref([
   border-radius: var(--radius-xl);
   padding: var(--spacing-2xl);
   text-align: center;
-  animation: fadeIn 0.6s ease forwards;
+  animation: fadeIn 0.6s var(--ease-out) forwards;
   opacity: 0;
-  transition: all var(--duration-normal) ease;
-  
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-lg);
@@ -999,7 +1009,7 @@ const results = ref([
   background: radial-gradient(circle, var(--color-secondary), transparent);
   border-radius: 50%;
   opacity: 0.1;
-  transition: all var(--duration-normal) ease;
+  transition: transform var(--duration-normal) var(--ease-out), opacity var(--duration-normal) var(--ease-out);
 }
 
 .feature-title {
@@ -1022,10 +1032,10 @@ const results = ref([
   font-size: 14px;
   opacity: 0;
   transform: translateY(10px);
-  transition: all var(--duration-fast) ease;
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
   
   svg {
-    transition: transform var(--duration-fast) ease;
+    transition: transform var(--duration-fast) var(--ease-out);
   }
   
   &:hover svg {
@@ -1057,8 +1067,8 @@ const results = ref([
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
-  transition: all var(--duration-normal) ease;
-  
+  transition: border-color var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+
   &:hover {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-md);
@@ -1087,7 +1097,7 @@ const results = ref([
   font-size: 1.5rem;
   font-weight: 700;
   flex-shrink: 0;
-  transition: all var(--duration-normal) ease;
+  transition: background-color var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out);
 }
 
 .innovation-content {
@@ -1152,7 +1162,7 @@ const results = ref([
     height: 100%;
     background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
     border-radius: var(--radius-full);
-    transition: width var(--duration-slow) ease;
+    transition: width var(--duration-slow) var(--ease-out);
   }
 }
 
@@ -1189,15 +1199,18 @@ const results = ref([
       background: var(--color-surface);
       border: 3px solid var(--color-border);
       border-radius: 50%;
-      transition: all var(--duration-normal) ease;
+      transition:
+        background-color var(--duration-normal) var(--ease-out),
+        border-color var(--duration-normal) var(--ease-out),
+        box-shadow var(--duration-normal) var(--ease-out);
     }
-    
+
     .marker-ring {
       position: absolute;
       inset: 0;
       border: 2px solid transparent;
       border-radius: 50%;
-      transition: all var(--duration-normal) ease;
+      transition: border-color var(--duration-normal) var(--ease-out);
     }
   }
   
@@ -1371,7 +1384,7 @@ const results = ref([
     background: var(--color-background);
     border: 1px solid var(--color-border-light);
     border-radius: var(--radius-lg);
-    transition: all 0.3s ease;
+    transition: border-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
 
     &:hover {
       border-color: var(--color-secondary);
@@ -1457,8 +1470,11 @@ const results = ref([
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  transition: all var(--duration-normal) ease;
-  
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out);
+
   &:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
@@ -1598,7 +1614,7 @@ const results = ref([
 
 .animate-fade-in {
   opacity: 0;
-  animation: fadeIn 0.6s ease forwards;
+  animation: fadeIn 0.6s var(--ease-out) forwards;
 }
 
 .delay-1 { animation-delay: 0.1s; }

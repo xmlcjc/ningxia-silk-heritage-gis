@@ -14,22 +14,22 @@
         </div>
         <div class="problems-grid">
           <div class="problem-card card">
-            <div class="problem-icon">⚠️</div>
+            <div class="problem-icon"><Icon icon="gis:flag" width="30" height="30" /></div>
             <h3>传承断层</h3>
             <p>年轻一代对传统技艺兴趣降低，传承人老龄化严重，部分非遗项目面临失传风险</p>
           </div>
           <div class="problem-card card">
-            <div class="problem-icon">📢</div>
+            <div class="problem-icon"><Icon icon="gis:signpost" width="30" height="30" /></div>
             <h3>传播不足</h3>
             <p>非遗传播方式传统，缺乏现代化传播手段，公众认知度和参与度有待提高</p>
           </div>
           <div class="problem-card card">
-            <div class="problem-icon">📂</div>
+            <div class="problem-icon"><Icon icon="gis:folder-maps" width="30" height="30" /></div>
             <h3>资料分散</h3>
             <p>非遗资料分散保存，缺乏系统化整理和数字化存档，难以有效利用和共享</p>
           </div>
           <div class="problem-card card">
-            <div class="problem-icon">🗺️</div>
+            <div class="problem-icon"><Icon icon="gis:map" width="30" height="30" /></div>
             <h3>空间分布不均</h3>
             <p>非遗资源空间分布不均衡，部分地区资源富集但缺乏整合，难以形成集聚效应</p>
           </div>
@@ -74,7 +74,7 @@
         </div>
         <div class="combine-grid">
           <div class="combine-card card">
-            <div class="combine-icon">🧳</div>
+            <div class="combine-icon"><Icon icon="gis:map-route" width="30" height="30" /></div>
             <h3>非遗+旅游</h3>
             <p>将非遗元素融入旅游产品，打造非遗体验旅游，增加游客参与感，带动地方经济</p>
             <div class="combine-tags">
@@ -84,7 +84,7 @@
             </div>
           </div>
           <div class="combine-card card">
-            <div class="combine-icon">🏘️</div>
+            <div class="combine-icon"><Icon icon="gis:poi-home" width="30" height="30" /></div>
             <h3>非遗+社区</h3>
             <p>在社区开展非遗活动，培养社区居民文化认同，让非遗成为社区文化建设的重要内容</p>
             <div class="combine-tags">
@@ -104,25 +104,25 @@
         </div>
         <div class="path-flow">
           <div class="path-step">
-            <div class="path-icon">📊</div>
+            <div class="path-icon"><Icon icon="gis:map-stat" width="28" height="28" /></div>
             <h3>资源普查</h3>
             <p>运用GIS技术进行非遗资源全面普查，建立空间数据库</p>
           </div>
           <div class="path-arrow">→</div>
           <div class="path-step">
-            <div class="path-icon">🔍</div>
+            <div class="path-icon"><Icon icon="gis:zoom-in" width="28" height="28" /></div>
             <h3>价值评估</h3>
             <p>评估非遗价值和濒危程度，确定保护优先级</p>
           </div>
           <div class="path-arrow">→</div>
           <div class="path-step">
-            <div class="path-icon">📝</div>
+            <div class="path-icon"><Icon icon="gis:map-edit" width="28" height="28" /></div>
             <h3>规划制定</h3>
             <p>制定分级分类保护规划和乡村振兴融合方案</p>
           </div>
           <div class="path-arrow">→</div>
           <div class="path-step">
-            <div class="path-icon">🚀</div>
+            <div class="path-icon"><Icon icon="gis:location-arrow" width="28" height="28" /></div>
             <h3>实施推广</h3>
             <p>落地实施保护措施，开展文旅融合项目，推广经验</p>
           </div>
@@ -131,6 +131,10 @@
     </section>
   </div>
 </template>
+
+<script setup>
+import { Icon } from '@iconify/vue'
+</script>
 
 <style scoped>
 .page-header {

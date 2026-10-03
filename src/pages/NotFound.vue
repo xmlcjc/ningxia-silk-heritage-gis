@@ -5,7 +5,7 @@
     <div class="nf-content">
       <div class="nf-404">
         <span class="digit">4</span>
-        <span class="compass">🧭</span>
+        <Icon class="compass" icon="gis:compass-rose" width="72" height="72" />
         <span class="digit">4</span>
       </div>
 
@@ -17,10 +17,10 @@
 
       <div class="nf-actions">
         <router-link to="/" class="nf-btn btn-primary">
-          <span>🏯</span> 返回首页
+          <Icon icon="gis:home" width="17" height="17" /> 返回首页
         </router-link>
         <router-link to="/map" class="nf-btn btn-secondary">
-          <span>🗺️</span> 打开 GIS 地图
+          <Icon icon="gis:map" width="17" height="17" /> 打开 GIS 地图
         </router-link>
       </div>
     </div>
@@ -29,6 +29,7 @@
 
 <script setup>
 // 404 兜底页面：无路由匹配时展示
+import { Icon } from '@iconify/vue'
 </script>
 
 <style lang="scss" scoped>
@@ -115,7 +116,11 @@
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition:
+    background-color 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    box-shadow 0.25s var(--ease-out),
+    transform 0.25s var(--ease-out);
 
   &.btn-primary {
     background: var(--color-primary);

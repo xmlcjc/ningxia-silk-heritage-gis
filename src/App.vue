@@ -1,7 +1,8 @@
 <template>
   <div id="app">
+    <a class="skip-link" href="#main">跳到主内容</a>
     <LayoutHeader />
-    <main class="main-content">
+    <main id="main" class="main-content" tabindex="-1">
       <router-view />
     </main>
     <LayoutFooter />

@@ -475,7 +475,7 @@ onMounted(() => {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
 }
 
 .nav-btn:hover:not(:disabled) {

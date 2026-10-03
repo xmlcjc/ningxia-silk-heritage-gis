@@ -30,8 +30,9 @@
   // 文字色系
   --color-text: #3E2723;              // 深棕文字
   --color-text-medium: #5D4037;       // 中棕
-  --color-text-light: #8D6E63;        // 浅棕
-  --color-text-muted: #A1887F;        // 辅助文字
+  --color-text-light: #7E5E54;        // 浅棕（米白背景对比度 ≥4.5）
+  --color-text-muted: #8D746B;        // 辅助文字（对比度 ≥4.5）
+  --color-gold-ink: #3E2A08;          // 金色底上的深棕文字（对比度 ≥5.7）
   
   // 边框/分割线
   --color-border: #D7CCC8;            // 浅棕边框
@@ -46,8 +47,8 @@
   // ===================
   // 字体系统
   // ===================
-  --font-display: 'Noto Serif TC', '思源宋体', 'SimSun', 'STSong', serif;
-  --font-body: 'Noto Sans TC', '思源黑体', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN', 'SimSun', serif;
+  --font-body: 'Noto Sans SC', 'Source Han Sans SC', 'Source Han Sans CN', 'Microsoft YaHei', 'PingFang SC', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   
   // ===================
@@ -89,6 +90,13 @@
   --duration-normal: 300ms;
   --duration-slow: 500ms;
   --duration-slower: 800ms;
+
+  // ===================
+  // 缓动曲线（有意识的曲线，替代裸 var(--ease-out)）
+  // ===================
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);    // 内容到达
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);     // 内容离开
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1); // 双向切换
   
   // ===================
   // 层级系统
@@ -183,7 +191,7 @@ h6 {
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color var(--duration-fast) ease;
+  transition: color var(--duration-fast) var(--ease-out);
   cursor: pointer;
   
   &:hover {
@@ -282,7 +290,7 @@ a {
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  transition: all var(--duration-normal) ease;
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
   position: relative;
   
   // 微妙阴影层次
@@ -336,7 +344,12 @@ a {
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--duration-normal) ease;
+  transition:
+    background-color var(--duration-normal) var(--ease-out),
+    color var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out);
   border: none;
   text-decoration: none;
   position: relative;
@@ -347,36 +360,35 @@ a {
     outline-offset: 2px;
   }
   
-  // 内部波纹效果
+  // 内部波纹效果（仅 transform，不触发布局）
   &::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 0;
-    height: 0;
+    width: 80px;
+    height: 80px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s ease, height 0.6s ease;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s var(--ease-out);
   }
-  
+
   &:active::after {
-    width: 200px;
-    height: 200px;
+    transform: translate(-50%, -50%) scale(2.5);
   }
 }
 
-// 主按钮 - 金色渐变
+// 主按钮 - 鎏金渐变 + 深棕文字（对比度 5.7:1 以上，保持金色明亮观感）
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary));
-  color: white;
+  background: linear-gradient(135deg, var(--color-secondary), #E8B520);
+  color: var(--color-gold-ink);
   box-shadow: var(--shadow-sm);
-  
+
   &:hover {
-    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light));
+    background: linear-gradient(135deg, #E8B520, var(--color-secondary-light));
     transform: translateY(-2px);
-    box-shadow: 
+    box-shadow:
       var(--shadow-md),
       var(--shadow-glow);
   }
@@ -387,11 +399,23 @@ a {
   background: transparent;
   color: var(--color-primary);
   border: 2px solid var(--color-primary);
-  
+
   &:hover {
     background: var(--color-primary);
     color: white;
     transform: translateY(-2px);
+  }
+}
+
+// Hero 深色背景上的次按钮：浅色描边 + 浅色文字（对比度 ≥5.8:1）
+.hero-section .btn-secondary {
+  color: #F5E6C8;
+  border-color: rgba(245, 230, 200, 0.7);
+
+  &:hover {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-gold-ink);
   }
 }
 
@@ -423,8 +447,8 @@ a {
   font-size: 0.85rem;
   font-weight: 500;
   margin: var(--spacing-xs);
-  transition: all var(--duration-fast) ease;
-  
+  transition: background-color var(--duration-fast) var(--ease-out);
+
   &:hover {
     background: linear-gradient(135deg, 
       rgba(212, 160, 23, 0.25), 
@@ -510,15 +534,15 @@ a {
 
 // 入场延迟类
 .animate-fade-in {
-  animation: fadeIn 0.6s ease forwards;
+  animation: fadeIn 0.6s var(--ease-out) forwards;
 }
 
 .animate-slide-left {
-  animation: slideInLeft 0.6s ease forwards;
+  animation: slideInLeft 0.6s var(--ease-out) forwards;
 }
 
 .animate-slide-right {
-  animation: slideInRight 0.6s ease forwards;
+  animation: slideInRight 0.6s var(--ease-out) forwards;
 }
 
 // 动画延迟
@@ -632,12 +656,14 @@ a {
 // ============================================
 
 .el-button--primary {
-  background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary)) !important;
-  border-color: var(--color-secondary-dark) !important;
-  
+  background: linear-gradient(135deg, var(--color-secondary), #E8B520) !important;
+  border-color: var(--color-secondary) !important;
+  color: var(--color-gold-ink) !important;
+
   &:hover {
-    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-light)) !important;
-    border-color: var(--color-secondary) !important;
+    background: linear-gradient(135deg, #E8B520, var(--color-secondary-light)) !important;
+    border-color: #E8B520 !important;
+    color: var(--color-gold-ink) !important;
   }
 }
 
@@ -699,7 +725,7 @@ a {
 
 // 跳转到主内容链接
 .skip-link {
-  position: absolute;
+  position: fixed;
   top: -40px;
   left: 0;
   background: var(--color-primary);
@@ -707,7 +733,7 @@ a {
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-sm);
   z-index: 9999;
-  
+
   &:focus {
     top: 0;
   }

@@ -9,7 +9,7 @@
       <div class="container">
         <div class="hero-content">
           <div class="hero-badge">
-            <span class="badge-icon">🗺️</span>
+            <Icon class="badge-icon" icon="gis:map" />
             <span class="badge-text">GIS 时空可视化平台</span>
           </div>
           <h1 class="hero-title">丝路非遗 GIS 地图</h1>
@@ -46,13 +46,7 @@
         <aside class="map-sidebar card-silk">
           <div class="sidebar-header">
             <div class="header-icon-wrapper">
-              <svg class="header-icon" viewBox="0 0 24 24" width="27" height="27" fill="none"
-                   stroke="#FDF6E3" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">
-                <path d="M9 3.5 3 5.5v15l6-2 6 2 6-2v-15l-6 2-6-2z"/>
-                <path d="M9 3.5v15"/>
-                <path d="M15 5.5v15"/>
-                <circle cx="12" cy="11" r="2.1" fill="#FDF6E3" stroke="none"/>
-              </svg>
+              <Icon class="header-icon" icon="gis:map" width="26" height="26" style="color:#FDF6E3" />
             </div>
             <h2>丝路非遗地图</h2>
             <p>探索宁夏丝路非遗的时空分布</p>
@@ -61,7 +55,7 @@
           <!-- 搜索框 -->
           <div class="search-section">
             <div class="search-wrapper">
-              <span class="search-icon">🔍</span>
+              <Icon class="search-icon" icon="gis:zoom-in" />
               <input 
                 type="text" 
                 v-model="searchKeyword" 
@@ -75,13 +69,13 @@
           <!-- 筛选条件 -->
           <div class="filter-section">
             <div class="section-title-with-icon">
-              <span class="icon">🔖</span>
+              <Icon class="icon" icon="gis:map-bookmark" />
               <h4>筛选条件</h4>
             </div>
             
             <div class="filter-group">
               <label>
-                <span class="label-icon">📍</span>
+                <Icon class="label-icon" icon="gis:poi" />
                 地市
               </label>
               <el-select 
@@ -96,7 +90,7 @@
 
             <div class="filter-group">
               <label>
-                <span class="label-icon">🎨</span>
+                <Icon class="label-icon" icon="gis:color" />
                 非遗类别
               </label>
               <el-select 
@@ -111,7 +105,7 @@
 
             <div class="filter-group">
               <label>
-                <span class="label-icon">⏳</span>
+                <Icon class="label-icon" icon="gis:map-time" />
                 历史时期
               </label>
               <el-select 
@@ -126,7 +120,7 @@
 
             <div class="filter-group">
               <label>
-                <span class="label-icon">🏆</span>
+                <Icon class="label-icon" icon="gis:flag" />
                 保护等级
               </label>
               <el-select 
@@ -140,14 +134,14 @@
             </div>
 
             <button class="btn-reset" @click="resetFilters">
-              <span>🔄</span> 重置所有筛选
+              <Icon icon="gis:rotate" width="15" height="15" /> 重置所有筛选
             </button>
           </div>
 
           <!-- 图层控制 -->
           <div class="layers-section">
             <div class="section-title-with-icon">
-              <span class="icon">🛡️</span>
+              <Icon class="icon" icon="gis:layers" />
               <h4>图层控制</h4>
             </div>
             
@@ -168,10 +162,16 @@
           <!-- 时间轴 -->
           <div class="timeline-section">
             <div class="section-title-with-icon">
-              <span class="icon">⏳</span>
+              <Icon class="icon" icon="gis:map-time" />
               <h4>历史时期</h4>
               <button class="play-btn" :title="playing ? '暂停' : '播放演变'" @click="togglePlay">
-                {{ playing ? '⏸' : '▶' }}
+                <svg v-if="playing" viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                  <rect x="4" y="3" width="5.5" height="18" rx="1"/>
+                  <rect x="14.5" y="3" width="5.5" height="18" rx="1"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+                  <path d="M6 3.5v17a1 1 0 0 0 1.53.85l13-8.5a1 1 0 0 0 0-1.7l-13-8.5A1 1 0 0 0 6 3.5z"/>
+                </svg>
               </button>
             </div>
             
@@ -191,7 +191,7 @@
                 </span>
               </div>
               <div class="current-period">
-                <span class="period-icon">🏛️</span>
+                <Icon class="period-icon" icon="gis:pyramid" />
                 {{ currentPeriod }}
               </div>
             </div>
@@ -231,8 +231,8 @@
                       <p>{{ item.intro.substring(0, 100) }}...</p>
                       <div class="item-tags">
                         <span class="tag-sm tag-category">{{ item.category }}</span>
-                        <span class="tag-sm tag-location">📍 {{ item.city }}</span>
-                        <span class="tag-sm tag-period">⏳ {{ item.period }}</span>
+                        <span class="tag-sm tag-location"><Icon icon="gis:poi" width="12" height="12" /> {{ item.city }}</span>
+                        <span class="tag-sm tag-period"><Icon icon="gis:map-time" width="12" height="12" /> {{ item.period }}</span>
                       </div>
                     </div>
                     <div class="item-action">
@@ -246,25 +246,25 @@
             <!-- 地图工具栏 -->
             <div class="floating-toolbar">
               <button class="toolbar-btn" title="缩放至全图" @click="zoomToFit">
-                <span>🔲</span>
+                <Icon class="toolbar-icon" icon="gis:extent" />
               </button>
               <button class="toolbar-btn" :class="{ active: measureActive }"
                       :title="measureActive ? '结束测距' : '测量距离'"
                       @click="toggleMeasure">
-                <span>📏</span>
+                <Icon class="toolbar-icon" icon="gis:measure" />
               </button>
               <button class="toolbar-btn" title="打印地图" @click="printMap">
-                <span>🖨️</span>
+                <Icon class="toolbar-icon" icon="gis:map-print" />
               </button>
               <button class="toolbar-btn" title="全屏地图" @click="toggleFullscreen">
-                <span>⛶</span>
+                <Icon class="toolbar-icon" icon="gis:full-screen" />
               </button>
             </div>
 
             <!-- 测距提示 -->
             <transition name="hint-fade">
               <div v-if="measureActive" class="measure-hint">
-                📏 单击地图添加测点 · 双击结束测量 · Esc 取消
+                <Icon icon="gis:measure-line" width="14" height="14" style="vertical-align:-2px" /> 单击地图添加测点 · 双击结束测量 · Esc 取消
               </div>
             </transition>
 
@@ -276,7 +276,7 @@
                   <span class="route-card-line" :style="{ background: focusedRoute.color }"></span>
                   <div class="route-card-headtext">
                     <h3>{{ focusedRoute.name }}</h3>
-                    <span class="route-card-meta">🛣️ 估算里程约 {{ focusedRouteLength }} 公里</span>
+                    <span class="route-card-meta"><Icon icon="gis:layer-road" width="14" height="14" style="vertical-align:-2px" /> 估算里程约 {{ focusedRouteLength }} 公里</span>
                   </div>
                 </div>
                 <p class="route-card-desc">{{ focusedRoute.desc }}</p>
@@ -306,10 +306,10 @@
               <div v-show="!legendCollapsed" class="legend-body">
                 <div v-if="layers.heritage" class="legend-group">
                   <div class="legend-row">
-                    <span class="sample-marker national">🏆</span> 国家级
+                    <span class="sample-marker national"><Icon icon="gis:flag-b" width="16" height="16" style="color:#C99A1E" /></span> 国家级
                   </div>
                   <div class="legend-row">
-                    <span class="sample-marker regional">📍</span> 自治区级
+                    <span class="sample-marker regional"><Icon icon="gis:poi" width="15" height="15" style="color:#8B4513" /></span> 自治区级
                   </div>
                   <div class="legend-row">
                     <span class="sample-marker county"></span> 县级及以下
@@ -349,7 +349,9 @@
                 :title="b.label + '底图'"
                 @click="switchBase(b.key)"
               >
-                <span class="base-icon">{{ b.icon }}</span>
+                <Icon v-if="b.key === 'standard'" icon="gis:map" class="base-icon" />
+                <Icon v-else-if="b.key === 'imagery'" icon="gis:satellite" class="base-icon" />
+                <Icon v-else icon="gis:height-map" class="base-icon" />
                 <span class="base-label">{{ b.label }}</span>
               </button>
             </div>
@@ -423,8 +425,8 @@
               
               <div class="detail-tags">
                 <span class="detail-tag tag-category">{{ selectedItem.category }}</span>
-                <span class="detail-tag tag-location">📍 {{ selectedItem.city }}</span>
-                <span class="detail-tag tag-period">⏳ {{ selectedItem.period }}</span>
+                <span class="detail-tag tag-location"><Icon icon="gis:poi" width="12" height="12" /> {{ selectedItem.city }}</span>
+                <span class="detail-tag tag-period"><Icon icon="gis:map-time" width="12" height="12" /> {{ selectedItem.period }}</span>
               </div>
               
               <p class="detail-intro">{{ selectedItem.intro }}</p>
@@ -451,7 +453,7 @@
               <div class="detail-actions">
                 <button class="btn-primary" @click="detailDialogVisible = false">关闭</button>
                 <button class="btn-secondary" @click="goToDetail(selectedItem?.id)">
-                  <span>📄</span> 查看完整档案
+                  <Icon icon="gis:map-book" width="15" height="15" /> 查看完整档案
                 </button>
               </div>
             </div>
@@ -465,10 +467,17 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
+import gisIconData from '@iconify-json/gis/icons.json'
 import L from 'leaflet'
 import * as echarts from 'echarts'
 import { heritageData, categories, cities, periods, levels, silkRoadRoutes, yellowRiver } from '../data/heritageData'
 import ningxiaCitiesGeo from '../data/ningxia-cities.geo.json'
+
+// Leaflet 的 DivIcon/popup 是原生 HTML，无法使用 Vue 组件：
+// 直接取 Font-GIS 的 path 数据拼成内联 SVG 字符串
+const gisSvg = (name, color, px) =>
+  `<svg viewBox="0 0 100 100" width="${px}" height="${px}" style="color:${color};flex:none;display:block;vertical-align:middle;">${gisIconData.icons[name].body}</svg>`
 
 const router = useRouter()
 const pieChartRef = ref(null)
@@ -477,6 +486,16 @@ const lineChartRef = ref(null)
 
 // Leaflet 地图实例与图层组
 let leafletMap = null
+
+// 用户系统偏好：减少动态效果（JS 驱动的地图飞行也要降级）
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// 统一飞行入口：降级时直接跳转，无平移缩放动画
+const flyToView = (target, zoom, duration) => {
+  if (!leafletMap) return
+  if (reduceMotion) leafletMap.setView(target, zoom)
+  else leafletMap.flyTo(target, zoom, { duration })
+}
+
 let markerLayer = null
 let routeLayer = null
 let heatmapLayer = null
@@ -511,9 +530,9 @@ const measureActive = ref(false)             // 测距模式
 
 // 底图选项（街道 / 影像 / 地形）
 const baseOptions = [
-  { key: 'standard', icon: '🗺️', label: '街道' },
-  { key: 'imagery', icon: '🛰️', label: '影像' },
-  { key: 'terrain', icon: '⛰️', label: '地形' }
+  { key: 'standard', label: '街道' },
+  { key: 'imagery', label: '影像' },
+  { key: 'terrain', label: '地形' }
 ]
 
 // 聚焦古道沿线非遗
@@ -561,15 +580,15 @@ const levelIcon = (item, delay = 0) => {
   const tier = item.level?.includes('国家级') ? 'national'
     : item.level?.includes('自治区级') ? 'regional' : 'county'
   const conf = {
-    national: { color: '#C62828', bg: '#FFF8F1', size: 46, icon: '🏆', fs: 22, tip: 9, tw: 7, halo: true },
-    regional: { color: '#8B4513', bg: '#FDFBF7', size: 33, icon: '📍', fs: 14, tip: 7, tw: 5, halo: false },
-    county:   { color: '#7A8A6E', bg: '#F6F8F2', size: 22, icon: '',   fs: 0,  tip: 5, tw: 4, halo: false }
+    national: { color: '#C62828', bg: '#FFF8F1', size: 46, svgIcon: 'flag-b', svgColor: '#C99A1E', tip: 9, tw: 7, halo: true },
+    regional: { color: '#8B4513', bg: '#FDFBF7', size: 33, svgIcon: 'poi',    svgColor: '#8B4513', tip: 7, tw: 5, halo: false },
+    county:   { color: '#7A8A6E', bg: '#F6F8F2', size: 22, svgIcon: '',       svgColor: '',        tip: 5, tw: 4, halo: false }
   }[tier]
-  const { color, bg, size, icon, fs, tip, tw, halo } = conf
+  const { color, bg, size, svgIcon, svgColor, tip, tw, halo } = conf
   const tipH = tip + tw
   const inner = tier === 'county'
     ? `<span style="width:5px;height:5px;border-radius:50%;background:${color};display:block;"></span>`
-    : icon
+    : gisSvg(svgIcon, svgColor, Math.round(size * 0.62))
   const shadow = tier === 'national'
     ? '0 0 0 3px rgba(212,175,55,0.95), 0 3px 10px rgba(0,0,0,0.35)'
     : tier === 'regional'
@@ -586,7 +605,6 @@ const levelIcon = (item, delay = 0) => {
       border-radius: 50%;
       box-shadow: ${shadow};
       display: flex; align-items: center; justify-content: center;
-      font-size: ${fs}px;
       cursor: pointer;
       animation-delay: ${delay}ms;
     ">
@@ -617,10 +635,10 @@ const createPopupContent = (item) => `
       <span style="background:#8B4513;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">${item.level}</span>
     </div>
     <p style="margin:0 0 8px;font-size:12px;color:#5D4037;line-height:1.5;">${item.intro.substring(0, 80)}...</p>
-    <div style="display:flex;gap:4px;font-size:11px;color:#8D6E63;margin-bottom:8px;">
-      <span>🏛️ ${item.period}</span>
+    <div style="display:flex;gap:6px;font-size:11px;color:#8D6E63;margin-bottom:8px;align-items:center;">
+      <span style="display:inline-flex;align-items:center;gap:3px;">${gisSvg('pyramid', '#8D6E63', 12)}${item.period}</span>
       <span>•</span>
-      <span>🎭 ${item.routeRelation}</span>
+      <span style="display:inline-flex;align-items:center;gap:3px;">${gisSvg('route', '#8D6E63', 12)}${item.routeRelation}</span>
     </div>
     <button onclick="window.__mapGoToDetail && window.__mapGoToDetail(${item.id})" style="
       width:100%;padding:6px;background:#8B4513;color:#fff;border:none;border-radius:4px;
@@ -649,6 +667,13 @@ const initMap = () => {
       zoomControl: true,
       attributionControl: true
     })
+
+    // 瓦片加载进度条：弱网下提供明确反馈
+    const loadBar = document.createElement('div')
+    loadBar.className = 'map-loadbar'
+    leafletMap.getContainer().parentElement.appendChild(loadBar)
+    leafletMap.on('loading', () => loadBar.classList.add('loading'))
+    leafletMap.on('load', () => loadBar.classList.remove('loading'))
 
     // ========== 底图（三种可切换） ==========
     // 天地图 token（个人申请的"浏览器端"key，可到 https://console.tianditu.gov.cn 管理）
@@ -830,10 +855,16 @@ const renderRoutes = () => {
     const anchor = route.labelAt
       ? [route.labelAt[1], route.labelAt[0]]
       : segments[0][Math.floor(segments[0].length / 2)]
+    // 可读性覆盖：浅色路线用深棕文字；绿色加深保证白字对比度 ≥4.5
+    const labelOverride = {
+      huanling: { color: '#3E2A08' },
+      changxiy: { background: '#2A804F' }
+    }[route.id] || {}
+    const labelStyle = `background:${labelOverride.background || route.color};color:${labelOverride.color || '#fff'}`
     const label = L.marker(anchor, {
       icon: L.divIcon({
         className: 'route-label',
-        html: `<span class="route-label-pill" style="background:${route.color}">${route.name}</span>`,
+        html: `<span class="route-label-pill" style="${labelStyle}">${route.name}</span>`,
         iconSize: [90, 20],
         iconAnchor: [45, 10]
       }),
@@ -1015,7 +1046,7 @@ const focusRoute = (route) => {
   const zoom = leafletMap.getBoundsZoom(bounds, false, L.point(cardSpace, 20))
   const center = leafletMap.project(bounds.getCenter(), zoom).add(L.point(shiftPx, 0))
   const targetCenter = leafletMap.unproject(center, zoom)
-  leafletMap.flyTo(targetCenter, zoom, { duration: 0.9 })
+  flyToView(targetCenter, zoom, 0.9)
 
   setTimeout(applyFocusDim, 500)
 
@@ -1083,7 +1114,7 @@ const updateLabelCollision = () => {
 
 const flyToRouteItem = (item) => {
   if (!leafletMap || !item.lat) return
-  leafletMap.flyTo([item.lat, item.lng], 10, { duration: 0.7 })
+  flyToView([item.lat, item.lng], 10, 0.7)
   setTimeout(() => {
     markerLayer.eachLayer(m => {
       if (m.item?.id === item.id) m.openPopup()
@@ -1656,6 +1687,38 @@ onBeforeUnmount(() => {
   background: #E8DCC8;
 }
 
+// 瓦片加载进度条
+.map-loadbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 800;
+  overflow: hidden;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
+    opacity: 0;
+  }
+
+  &.loading::after {
+    opacity: 1;
+    animation: mapLoadSlide 1s var(--ease-inout) infinite;
+  }
+}
+@keyframes mapLoadSlide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(350%); }
+}
+
 .map-view {
   width: 100%;
   height: 100%;
@@ -1677,7 +1740,7 @@ onBeforeUnmount(() => {
 // ============================================
 // 古道线路聚焦/悬停时的平滑过渡（加粗与淡出不再生硬）
 :deep(path.route-path) {
-  transition: stroke-width 0.45s ease, stroke-opacity 0.45s ease;
+  transition: stroke-width 0.45s var(--ease-out), stroke-opacity 0.45s var(--ease-out);
 }
 
 // 古道名称标签
@@ -1685,7 +1748,7 @@ onBeforeUnmount(() => {
   width: 90px;            // 与 iconSize 一致
   text-align: center;     // 胶囊在定位外壳内居中
   pointer-events: none;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.45s var(--ease-out);
 }
 
 :deep(.route-label-pill) {
@@ -1697,7 +1760,7 @@ onBeforeUnmount(() => {
   color: #fff;
   white-space: nowrap;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s var(--ease-out);
 }
 
 :deep(.sprout-pin) {
@@ -1882,8 +1945,8 @@ onBeforeUnmount(() => {
       border: 1px solid var(--color-border);
       border-radius: var(--radius-full);
       font-size: 14px;
-      transition: all 0.3s ease;
-      
+      transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
       &:focus {
         outline: none;
         border-color: var(--color-secondary);
@@ -1966,8 +2029,8 @@ onBeforeUnmount(() => {
     color: var(--color-text);
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    
+    transition: border-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
+
     &:hover {
       border-color: var(--color-secondary);
       color: var(--color-secondary);
@@ -2003,8 +2066,8 @@ onBeforeUnmount(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
-      
+      transition: background-color 0.3s var(--ease-out);
+
       &.active {
         background: var(--color-secondary);
       }
@@ -2029,8 +2092,8 @@ onBeforeUnmount(() => {
       background: var(--color-border);
       border-radius: 11px;
       position: relative;
-      transition: all 0.3s ease;
-      
+      transition: background-color 0.3s var(--ease-out);
+
       .switch-knob {
         position: absolute;
         top: 3px;
@@ -2039,10 +2102,12 @@ onBeforeUnmount(() => {
         height: 16px;
         background: white;
         border-radius: 50%;
-        transition: all 0.3s ease;
-        
+        transition:
+          transform 0.3s var(--ease-out),
+          background-color 0.3s var(--ease-out);
+
         &.checked {
-          left: 21px;
+          transform: translateX(18px);
           background: var(--color-secondary);
         }
       }
@@ -2071,6 +2136,32 @@ onBeforeUnmount(() => {
         cursor: pointer;
         box-shadow: 0 2px 6px rgba(212, 160, 23, 0.4);
       }
+
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border: none;
+        background: var(--color-secondary);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(212, 160, 23, 0.4);
+      }
+
+      // 键盘焦点指示（原 outline:none 的可访问替代）
+      &:focus-visible {
+        outline: none;
+
+        &::-webkit-slider-thumb {
+          box-shadow:
+            0 2px 6px rgba(212, 160, 23, 0.4),
+            0 0 0 4px rgba(212, 160, 23, 0.25);
+        }
+        &::-moz-range-thumb {
+          box-shadow:
+            0 2px 6px rgba(212, 160, 23, 0.4),
+            0 0 0 4px rgba(212, 160, 23, 0.25);
+        }
+      }
     }
     
     .timeline-marks {
@@ -2083,11 +2174,11 @@ onBeforeUnmount(() => {
         color: var(--color-text-muted);
         padding: 2px 6px;
         border-radius: var(--radius-sm);
-        transition: all 0.3s ease;
-        
+        transition: background-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
+
         &.active {
           background: var(--color-secondary);
-          color: white;
+          color: var(--color-gold-ink);
         }
       }
     }
@@ -2124,7 +2215,7 @@ onBeforeUnmount(() => {
   text-align: center;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(139, 69, 19, 0.3);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s var(--ease-out);
 
   &:hover { transform: scale(1.1); }
 }
@@ -2148,26 +2239,40 @@ onBeforeUnmount(() => {
 }
 
 .toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 38px;
   height: 38px;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-primary);
-  font-size: 17px;
-  line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 
   &:hover {
     background: rgba(212, 160, 23, 0.18);
     transform: scale(1.06);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+
   &.active {
     background: var(--color-secondary);
-    color: #fff;
+    color: var(--color-gold-ink);
   }
+}
+
+.toolbar-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
 }
 
 // ============================================
@@ -2190,7 +2295,7 @@ onBeforeUnmount(() => {
 
 .hint-fade-enter-active,
 .hint-fade-leave-active {
-  transition: all 0.25s ease;
+  transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
 }
 .hint-fade-enter-from,
 .hint-fade-leave-to {
@@ -2245,7 +2350,7 @@ onBeforeUnmount(() => {
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
 
   &:hover {
     background: rgba(0, 0, 0, 0.06);
@@ -2324,7 +2429,10 @@ onBeforeUnmount(() => {
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    border-color 0.2s var(--ease-out),
+    background-color 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
 
   .chip-name {
     font-size: 13px;
@@ -2349,7 +2457,7 @@ onBeforeUnmount(() => {
 
 .card-slide-enter-active,
 .card-slide-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
 }
 .card-slide-enter-from,
 .card-slide-leave-to {
@@ -2504,23 +2612,29 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1px;
-    padding: 5px 9px;
+    gap: 2px;
+    padding: 6px 10px;
     border: none;
     border-radius: var(--radius-md);
     background: transparent;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color var(--duration-fast) var(--ease-out);
 
-    .base-icon { font-size: 15px; line-height: 1.2; }
+    .base-icon { width: 16px; height: 16px; color: var(--color-primary); flex: none; }
     .base-label { font-size: 10.5px; color: var(--color-text-light); }
 
     &:hover { background: rgba(212, 160, 23, 0.15); }
 
+    &:focus-visible {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: 2px;
+    }
+
     &.active {
       background: var(--color-secondary);
 
-      .base-label { color: #fff; }
+      .base-icon,
+      .base-label { color: var(--color-gold-ink); }
     }
   }
 }
@@ -2548,15 +2662,23 @@ onBeforeUnmount(() => {
 // ============================================
 .chart-link-hint {
   margin: 18px 0 0;
-  padding: 6px 14px;
+  padding: 8px 14px;
   background: rgba(253, 248, 240, 0.92);
   border: 1px solid var(--color-border-light);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   font-size: 12px;
+  line-height: 1.6;
   color: var(--color-secondary-dark);
-  white-space: nowrap;
-  display: table;   // 收缩成胶囊宽度
-  margin-left: auto;  // 靠右
+}
+
+// 桌面端：收缩为靠右胶囊（移动端为块级，避免 nowrap 溢出）
+@media (min-width: 993px) {
+  .chart-link-hint {
+    display: table;
+    margin-left: auto;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
 }
 </style>
