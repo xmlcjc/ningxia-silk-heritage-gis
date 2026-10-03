@@ -33,15 +33,11 @@
           <!-- 行动按钮 -->
           <div class="hero-buttons animate-fade-in delay-4">
             <router-link to="/map" class="btn btn-primary btn-large">
-              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20">
-                <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
+              <Icon class="btn-icon" icon="gis:poi" width="20" height="20" />
               进入GIS地图
             </router-link>
             <router-link to="/project" class="btn btn-secondary btn-large">
-              <svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20">
-                <path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-              </svg>
+              <Icon class="btn-icon" icon="gis:map-book" width="20" height="20" />
               查看项目概况
             </router-link>
           </div>
@@ -153,8 +149,8 @@
             <p class="feature-desc">{{ feature.description }}</p>
             <router-link :to="feature.link" class="feature-link">
               查看详情
-              <svg viewBox="0 0 24 24" width="16" height="16">
-                <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <path d="M3 10h11V6.5L20.5 12 14 17.5V14H3z"/>
               </svg>
             </router-link>
           </div>
@@ -302,8 +298,8 @@
             <div class="info-actions">
               <router-link to="/map" class="btn btn-primary">
                 进入地图探索
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M3 10h11V6.5L20.5 12 14 17.5V14H3z"/>
                 </svg>
               </router-link>
               <router-link to="/archive" class="btn btn-outline">

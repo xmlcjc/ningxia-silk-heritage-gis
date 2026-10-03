@@ -151,10 +151,8 @@
                     {{ item.period }}
                   </span>
                   <span class="meta-item">
-                    <svg class="meta-icon" viewBox="0 0 24 24" width="14" height="14" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
-                      <circle cx="12" cy="12" r="3"/>
+                    <svg class="meta-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
                     </svg>
                     {{ item.views || 0 }}
                   </span>

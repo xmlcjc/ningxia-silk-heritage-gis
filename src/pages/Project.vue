@@ -320,30 +320,26 @@
             </div>
             <ul class="outcome-list">
               <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
-                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5"/>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                 </svg>
                 完成宁夏丝路非遗地理数据库建设，收录非遗项目200项以上
               </li>
               <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
-                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5"/>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                 </svg>
                 开发完成WebGIS展示平台，实现时空可视化等核心功能
               </li>
               <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
-                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5"/>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                 </svg>
                 发表学术论文1-2篇，形成研究报告1份
               </li>
               <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
-                     stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 6 9 17l-5-5"/>
+                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
+                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                 </svg>
                 为3-5项非遗项目提供数字化保护方案
               </li>

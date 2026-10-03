@@ -264,7 +264,7 @@
             <!-- 测距提示 -->
             <transition name="hint-fade">
               <div v-if="measureActive" class="measure-hint">
-                <Icon icon="gis:measure-line" width="14" height="14" style="vertical-align:-2px" /> 单击地图添加测点 · 双击结束测量 · Esc 取消
+                <Icon class="vam" icon="gis:measure-line" width="14" height="14" /> 单击地图添加测点 · 双击结束测量 · Esc 取消
               </div>
             </transition>
 
@@ -276,7 +276,7 @@
                   <span class="route-card-line" :style="{ background: focusedRoute.color }"></span>
                   <div class="route-card-headtext">
                     <h3>{{ focusedRoute.name }}</h3>
-                    <span class="route-card-meta"><Icon icon="gis:layer-road" width="14" height="14" style="vertical-align:-2px" /> 估算里程约 {{ focusedRouteLength }} 公里</span>
+                    <span class="route-card-meta"><Icon class="vam" icon="gis:layer-road" width="14" height="14" /> 估算里程约 {{ focusedRouteLength }} 公里</span>
                   </div>
                 </div>
                 <p class="route-card-desc">{{ focusedRoute.desc }}</p>
@@ -309,7 +309,7 @@
                     <span class="sample-marker national"><Icon icon="gis:flag-b" width="16" height="16" style="color:#C99A1E" /></span> 国家级
                   </div>
                   <div class="legend-row">
-                    <span class="sample-marker regional"><Icon icon="gis:poi" width="15" height="15" style="color:#8B4513" /></span> 自治区级
+                    <span class="sample-marker regional"><Icon icon="gis:poi" width="16" height="16" style="color:#8B4513" /></span> 自治区级
                   </div>
                   <div class="legend-row">
                     <span class="sample-marker county"></span> 县级及以下

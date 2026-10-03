@@ -73,9 +73,9 @@
               <p class="result-desc">{{ result.description }}</p>
               
               <div class="result-meta">
-                <span class="meta-tag" v-if="result.size"><Icon icon="gis:cube-3d" width="13" height="13" style="vertical-align:-2px" /> {{ result.size }}</span>
-                <span class="meta-tag" v-if="result.date"><Icon icon="gis:map-time" width="13" height="13" style="vertical-align:-2px" /> {{ result.date }}</span>
-                <span class="meta-tag go-tag"><Icon icon="gis:network" width="13" height="13" style="vertical-align:-2px" /> {{ result.linkText }}</span>
+                <span class="meta-tag" v-if="result.size"><Icon class="vam" icon="gis:cube-3d" width="13" height="13" /> {{ result.size }}</span>
+                <span class="meta-tag" v-if="result.date"><Icon class="vam" icon="gis:map-time" width="13" height="13" /> {{ result.date }}</span>
+                <span class="meta-tag go-tag"><Icon class="vam" icon="gis:network" width="13" height="13" /> {{ result.linkText }}</span>
               </div>
             </div>
           </div>
@@ -194,8 +194,8 @@
               
               <a href="#" class="read-more">
                 <span>阅读全文</span>
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M3 10h11V6.5L20.5 12 14 17.5V14H3z"/>
                 </svg>
               </a>
             </div>
