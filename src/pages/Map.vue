@@ -201,8 +201,8 @@
         <!-- 地图主区域 -->
         <main class="map-main">
           <div class="map-view">
-            <!-- Leaflet 真实地图容器（v-if 确保初始化时就有实际尺寸） -->
-            <div v-if="viewMode === 'map'" id="heritage-leaflet-map" class="leaflet-container"></div>
+            <!-- Leaflet 真实地图容器（v-show 保持地图实例存活，切换列表视图后无需重建） -->
+            <div v-show="viewMode === 'map'" id="heritage-leaflet-map" class="leaflet-container"></div>
 
             <!-- 列表视图覆盖层 -->
             <transition name="slide-up">
@@ -212,14 +212,15 @@
                   <span class="list-count">{{ filteredData.length }} 项结果</span>
                 </div>
                 <div class="list-items">
-                  <div 
-                    class="list-item" 
-                    v-for="item in filteredData" 
+                  <div
+                    class="list-item"
+                    v-for="item in filteredData"
                     :key="item.id"
-                    @click="goToDetail(item.id)"
+                    @click="openItemPreview(item)"
                   >
-                    <div class="item-image" :style="{ backgroundColor: item.color || '#F5F0E6' }">
+                    <div class="item-image">
                       <span class="item-char">{{ item.name.charAt(0) }}</span>
+                      <img :src="item.thumbImage" :alt="item.name" loading="lazy" @error="onImgError">
                     </div>
                     <div class="item-content">
                       <div class="item-header">
@@ -245,6 +246,11 @@
 
             <!-- 地图工具栏 -->
             <div class="floating-toolbar">
+              <button class="toolbar-btn"
+                      :title="viewMode === 'map' ? '切换为列表视图' : '切换为地图视图'"
+                      @click="toggleView">
+                <Icon class="toolbar-icon" :icon="viewMode === 'map' ? 'gis:grid' : 'gis:map'" />
+              </button>
               <button class="toolbar-btn" title="缩放至全图" @click="zoomToFit">
                 <Icon class="toolbar-icon" icon="gis:extent" />
               </button>
@@ -410,9 +416,10 @@
           
           <div v-if="selectedItem" class="detail-body">
             <div class="detail-image-wrapper">
-              <div class="detail-placeholder" :style="{ backgroundColor: selectedItem.color || '#F5F0E6' }">
+              <div class="detail-placeholder">
                 <span class="placeholder-char">{{ selectedItem.name.charAt(0) }}</span>
               </div>
+              <img class="detail-image" :src="selectedItem.thumbImage" :alt="selectedItem.name" @error="onImgError">
               <div class="image-overlay">
                 <span class="level-badge" :class="'level-' + (selectedItem.level?.includes('国家级') ? 'national' : 'regional')">
                   {{ selectedItem.level }}
@@ -628,6 +635,10 @@ const levelIcon = (item, delay = 0) => {
 
 const createPopupContent = (item) => `
   <div class="heritage-popup" style="min-width: 220px;">
+    <img src="${item.thumbImage}" alt="${item.name}" onerror="this.style.display='none'" style="
+      display:block;width:100%;height:124px;object-fit:cover;border-radius:6px;margin-bottom:8px;
+      background:#EDE2CF;
+    ">
     <h3 style="margin:0 0 6px;color:#3E2723;font-size:15px;font-weight:700;">${item.name}</h3>
     <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
       <span style="background:#D4A017;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;">${item.category}</span>
@@ -1441,6 +1452,25 @@ const goToDetail = (id) => {
   if (id) {
     detailDialogVisible.value = false
     router.push(`/archive/${id}`)
+  }
+}
+
+// 列表视图内点击项目：先弹出快速预览弹窗（弹窗内可再跳转完整档案）
+const openItemPreview = (item) => {
+  if (!item) return
+  selectedItem.value = item
+  detailDialogVisible.value = true
+}
+
+const onImgError = (e) => {
+  e.target.classList.add('is-failed')
+}
+
+// 地图 / 列表视图切换；地图容器用 v-show 保活，回到地图后需刷新瓦片尺寸
+const toggleView = () => {
+  viewMode.value = viewMode.value === 'map' ? 'list' : 'map'
+  if (viewMode.value === 'map' && leafletMap) {
+    nextTick(() => leafletMap.invalidateSize())
   }
 }
 
@@ -2680,5 +2710,573 @@ onBeforeUnmount(() => {
     border-radius: 999px;
     white-space: nowrap;
   }
+}
+
+// ============================================
+// 列表视图覆盖层
+// ============================================
+.list-view-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #f4ead7 0%, #ede0c8 100%);
+}
+
+.list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: 22px 28px 15px;
+  border-bottom: 1px solid var(--color-border-light);
+  background: rgba(253, 248, 231, 0.88);
+
+  h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: var(--color-gold-ink);
+  }
+}
+
+.list-count {
+  font-size: 13px;
+  color: var(--color-secondary-dark);
+  white-space: nowrap;
+}
+
+.list-items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 20px;
+  background: linear-gradient(180deg, #fdf8eb 0%, #f7efdd 100%);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out),
+              border-color 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212, 160, 23, 0.5);
+    box-shadow: var(--shadow-md);
+
+    .action-arrow {
+      color: #fff8e7;
+      background: var(--color-secondary);
+      transform: translateX(4px);
+    }
+  }
+}
+
+.item-image {
+  position: relative;
+  flex: 0 0 auto;
+  width: 86px;
+  height: 86px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: linear-gradient(135deg, #d8c6a6 0%, #c2ac85 100%);
+  box-shadow: inset 0 0 0 1px rgba(62, 42, 8, 0.08);
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    &.is-failed { display: none; }
+  }
+}
+
+.item-char {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  color: rgba(253, 246, 227, 0.92);
+  text-shadow: 0 1px 3px rgba(62, 42, 8, 0.28);
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    margin: 6px 0 8px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #6b5a44;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  h4 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 17px;
+    color: var(--color-gold-ink);
+  }
+}
+
+.item-badge {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: nowrap;
+
+  &.badge-gold {
+    background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+    color: #fff8e7;
+    box-shadow: 0 2px 6px rgba(184, 134, 11, 0.35);
+  }
+
+  &.badge-silver {
+    background: linear-gradient(135deg, #a0825a 0%, #8b4513 100%);
+    color: #fdf6e3;
+  }
+}
+
+.item-tags {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.tag-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  line-height: 1.6;
+
+  &.tag-category { background: rgba(212, 160, 23, 0.16); color: #8a6708; }
+  &.tag-location { background: rgba(139, 69, 19, 0.10); color: #6d3410; }
+  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: #23634a; }
+}
+
+.item-action {
+  flex: 0 0 auto;
+}
+
+.action-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: rgba(212, 160, 23, 0.16);
+  color: var(--color-secondary-dark);
+  font-size: 16px;
+  transition: transform 0.3s var(--ease-out), color 0.3s var(--ease-out),
+              background 0.3s var(--ease-out);
+}
+
+// 列表视图入场动画
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.38s var(--ease-out), opacity 0.3s var(--ease-out);
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  transform: translateY(28px);
+  opacity: 0;
+}
+
+// ============================================
+// 详情弹窗
+// ============================================
+.detail-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(43, 28, 12, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s var(--ease-out);
+
+  .modal-content {
+    transition: transform 0.35s var(--ease-out), opacity 0.35s var(--ease-out);
+  }
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+
+  .modal-content {
+    transform: translateY(24px) scale(0.98);
+    opacity: 0;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(62, 42, 8, 0.08);
+  color: var(--color-gold-ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+
+  &:hover {
+    background: rgba(139, 69, 19, 0.18);
+    transform: rotate(90deg);
+  }
+}
+
+.detail-body {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.detail-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, #d8c6a6 0%, #c2ac85 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-char {
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 700;
+  color: rgba(253, 246, 227, 0.92);
+  text-shadow: 0 2px 4px rgba(62, 42, 8, 0.28);
+}
+
+.detail-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  &.is-failed { display: none; }
+}
+
+.image-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 30px 13px 11px;
+  background: linear-gradient(180deg, transparent 0%, rgba(43, 28, 12, 0.55) 100%);
+  pointer-events: none;
+}
+
+.level-badge {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: #fff8e7;
+
+  &.level-national {
+    background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
+    box-shadow: 0 2px 8px rgba(184, 134, 11, 0.5);
+  }
+
+  &.level-regional {
+    background: linear-gradient(135deg, rgba(160, 130, 90, 0.94) 0%, rgba(139, 69, 19, 0.94) 100%);
+  }
+}
+
+.detail-info {
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-size: 26px;
+    letter-spacing: 0.03em;
+    color: var(--color-gold-ink);
+  }
+}
+
+.detail-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 11px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+
+  &.tag-category { background: rgba(212, 160, 23, 0.16); color: #8a6708; }
+  &.tag-location { background: rgba(139, 69, 19, 0.10); color: #6d3410; }
+  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: #23634a; }
+}
+
+.detail-intro {
+  margin: 0 0 18px;
+  padding-left: 13px;
+  border-left: 3px solid var(--color-secondary);
+  font-size: 14px;
+  line-height: 1.8;
+  color: #5c4a33;
+}
+
+.detail-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 10px 13px;
+  background: rgba(255, 248, 231, 0.7);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
+.meta-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary-dark);
+}
+
+.meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-word;
+  color: var(--color-gold-ink);
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out),
+              background 0.25s var(--ease-out);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #a05a2c 0%, #8b4513 100%);
+  color: #fdf6e3;
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 16px rgba(139, 69, 19, 0.38);
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: rgba(139, 69, 19, 0.4);
+  color: var(--color-primary);
+
+  &:hover {
+    background: rgba(139, 69, 19, 0.08);
+    transform: translateY(-1px);
+  }
+}
+
+// ============================================
+// 图表卡片与章节标题
+// ============================================
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.header-decoration {
+  display: flex;
+  gap: 7px;
+}
+
+.deco-line {
+  width: 42px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-secondary));
+
+  &:last-child {
+    background: linear-gradient(90deg, var(--color-secondary), transparent);
+  }
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  color: var(--color-gold-ink);
+}
+
+.chart-card {
+  padding: 20px 20px 12px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+
+  h3 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 17px;
+    color: var(--color-gold-ink);
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      margin-right: 9px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--color-secondary), var(--color-primary));
+      vertical-align: -2px;
+    }
+  }
+}
+
+// ============================================
+// 移动端适配（列表视图 + 详情弹窗）
+// ============================================
+@media (max-width: 768px) {
+  .hero-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-lg);
+  }
+  .hero-stat-separator { display: none; }
+  .hero-stat-item .stat-num { font-size: 1.2rem; }
+
+  .list-header { padding: 16px 18px 12px; }
+  .list-items { padding: 14px 16px 20px; gap: 12px; }
+  .list-item { gap: 13px; padding: 12px 14px; }
+  .item-image { width: 64px; height: 64px; }
+  .item-char { font-size: 26px; }
+  .item-header h4 { font-size: 15px; }
+  .item-content p { margin: 4px 0 6px; }
+  .item-action { display: none; }
+
+  .detail-modal { padding: 0; }
+  .modal-content {
+    height: 100%;
+    max-height: 100vh;
+    padding: 22px 18px;
+    border-radius: 0;
+  }
+  .detail-body { grid-template-columns: 1fr; gap: 18px; }
+  .detail-image-wrapper { aspect-ratio: 16 / 9; }
+  .placeholder-char { font-size: 56px; }
+  .detail-info h2 { font-size: 22px; }
+  .detail-meta-grid { grid-template-columns: 1fr; }
+  .detail-actions .btn-primary,
+  .detail-actions .btn-secondary { flex: 1; }
+
+  .section-title { font-size: 22px; }
 }
 </style>

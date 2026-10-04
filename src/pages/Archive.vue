@@ -125,9 +125,11 @@
             @click="goToDetail(item.id)"
           >
               <div class="card-image-wrapper">
-                <div class="image-placeholder" :style="{ backgroundColor: item.color || '#F5F0E6' }">
+                <div class="image-placeholder">
                   <span class="placeholder-char">{{ item.name.charAt(0) }}</span>
                 </div>
+                <img class="card-image" :src="item.thumbImage" :alt="item.name"
+                     loading="lazy" @error="onImgError">
                 <div class="card-badge" :class="'level-' + (item.level?.includes('国家级') ? 'national' : 'regional')">
                   {{ item.level }}
                 </div>
@@ -240,6 +242,10 @@ const resetFilters = () => {
 
 const goToDetail = (id) => {
   router.push(`/archive/${id}`)
+}
+
+const onImgError = (e) => {
+  e.target.classList.add('is-failed')
 }
 </script>
 
@@ -546,13 +552,31 @@ const goToDetail = (id) => {
   background: linear-gradient(135deg, #E8DCC8, #D4C4AD);
   
   .image-placeholder {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  
+
+  .card-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  .card-image.is-failed {
+    display: none;
+  }
+
+  &:hover .card-image {
+    transform: scale(1.06);
+  }
+
   .placeholder-char {
     font-size: 4rem;
     font-weight: 700;
