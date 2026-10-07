@@ -42,6 +42,11 @@ const routes = [
     component: () => import('../pages/About.vue')
   },
   {
+    path: '/screen',
+    name: 'Screen',
+    component: () => import('../pages/Screen.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../pages/NotFound.vue')

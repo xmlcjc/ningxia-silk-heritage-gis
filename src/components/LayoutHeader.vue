@@ -79,6 +79,7 @@ const navItems = [
   { path: '/', name: '首页' },
   { path: '/project', name: '项目概况' },
   { path: '/map', name: 'GIS地图' },
+  { path: '/screen', name: '3D大屏' },
   { path: '/archive', name: '数字档案' },
   { path: '/results', name: '项目成果' },
   { path: '/about', name: '关于我们' }
