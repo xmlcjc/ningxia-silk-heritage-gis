@@ -44,7 +44,8 @@ const routes = [
   {
     path: '/screen',
     name: 'Screen',
-    component: () => import('../pages/Screen.vue')
+    component: () => import('../pages/Screen.vue'),
+    meta: { fullscreen: true }
   },
   {
     path: '/:pathMatch(.*)*',

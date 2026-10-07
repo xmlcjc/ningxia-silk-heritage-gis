@@ -5,7 +5,7 @@
  * - 法线图：高程经平滑后 Sobel 推导
  * - 行政区遮罩：轮廓外像素透明
  */
-import { readFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -24,6 +24,49 @@ const N = 2 ** Z
 const geo = JSON.parse(
   readFileSync(join(ROOT, 'src', 'assets', 'ningxia-outline.json'), 'utf8')
 )
+
+// ---- 地级市边界（--cities-only 时仅生成此项） ----
+const UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+
+const CITIES = [
+  { name: '银川市', adcode: 640100 },
+  { name: '石嘴山市', adcode: 640200 },
+  { name: '吴忠市', adcode: 640300 },
+  { name: '固原市', adcode: 640400 },
+  { name: '中卫市', adcode: 640500 }
+]
+
+async function buildCities() {
+  const out = []
+  for (const c of CITIES) {
+    const res = await fetch(
+      `https://geo.datav.aliyun.com/areas_v3/bound/${c.adcode}.json`,
+      { headers: { 'User-Agent': UA } }
+    )
+    if (!res.ok) throw new Error(`${c.name} HTTP ${res.status}`)
+    const gj = JSON.parse(await res.text())
+    const f = gj.features[0]
+    out.push({
+      name: c.name,
+      adcode: c.adcode,
+      center: f.properties.center,
+      geometry: f.geometry
+    })
+    console.log(`  ${c.name}: ${f.geometry.type}`)
+  }
+  writeFileSync(
+    join(ROOT, 'src', 'assets', 'ningxia-cities.json'),
+    JSON.stringify({ cities: out })
+  )
+  console.log(`输出 ningxia-cities.json（${CITIES.length} 市）`)
+}
+
+if (process.argv.includes('--cities-only')) {
+  console.log('仅生成地级市边界…')
+  await buildCities()
+  process.exit(0)
+}
 
 // ---- 收集全部坐标与外环 ----
 const rings = []
@@ -83,9 +126,6 @@ async function fetchTile(url, headers, label, attempt = 1) {
     return fetchTile(url, headers, label, attempt + 1)
   }
 }
-
-const UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
 
 async function buildLayer(urlFn, headers, name) {
   const tasks = []
@@ -243,4 +283,7 @@ await write(satMasked, 'nx_sat.webp')
 await write(dispPng, 'nx_disp.jpg')
 await write(normalJpg, 'nx_normal.jpg')
 console.log(`纹理尺寸: ${W} x ${H}`)
+
+console.log('生成地级市边界…')
+await buildCities()
 console.log('完成。')

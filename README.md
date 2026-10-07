@@ -3,6 +3,7 @@
 基于 GIS 与 WebGIS 的宁夏丝路非物质文化遗产数字化保护、时空可视化与传播展示平台。
 
 🔗 **线上体验**：https://ningxia-silk-heritage-gis.vercel.app
+🌐 **三维数据大屏**：https://ningxia-silk-heritage-gis.vercel.app/screen
 💬 **讨论交流**：[Discussions](https://github.com/xmlcjc/ningxia-silk-heritage-gis/discussions) ｜ 🐛 问题反馈：[Issues](https://github.com/xmlcjc/ningxia-silk-heritage-gis/issues)
 
 ## 项目简介
@@ -15,6 +16,7 @@
 - **UI 组件库**：Element Plus
 - **路由**：Vue Router（History 模式）
 - **地图引擎**：Leaflet —— 底图采用天地图矢量/卫星/地形服务，并以高德矢量作为兜底，保证国内访问可用
+- **三维引擎**：Three.js —— 卫星影像 + 高程位移的 3D 地形、市域边界、丝路古道与三维数据大屏
 - **数据可视化**：ECharts
 - **样式**：SCSS
 
@@ -35,15 +37,22 @@ ningxia-silk-heritage-gis/
 │   │   ├── Protection.vue     # 保护路径
 │   │   ├── Results.vue        # 项目成果
 │   │   ├── About.vue          # 关于我们
+│   │   ├── Screen.vue         # 三维数据大屏（全屏沉浸路由 /screen）
 │   │   └── NotFound.vue       # 404 兜底页
 │   ├── data/
 │   │   └── heritageData.js    # 非遗图文数据、古道、黄河
+│   ├── assets/
+│   │   ├── ningxia-cities.json  # 五地市行政边界 GeoJSON
+│   │   ├── ningxia-outline.json # 自治区轮廓 GeoJSON
+│   │   └── textures/          # 卫星影像 / 高程 / 法线地形纹理
 │   ├── styles/
 │   │   └── main.scss          # 全局样式与主题变量
 │   ├── router/
 │   │   └── index.js           # 路由配置
 │   ├── App.vue
 │   └── main.js
+├── scripts/
+│   └── build-ningxia-textures.mjs # 地形纹理与市域边界数据生成脚本
 ├── public/
 │   └── heritage/              # 20 个项目的压缩照片（封面/缩略图/图集）
 ├── index.html
@@ -69,6 +78,15 @@ ningxia-silk-heritage-gis/
 - 地市 / 类别 / 时期 / 等级多维度筛选、时光回放时间轴、点位详情弹窗
 - 工具栏：缩放至全图、距离测量、打印、全屏；图例与比例尺
 - 支持地图视图 / 列表视图切换：标记弹窗顶部带项目缩略图；列表视图以缩略图、等级徽章与标签胶囊呈现，点击列表项弹出左图右文的快速预览弹窗
+
+### 三维数据大屏（`/screen`）
+全屏沉浸式数据大屏，采用赭石·鎏金·宣纸暖色调，初始 45° 俯视、上北下南：
+- 卫星影像 + 高程位移（displacement）构建真实起伏的 3D 地形，配 SRTM 高程与 Sobel 法线纹理
+- 五地市行政边界贴地渲染，市名 Sprite 标签始终面向相机；鼠标悬停时市域鎏金、边界金色流光，默认不显示流光
+- 4 条丝路古道（萧关道、环灵道、长安西域道、灵州道三段）以 Catmull-Rom 平滑曲线 + 贴地流光管线呈现，各配主题色名称标牌
+- 20 项非遗点位立体标注，支持鼠标悬停提示与点击查看
+- 点击地级市：相机 45° 飞行聚焦，右侧项目名录、保护级别构成、类别分布环形图、历史源流年代图、五地市柱图全部按该市联动刷新；复位视图恢复全量
+- 支持鼠标拖拽旋转 / 缩放、右下角图例、返回主站；组件卸载时自动释放 Three.js 几何体 / 材质 / 纹理与 ECharts 实例
 
 ### 数字档案
 关键词搜索、多维筛选、分页浏览；档案卡片展示真实项目照片，点击进入非遗详情。
@@ -108,6 +126,8 @@ npm run preview
 - 4 条丝路古道坐标（灵州道含主线、南线、北线三段）
 - 黄河宁夏段河道坐标（取自 OpenStreetMap）
 - 类别、地市、时期、等级等字典数据
+
+三维大屏所用的五地市行政边界（`src/assets/ningxia-cities.json`，取自阿里云 DataV）、自治区轮廓与地形纹理（卫星影像 / SRTM 高程 / 法线，位于 `src/assets/textures/`）由 `scripts/build-ningxia-textures.mjs` 抓取生成，地形管线按行政区轮廓做了透明遮罩裁剪。
 
 后续如需扩展，可将数据层替换为后端 API。
 
