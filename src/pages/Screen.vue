@@ -619,8 +619,10 @@ onMounted(() => {
         const lcol = new Float32Array(run.length * 4)
         run.forEach((coord, i) => {
           const [x, y] = project(coord)
-          linePts.push(new THREE.Vector3(x, -0.6, -y))
-          const a = fadeAt(Math.hypot(x - scx, -y - scy))
+          // z 必须用 +y（与宁夏五市边界线、邻省plate旋转后的约定一致）；
+          // 此前误用 -y 导致邻省省界线整体南北镜像（内蒙南界被画到宁夏南侧）
+          linePts.push(new THREE.Vector3(x, -0.6, y))
+          const a = fadeAt(Math.hypot(x - rCx, y - rCy))
           lcol[i * 4] = 1
           lcol[i * 4 + 1] = 1
           lcol[i * 4 + 2] = 1
@@ -1354,6 +1356,52 @@ onMounted(() => {
         labelTex: rlabelTex,
         start: 1.7 + ri * 0.28
       })
+    })
+
+    // ---- 邻省参照层地形贴合 ----
+    // 根因：邻省参照层plate/line在.then回调之前创建，顶点Y固定在y=-0.85/-0.6，
+    // 完全无视DEM地形位移；而宁夏五市fillGeo顶点已贴合DEM（抬升0~4世界单位），
+    // 导致省界衔接处出现垂直高度差，视觉上像"坐标系不匹配"。
+    // 修复：遍历neighborObjects中的plate和line，反算经纬度后采样DEM得到正确Y值。
+    const _cos0 = Math.cos((CENTROID[1] * Math.PI) / 180)
+    const NEIGHBOR_OFFSET = -0.35 // 邻省比宁夏五市略低一点，保证层级关系清晰
+
+    neighborObjects.forEach((obj) => {
+      if (obj.isMesh && obj.geometry?.isExtrudeGeometry) {
+        // plate: ExtrudeGeometry + rotation.x=-PI/2 + position.y=-0.85
+        // 先烘焙rotation和position到顶点，再覆盖为世界坐标 + 地形Y
+        const geo = obj.geometry
+        const pos = geo.attributes.position
+        for (let i = 0; i < pos.count; i++) {
+          const lx = pos.getX(i) // shape.x = -(lng-C[0])*SCALE
+          const ly = pos.getY(i) // shape.y = -(lat-C[1])*SCALE*cosLat
+          // 反算经纬度
+          const lng = -lx / SCALE + CENTROID[0]
+          const lat = -ly / (SCALE * _cos0) + CENTROID[1]
+          const groundY = sampleGround(lng, lat) * DISP_SCALE + NEIGHBOR_OFFSET
+          pos.setX(i, lx)
+          pos.setY(i, groundY)
+          pos.setZ(i, -ly)
+        }
+        pos.needsUpdate = true
+        // 清除变换（已烘焙进顶点）
+        obj.rotation.set(0, 0, 0)
+        obj.position.set(0, 0, 0)
+      } else if (obj.isLine && obj.geometry) {
+        // line: BufferGeometry，顶点已是世界空间 (x, -0.6, +y_project)
+        const geo = obj.geometry
+        const pos = geo.attributes.position
+        for (let i = 0; i < pos.count; i++) {
+          const wx = pos.getX(i)
+          const wz = pos.getZ(i)
+          // 反算经纬度（z=+y_project）
+          const lng = -wx / SCALE + CENTROID[0]
+          const lat = wz / (SCALE * _cos0) + CENTROID[1]
+          const groundY = sampleGround(lng, lat) * DISP_SCALE + NEIGHBOR_OFFSET
+          pos.setY(i, groundY)
+        }
+        pos.needsUpdate = true
+      }
     })
   })
 

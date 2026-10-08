@@ -40,7 +40,8 @@ ningxia-silk-heritage-gis/
 │   │   ├── Screen.vue         # 三维数据大屏（全屏沉浸路由 /screen）
 │   │   └── NotFound.vue       # 404 兜底页
 │   ├── data/
-│   │   └── heritageData.js    # 非遗图文数据、古道、黄河
+│   │   ├── heritageData.js            # 非遗图文数据、古道、黄河
+│   │   └── ningxia-neighbors.geo.json # 邻省（甘肃/内蒙古/陕西）行政边界
 │   ├── assets/
 │   │   ├── ningxia-cities.json  # 五地市行政边界 GeoJSON
 │   │   ├── ningxia-outline.json # 自治区轮廓 GeoJSON
@@ -84,7 +85,7 @@ ningxia-silk-heritage-gis/
 全屏沉浸式数据大屏，采用赭石·鎏金·宣纸暖色调，初始 45° 俯视、上北下南：
 - 卫星影像 + 高程位移（displacement）构建真实起伏的 3D 地形，配 SRTM 高程与 Sobel 法线纹理
 - **地形分层设色**（可开关）：沿 DEM 按海拔叠加色带（低海拔绿 → 黄土高原黄 → 贺兰山顶白），采用世界空间中心差分法线保证顶视与斜视下起伏层次一致
-- 周边省级行政区参照层（甘肃 / 内蒙古 / 陕西），以圆盘边界裁切，省名锚点经"点在多边形内"校验落在真实省界内；可一键隐藏切换为仅看宁夏
+- 周边省级行政区参照层（甘肃 / 内蒙古 / 陕西），以圆盘边界裁切并径向淡出；参照层填充与省界线统一贴合 DEM 地形，与宁夏五市省界无缝衔接；省名锚点经"点在多边形内"校验落在真实省界内；可一键隐藏切换为仅看宁夏
 - 五地市行政边界贴地渲染，市名 Sprite 标签始终面向相机；鼠标悬停时市域鎏金、边界**单点脉冲流光**（沿边界匀速跑动一个亮点）；点击相机 45° 飞行聚焦
 - 4 条丝路古道（萧关道、环灵道、长安西域道、灵州道三段）以 Catmull-Rom 平滑曲线 + 贴地流光管线呈现，各配主题色名称标牌；支持点击聚焦，聚焦后右栏名录、环形图、年代图、地市柱图自动联动（沿线项目收敛、柱图高亮）
 - 20 项非遗点位立体标注，支持鼠标悬停提示与点击查看
@@ -129,7 +130,7 @@ npm run preview
 - 黄河宁夏段河道坐标（取自 OpenStreetMap）
 - 类别、地市、时期、等级等字典数据
 
-三维大屏所用的五地市行政边界（`src/assets/ningxia-cities.json`，取自阿里云 DataV）、自治区轮廓与地形纹理（卫星影像 / SRTM 高程 / 法线，位于 `src/assets/textures/`）由 `scripts/build-ningxia-textures.mjs` 抓取生成，地形管线按行政区轮廓做了透明遮罩裁剪。
+三维大屏所用的五地市行政边界（`src/assets/ningxia-cities.json`，取自阿里云 DataV）、邻省行政边界（`src/data/ningxia-neighbors.geo.json`）、自治区轮廓与地形纹理（卫星影像 / SRTM 高程 / 法线，位于 `src/assets/textures/`）由 `scripts/build-ningxia-textures.mjs` 抓取生成，地形管线按行政区轮廓做了透明遮罩裁剪。
 
 后续如需扩展，可将数据层替换为后端 API。
 
