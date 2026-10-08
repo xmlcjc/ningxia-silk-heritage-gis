@@ -73,9 +73,36 @@
       <main class="stage">
         <div ref="containerRef" class="canvas-container"></div>
 
+        <!-- 悬停地级市：玻璃信息卡（跟随鼠标） -->
+        <div
+          v-if="hoverCardData"
+          class="hover-card"
+          :style="{ transform: `translate3d(${hoverCardPos.x + 16}px, ${hoverCardPos.y + 16}px, 0)` }"
+        >
+          <div class="hc-name">{{ hoverCardData.name }}</div>
+          <div class="hc-row">
+            <span>非遗项目</span><b>{{ hoverCardData.total }}</b>
+          </div>
+          <div v-for="lv in hoverCardData.levels" :key="lv.name" class="hc-row">
+            <span>{{ lv.name }}</span><b>{{ lv.value }}</b>
+          </div>
+          <div class="hc-row">
+            <span>主要类别</span><b>{{ hoverCardData.topCat }}</b>
+          </div>
+          <div class="hc-samples">
+            <span v-for="s in hoverCardData.samples" :key="s">{{ s }}</span>
+          </div>
+        </div>
+
         <div class="filter-bar">
           <button class="reset-btn" @click="resetAll">
             <span class="reset-ico">⟲</span>复位视图
+          </button>
+          <button class="layer-btn" :class="{ 'is-on': showNeighbors }" @click="toggleNeighbors">
+            <span class="reset-ico">◈</span>{{ showNeighbors ? '周边省份' : '仅看宁夏' }}
+          </button>
+          <button class="layer-btn" :class="{ 'is-on': showTerrain }" @click="toggleTerrain">
+            <span class="reset-ico">▲</span>{{ showTerrain ? '隐藏地形' : '分层设色' }}
           </button>
           <transition-group name="chip" tag="div" class="chip-wrap">
             <span
@@ -155,6 +182,7 @@ import * as echarts from 'echarts'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import outlineData from '@/assets/ningxia-outline.json'
 import citiesGeo from '@/assets/ningxia-cities.json'
+import neighborsGeo from '@/data/ningxia-neighbors.geo.json'
 import satUrl from '@/assets/textures/nx_sat.webp'
 import dispUrl from '@/assets/textures/nx_disp.jpg'
 import normalUrl from '@/assets/textures/nx_normal.jpg'
@@ -173,10 +201,14 @@ const periodRef = ref(null)
 const selected = ref(null)
 const mobilePanel = ref(false)
 const clockText = ref('')
+// 悬停地级市时的信息卡
+const hoverCardName = ref('')
+const hoverCardPos = reactive({ x: 0, y: 0 })
 
 // 统一联动状态（地图与图表的唯一真相源）
 const uiState = reactive({
   city: '',
+  route: '',
   category: '',
   level: '',
   period: '',
@@ -191,10 +223,13 @@ const stats = computed(() => ({
   routes: silkRoadRoutes.length
 }))
 
-// 当前数据范围：选中地市后仅统计该市，否则为全量
-const scopedData = computed(() =>
-  uiState.city ? heritageData.filter((d) => d.city === uiState.city) : heritageData
-)
+// 当前数据范围：选中地市/古道后仅统计其范围，否则为全量
+const scopedData = computed(() => {
+  let list = heritageData
+  if (uiState.city) list = list.filter((d) => d.city === uiState.city)
+  if (uiState.route) list = list.filter((d) => d.routeRelation === uiState.route)
+  return list
+})
 
 const levelStats = computed(() =>
   ['国家级', '自治区级', '市级', '县级']
@@ -204,15 +239,38 @@ const levelStats = computed(() =>
 
 const levelTotal = computed(() => levelStats.value.reduce((s, d) => s + d.value, 0))
 
-// 右栏名录：默认国家级；选中地市时展示该市全部项目
-const listTitle = computed(() =>
-  uiState.city ? `${uiState.city.replace('市', '')} · 项目名录` : '国家级项目名录'
-)
+// 右栏名录：默认国家级；选中地市或古道时展示对应范围的全部项目
+const listTitle = computed(() => {
+  if (uiState.route) return `${uiState.route} · 沿线非遗`
+  if (uiState.city) return `${uiState.city.replace('市', '')} · 项目名录`
+  return '国家级项目名录'
+})
 const cityItemList = computed(() =>
-  uiState.city
-    ? heritageData.filter((d) => d.city === uiState.city)
+  uiState.city || uiState.route
+    ? scopedData.value
     : heritageData.filter((d) => d.level === '国家级')
 )
+
+// 悬停地级市的悬浮信息卡内容
+const hoverCardData = computed(() => {
+  if (!hoverCardName.value) return null
+  const items = heritageData.filter((d) => d.city === hoverCardName.value)
+  if (!items.length) return null
+  const catCount = {}
+  items.forEach((d) => {
+    catCount[d.category] = (catCount[d.category] || 0) + 1
+  })
+  const topCat = Object.entries(catCount).sort((a, b) => b[1] - a[1])[0]
+  return {
+    name: hoverCardName.value,
+    total: items.length,
+    levels: ['国家级', '自治区级', '市级', '县级']
+      .map((name) => ({ name, value: items.filter((d) => d.level === name).length }))
+      .filter((d) => d.value > 0),
+    topCat: topCat ? topCat[0] : '—',
+    samples: items.slice(0, 3).map((d) => d.name)
+  }
+})
 
 // ================= Three.js =================
 let renderer = null
@@ -232,22 +290,41 @@ let flyIndex = 0
 const FLY_NUM = 50
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
+// 流光采样复用的临时向量
+const _runnerTmp = new THREE.Vector3()
 const hitMeshes = []
 const pulseRings = []
 const glowHeads = []
 const markerEntries = []
 const cityEntries = []
+// 市域拾取用静态网格（不参与悬停上浮，避免射线反复落空导致闪烁）
+const cityPickMeshes = []
 const routeEntries = []
+// 古道管线的拾取网格（点击聚焦古道，与 GIS 地图的交互一致）
+const routeHitMeshes = []
+let hoverRouteName = ''
 let arcMaterial = null
 const arcGeometries = []
+let gridFloorGeo = null
+let gridFloorMat = null
+let dustGeo = null
+let dustMat = null
 let hoverCityName = ''
 let cameraTween = null
 let dotSpriteTex = null
+// 周边省级行政区参照层（甘肃/内蒙古/陕西）：默认显示，可一键隐藏做对比
+const showNeighbors = ref(true)
+const neighborObjects = []
+const neighborDisposables = []
+// 地形分层设色：默认关闭（地形仅显示暗色卫星影像），开启后按海拔高程叠加彩色色层
+const showTerrain = ref(false)
+let terrainTintMat = null
 let reduceMotion = false
 let pointerDownAt = null
 let onClickHandler = null
 let onMoveHandler = null
 let onDownHandler = null
+let onLeaveHandler = null
 let animationId = 0
 let resizeHandler = null
 
@@ -255,11 +332,104 @@ const CENTROID = [106.169866, 37.291332]
 const SCALE = 22
 const CITY_BASE_COLOR = new THREE.Color('#6fc6e8')
 const CITY_GOLD_COLOR = new THREE.Color('#ffc857')
+// 边界流光：单点脉冲（悬停时仅沿边界跑一个亮点）
+const RUNNER_TRAIL = 1
+
+// 周边省份名锚点：均已通过"点在多边形内"验证（确保落在该省界内、宁夏界外、圆盘内）。
+// 不能用裁切环的点坐标求平均——环绕宁夏的边界弧求均后形心会落进宁夏，
+// 造成"内蒙古压在吴忠旁、甘肃压在固原上"的错位。
+const NEIGHBOR_ANCHORS = {
+  内蒙古自治区: [105.973, 40.509],
+  陕西省: [108.631, 35.823],
+  甘肃省: [103.863, 35.521]
+}
 const project = ([lng, lat]) => {
   // x 取反：three.js 相机在南侧向北看时东西会镜像，翻转投影保证左西右东
   const x = -(lng - CENTROID[0]) * SCALE
   const y = (lat - CENTROID[1]) * SCALE * Math.cos((CENTROID[1] * Math.PI) / 180)
   return [x, y]
+}
+
+// ---- 周边省级行政区参照层的裁剪（Sutherland–Hodgman，凸多边形裁切）----
+// 只保留贴近宁夏的一段，避免内蒙/甘肃向外延伸数千公里把大屏撑满
+const stripClosing = (ring) => {
+  if (ring.length > 1) {
+    const f = ring[0]
+    const l = ring[ring.length - 1]
+    if (Math.abs(f[0] - l[0]) < 1e-6 && Math.abs(f[1] - l[1]) < 1e-6) return ring.slice(0, -1)
+  }
+  return ring
+}
+// 以宁夏中心为圆心的凸多边形（近似圆盘），避免出现生硬的矩形裁切边
+const makeClipDisc = (cx, cy, radiusLng, cosLat, seg = 64) => {
+  const poly = []
+  for (let i = 0; i < seg; i++) {
+    const a = (i / seg) * Math.PI * 2
+    poly.push([cx + radiusLng * Math.cos(a), cy + (radiusLng / cosLat) * Math.sin(a)])
+  }
+  return poly
+}
+// 返回 { pts, orig }：orig 标记该点是否来自原始省界（裁切交点则为 false），
+// 便于绘制边界时剔除裁切产生的直边/弧边
+function clipRingToPoly(ring, poly) {
+  let out = stripClosing(ring).map((p) => ({ p, orig: true }))
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i]
+    const b = poly[(i + 1) % poly.length]
+    const ex = b[0] - a[0]
+    const ey = b[1] - a[1]
+    const side = (q) => ex * (q[1] - a[1]) - ey * (q[0] - a[0])
+    const inter = (p, q) => {
+      const dp = side(p)
+      const dq = side(q)
+      const t = dp / (dp - dq)
+      return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]
+    }
+    const input = out
+    out = []
+    for (let k = 0; k < input.length; k++) {
+      const cur = input[k]
+      const prev = input[(k + input.length - 1) % input.length]
+      const curIn = side(cur.p) >= 0
+      const prevIn = side(prev.p) >= 0
+      if (curIn) {
+        if (!prevIn) out.push({ p: inter(prev.p, cur.p), orig: false })
+        out.push(cur)
+      } else if (prevIn) {
+        out.push({ p: inter(prev.p, cur.p), orig: false })
+      }
+    }
+    if (!out.length) return { pts: [], orig: [] }
+  }
+  return {
+    pts: out.map((o) => o.p),
+    orig: out.map((o) => o.orig)
+  }
+}
+
+// 收起悬停信息卡：选中地市或非遗点位后立刻清掉，
+// 否则卡片会压在跟随相机居中的市名标签上（吴忠/银川/石嘴山的"市名显示不全"即由此而来）
+function clearHoverCard() {
+  hoverCityName = ''
+  hoverCardName.value = ''
+}
+
+// 按等弧长在闭合外环上取点（t 为 0~1 的整圈进度），保证流光匀速
+function sampleRing(entry, t, out) {
+  const { ringPts, ringCum, ringLen } = entry
+  let target = t % 1
+  if (target < 0) target += 1
+  target *= ringLen
+  let lo = 0
+  let hi = ringCum.length - 1
+  while (lo < hi - 1) {
+    const mid = (lo + hi) >> 1
+    if (ringCum[mid] <= target) lo = mid
+    else hi = mid
+  }
+  const segLen = ringCum[hi] - ringCum[lo] || 1
+  const f = Math.min(1, Math.max(0, (target - ringCum[lo]) / segLen))
+  return out.copy(ringPts[lo]).lerp(ringPts[hi], f)
 }
 
 onMounted(() => {
@@ -371,6 +541,132 @@ onMounted(() => {
   baseMesh.position.y = -0.6
   scene.add(baseMesh)
 
+  // ---- 周边省级行政区参照层 ----
+  // 说明：周边省份整体尺度远超宁夏（内蒙东西跨度约 29°），
+  // 因此裁成"以宁夏为中心、半径 ≈80 个世界单位"的圆盘，只留环绕宁夏的一段；
+  // 填充面再按到中心的距离做径向淡出，宁夏如"浮"在区域之中，直观表明其地理位置。
+  const cosLat = Math.cos((CENTROID[1] * Math.PI) / 180)
+  const [rCx, rCy] = project([(minLng + maxLng) / 2, (minLat + maxLat) / 2])
+  // 中心在 shape 空间的坐标（shape 的 y 为 project-y 的相反数）
+  const scx = rCx
+  const scy = -rCy
+  const discR = 80 // 世界单位
+  const clipPoly = makeClipDisc((minLng + maxLng) / 2, (minLat + maxLat) / 2, discR / SCALE, cosLat, 64)
+  const fadeStart = discR * 0.5
+  const fadeEnd = discR * 0.97
+  // r 为到宁夏中心的距离（shape 空间），返回 1→0 的平滑淡出系数
+  const fadeAt = (r) => {
+    const t = Math.min(1, Math.max(0, (r - fadeStart) / (fadeEnd - fadeStart)))
+    return 1 - t * t * (3 - 2 * t)
+  }
+  const neighborFillMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color('#4a83a8'),
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false
+  })
+  const neighborEdgeMat = new THREE.LineBasicMaterial({
+    color: new THREE.Color('#8ccbea'),
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.75
+  })
+  neighborDisposables.push(neighborFillMat, neighborEdgeMat)
+
+  for (const prov of neighborsGeo) {
+    const shapes = []
+    const clipped = []
+    for (const poly of prov.coordinates) {
+      const { pts, orig } = clipRingToPoly(poly[0], clipPoly)
+      if (pts.length < 3) continue
+      const shape = new THREE.Shape()
+      pts.forEach((coord, i) => {
+        const [x, y] = project(coord)
+        if (i === 0) shape.moveTo(x, -y)
+        else shape.lineTo(x, -y)
+      })
+      shape.closePath()
+      shapes.push(shape)
+      clipped.push({ pts, orig })
+    }
+    if (!shapes.length) continue
+
+    // 填充面：逐顶点写入 RGBA，靠近圆盘外缘时 alpha → 0
+    const geo = new THREE.ExtrudeGeometry(shapes, { depth: 0.25, bevelEnabled: false })
+    const pos = geo.attributes.position
+    const col = new Float32Array(pos.count * 4)
+    for (let i = 0; i < pos.count; i++) {
+      const r = Math.hypot(pos.getX(i) - scx, pos.getY(i) - scy)
+      col[i * 4] = 1
+      col[i * 4 + 1] = 1
+      col[i * 4 + 2] = 1
+      col[i * 4 + 3] = fadeAt(r) * 0.5
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 4))
+    const plate = new THREE.Mesh(geo, neighborFillMat)
+    plate.rotation.x = -Math.PI / 2
+    plate.position.y = -0.85
+    scene.add(plate)
+    neighborDisposables.push(geo)
+
+    // 行政边界线：剔除裁切产生的外缘段，只画真实省界，并同样径向淡出
+    clipped.forEach(({ pts, orig }) => {
+      let run = []
+      const flush = () => {
+        if (run.length < 2) { run = []; return }
+        const linePts = []
+        const lcol = new Float32Array(run.length * 4)
+        run.forEach((coord, i) => {
+          const [x, y] = project(coord)
+          linePts.push(new THREE.Vector3(x, -0.6, -y))
+          const a = fadeAt(Math.hypot(x - scx, -y - scy))
+          lcol[i * 4] = 1
+          lcol[i * 4 + 1] = 1
+          lcol[i * 4 + 2] = 1
+          lcol[i * 4 + 3] = a * 0.95
+        })
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts)
+        lineGeo.setAttribute('color', new THREE.BufferAttribute(lcol, 4))
+        const line = new THREE.Line(lineGeo, neighborEdgeMat)
+        scene.add(line)
+        neighborObjects.push(line)
+        neighborDisposables.push(lineGeo)
+        run = []
+      }
+      for (let i = 0; i < pts.length; i++) {
+        const next = (i + 1) % pts.length
+        if (orig[i] && orig[next]) {
+          if (!run.length) run.push(pts[i])
+          run.push(pts[next])
+        } else {
+          flush()
+        }
+      }
+      flush()
+    })
+
+    // 省名：使用经校验的固定锚点（正北方为内蒙古、东南为陕西、西南为甘肃）
+    const anchor = NEIGHBOR_ANCHORS[prov.name]
+    const labelTex = makeNeighborLabelTexture(prov.short)
+    const labelMat = new THREE.SpriteMaterial({
+      map: labelTex,
+      transparent: true,
+      opacity: 0.82,
+      depthWrite: false,
+      depthTest: false
+    })
+    const label = new THREE.Sprite(labelMat)
+    const [lx, lz] = project(anchor)
+    label.position.set(lx, 1.4, lz)
+    label.scale.set(11, 11 * (140 / 512), 1)
+    label.renderOrder = 19
+    scene.add(label)
+
+    neighborObjects.push(plate, label)
+    neighborDisposables.push(labelTex, labelMat)
+  }
+
   // ---- 地形平面 ----
   const [sx0, sy0] = project([minLng, minLat])
   const [sx1, sy1] = project([maxLng, maxLat])
@@ -410,6 +706,99 @@ onMounted(() => {
       terrainMaterial.displacementMap = dispTex
       terrainMaterial.normalMap = normTex
       terrainMaterial.needsUpdate = true
+
+      // ---- 地形分层设色叠加层（复用同一地形几何，沿同一DEM位移）----
+      // 关键：法线来自 vertex shader 中 displacement 贴图的中心差分，
+      // 属于真实世界空间的几何法线，与相机俯角无关——顶视和斜视都能看到正确起伏。
+      const DISP_SCALE = 4.0
+      terrainTintMat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        // 与 terrainMesh 共享同一几何和位移，共面会被深度测试挡住
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: {
+          uDisp: { value: dispTex },
+          uMask: { value: satTex },
+          uTexel: { value: new THREE.Vector2(1 / dispTex.image.width, 1 / dispTex.image.height) },
+          uWorldSize: { value: new THREE.Vector2(worldW, worldH) },
+          uDispScale: { value: DISP_SCALE },
+          uVMin: { value: 2 / 255 },
+          uVMax: { value: 246 / 255 },
+          uOpacity: { value: 0 }
+        },
+        vertexShader: `
+          uniform sampler2D uDisp;
+          uniform vec2 uTexel;
+          uniform vec2 uWorldSize;
+          uniform float uDispScale;
+          varying vec2 vUv;
+          varying vec3 vWorld;
+          varying vec3 vNormal;
+          void main() {
+            vUv = uv;
+            // 中心差分：采 4 邻居 displacement
+            float h  = texture2D(uDisp, uv).x;
+            float hL = texture2D(uDisp, uv - vec2(uTexel.x, 0.0)).x;
+            float hR = texture2D(uDisp, uv + vec2(uTexel.x, 0.0)).x;
+            float hD = texture2D(uDisp, uv - vec2(0.0, uTexel.y)).x;
+            float hU = texture2D(uDisp, uv + vec2(0.0, uTexel.y)).x;
+            // 世界空间切向量
+            vec3 tx = vec3(uTexel.x * uWorldSize.x, (hR - hL) * uDispScale, 0.0);
+            vec3 tz = vec3(0.0, (hU - hD) * uDispScale, uTexel.y * uWorldSize.y);
+            // cross(tx, tz) 应朝上（+y）；若 y 分量为负则翻转
+            vec3 n = cross(tx, tz);
+            if (n.y < 0.0) n = -n;
+            vNormal = normalize((modelMatrix * vec4(n, 0.0)).xyz);
+
+            vec3 p = position;
+            p.y += h * uDispScale + 0.15;
+            vec4 wp = modelMatrix * vec4(p, 1.0);
+            vWorld = wp.xyz;
+            gl_Position = projectionMatrix * viewMatrix * wp;
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D uDisp;
+          uniform sampler2D uMask;
+          uniform float uVMin;
+          uniform float uVMax;
+          uniform float uOpacity;
+          varying vec2 vUv;
+          varying vec3 vWorld;
+          varying vec3 vNormal;
+
+          // 分层设色色带：低海拔平原绿 → 浅黄绿 → 土黄 → 赭褐 → 雪线白
+          vec3 ramp(float t) {
+            vec3 c1 = vec3(0.34, 0.58, 0.34);
+            vec3 c2 = vec3(0.64, 0.70, 0.37);
+            vec3 c3 = vec3(0.78, 0.63, 0.36);
+            vec3 c4 = vec3(0.52, 0.33, 0.21);
+            vec3 c5 = vec3(0.87, 0.85, 0.81);
+            if (t < 0.30) return mix(c1, c2, t / 0.30);
+            if (t < 0.52) return mix(c2, c3, (t - 0.30) / 0.22);
+            if (t < 0.74) return mix(c3, c4, (t - 0.52) / 0.22);
+            return mix(c4, c5, smoothstep(0.74, 1.0, t));
+          }
+
+          void main() {
+            // satTex alpha 非完美 0/1 mask，宁夏高海拔区 alpha 近 0，用极底阈值过滤界外
+            float m = texture2D(uMask, vUv).a;
+            if (m < 0.001) discard;
+            float raw = clamp((texture2D(uDisp, vUv).x - uVMin) / (uVMax - uVMin), 0.0, 1.0);
+            raw = pow(raw, 0.72);
+
+            vec3 ld = normalize(vec3(0.45, 0.82, 0.30));
+            float lit = 0.52 + 0.48 * max(dot(normalize(vNormal), ld), 0.0);
+
+            gl_FragColor = vec4(ramp(raw) * lit * 2.4, uOpacity);
+          }
+        `
+      })
+      const tintMesh = new THREE.Mesh(terrainGeometry, terrainTintMat)
+      tintMesh.position.set(centerX, 0, centerZ)
+      tintMesh.renderOrder = 1
+      scene.add(tintMesh)
     }
   )
 
@@ -424,6 +813,118 @@ onMounted(() => {
   const fillLight = new THREE.DirectionalLight(0x9fc4ff, 0.35)
   fillLight.position.set(-70, 40, -30)
   scene.add(fillLight)
+
+  // ---- 无限鎏金网格地面（参考 demo0 的 infiniteGrid，换为暖色） ----
+  gridFloorGeo = new THREE.PlaneGeometry(1800, 1800, 1, 1)
+  gridFloorGeo.rotateX(-Math.PI / 2)
+  gridFloorMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uCell: { value: 4.0 },
+      uSection: { value: 20.0 },
+      uColorCell: { value: new THREE.Color('#6d4c22') },
+      uColorSection: { value: new THREE.Color('#c08f3c') },
+      uFadeStart: { value: 130.0 },
+      uFadeEnd: { value: 430.0 },
+      uOpacity: { value: 0.0 }
+    },
+    vertexShader: `
+      varying vec3 vWorld;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vWorld = wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      uniform float uCell;
+      uniform float uSection;
+      uniform vec3 uColorCell;
+      uniform vec3 uColorSection;
+      uniform float uFadeStart;
+      uniform float uFadeEnd;
+      uniform float uOpacity;
+      varying vec3 vWorld;
+      float gridLine(vec2 p, float size, float w) {
+        vec2 c = p / size;
+        vec2 g = abs(fract(c - 0.5) - 0.5) / fwidth(c);
+        return 1.0 - min(min(g.x, g.y) / w, 1.0);
+      }
+      void main() {
+        float cell = gridLine(vWorld.xz, uCell, 1.0);
+        float sect = gridLine(vWorld.xz, uSection, 1.7);
+        float d = distance(cameraPosition.xz, vWorld.xz);
+        float fade = 1.0 - smoothstep(uFadeStart, uFadeEnd, d);
+        float near = smoothstep(0.0, 45.0, d);
+        vec3 col = uColorCell * cell * 0.55 + uColorSection * sect;
+        float a = max(cell * 0.45, sect) * fade * near * uOpacity;
+        gl_FragColor = vec4(col, a);
+      }
+    `
+  })
+  const gridFloor = new THREE.Mesh(gridFloorGeo, gridFloorMat)
+  gridFloor.position.y = -1.4
+  gridFloor.renderOrder = -1
+  scene.add(gridFloor)
+
+  // ---- 暖色星尘（缓慢漂浮的鎏金微粒） ----
+  const DUST_COUNT = 1300
+  const dustPos = new Float32Array(DUST_COUNT * 3)
+  const dustPhase = new Float32Array(DUST_COUNT)
+  const dustAmp = new Float32Array(DUST_COUNT)
+  for (let i = 0; i < DUST_COUNT; i++) {
+    dustPos[i * 3] = (Math.random() - 0.5) * 560
+    dustPos[i * 3 + 1] = 6 + Math.random() * 168
+    dustPos[i * 3 + 2] = (Math.random() - 0.5) * 560
+    dustPhase[i] = Math.random() * Math.PI * 2
+    dustAmp[i] = 4 + Math.random() * 12
+  }
+  dustGeo = new THREE.BufferGeometry()
+  dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dustPos, 3))
+  dustGeo.setAttribute('aPhase', new THREE.Float32BufferAttribute(dustPhase, 1))
+  dustGeo.setAttribute('aAmp', new THREE.Float32BufferAttribute(dustAmp, 1))
+  dustMat = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uOpacity: { value: 0.0 },
+      uColor: { value: new THREE.Color('#ffd98a') }
+    },
+    vertexShader: `
+      attribute float aPhase;
+      attribute float aAmp;
+      uniform float uTime;
+      varying float vAlpha;
+      void main() {
+        vec3 p = position;
+        p.y += sin(uTime * 0.22 + aPhase) * aAmp;
+        p.x += cos(uTime * 0.16 + aPhase) * aAmp * 0.35;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = clamp(3.4 * (300.0 / -mv.z), 1.2, 7.0);
+        float twinkle = 0.55 + 0.45 * sin(uTime * 1.6 + aPhase * 3.1);
+        float far = 1.0 - smoothstep(230.0, 470.0, -mv.z);
+        vAlpha = twinkle * far;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      varying float vAlpha;
+      void main() {
+        float r = distance(gl_PointCoord, vec2(0.5));
+        float a = smoothstep(0.5, 0.0, r);
+        gl_FragColor = vec4(uColor, a * vAlpha * uOpacity);
+      }
+    `
+  })
+  const dust = new THREE.Points(dustGeo, dustMat)
+  dust.renderOrder = 1
+  scene.add(dust)
 
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
@@ -669,6 +1170,17 @@ onMounted(() => {
       fillMesh.userData.cityName = cityDef.name
       group.add(fillMesh)
 
+      // 静态拾取面（共用几何体，不随悬停上浮）——避免上浮后射线落空造成悬停闪烁
+      const pickMat = new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        depthWrite: false
+      })
+      const pickMesh = new THREE.Mesh(fillGeo, pickMat)
+      pickMesh.userData.cityName = cityDef.name
+      scene.add(pickMesh)
+      cityPickMeshes.push(pickMesh)
+
       const lineMat = new THREE.LineBasicMaterial({
         color: CITY_BASE_COLOR.clone(),
         transparent: true,
@@ -691,26 +1203,59 @@ onMounted(() => {
         color: CITY_BASE_COLOR.clone(),
         transparent: true,
         opacity: 0,
-        depthWrite: false
+        depthWrite: false,
+        // 不参与深度测试：否则低海拔地市（银川、吴忠）的市名会被前方地形挡住而"显示不全"
+        depthTest: false
       })
       const label = new THREE.Sprite(labelMat)
       label.position.set(lx, lgy + 4.4, lyN)
       label.scale.set(12.5, 12.5 * (140 / 512), 1)
+      label.renderOrder = 21
       group.add(label)
 
-      // 边界流光点（沿本市最大外环跑动）
-      let mainRingPts = []
-      polys[0][0].forEach(([lng, lat]) => {
+      // 取本市所有外环中跨度最大的一环作为流光跑道
+      // （此前固定取 polys[0][0]，多块结构的市域可能选到极小的孤立岛屿）
+      const majorRing = polys
+        .map((polygon) => polygon[0])
+        .reduce((best, ring) => {
+          const spanOf = (r) => {
+            let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity
+            r.forEach(([lng, lat]) => {
+              a = Math.min(a, lng); b = Math.max(b, lng)
+              c = Math.min(c, lat); d = Math.max(d, lat)
+            })
+            return (b - a) + (d - c)
+          }
+          return spanOf(ring) > spanOf(best) ? ring : best
+        })
+      const mainRingPts = majorRing.map(([lng, lat]) => {
         const [x, yN] = project([lng, lat])
-        mainRingPts.push(new THREE.Vector3(x, sampleGround(lng, lat) * DISP_SCALE + 0.5, yN))
+        return new THREE.Vector3(x, sampleGround(lng, lat) * DISP_SCALE + 0.5, yN)
       })
-      const runnerGeo = new THREE.BufferGeometry().setFromPoints([mainRingPts[0]])
+      // 各顶点累计弧长：流光按等弧长采样，避免顶点疏密导致忽快忽慢
+      const ringCum = [0]
+      for (let i = 1; i < mainRingPts.length; i++) {
+        ringCum.push(ringCum[i - 1] + mainRingPts[i].distanceTo(mainRingPts[i - 1]))
+      }
+      const ringLen = ringCum[ringCum.length - 1]
+
+      // 边界流光：单点脉冲，悬停时沿边界跑动一个亮点
+      const trailPos = new Float32Array(RUNNER_TRAIL * 3)
+      const trailColor = new Float32Array(RUNNER_TRAIL * 3)
+      for (let i = 0; i < RUNNER_TRAIL; i++) {
+        trailColor[i * 3] = 1
+        trailColor[i * 3 + 1] = 0.84
+        trailColor[i * 3 + 2] = 0.4
+      }
+      const runnerGeo = new THREE.BufferGeometry()
+      runnerGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3))
+      runnerGeo.setAttribute('color', new THREE.BufferAttribute(trailColor, 3))
       const runnerMat = new THREE.PointsMaterial({
         map: dotSpriteTex,
-        color: CITY_GOLD_COLOR.clone(),
-        size: 2.4,
+        size: 5.0,
         transparent: true,
         opacity: 0,
+        vertexColors: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         depthTest: false
@@ -728,6 +1273,7 @@ onMounted(() => {
         fillMesh,
         fillGeo,
         fillMat,
+        pickMat,
         lineGeos,
         lineMat,
         labelTex,
@@ -735,7 +1281,11 @@ onMounted(() => {
         runnerGeo,
         runnerMat,
         ringPts: mainRingPts,
+        ringCum,
+        ringLen,
+        trailPos,
         runT: ci * 0.21,
+        lift: 0,
         latSpan: latE - latS
       })
     })
@@ -765,6 +1315,17 @@ onMounted(() => {
         tube.renderOrder = 6
         scene.add(tube)
         tubes.push({ geo: tubeGeo, mat: tubeMat })
+
+        // 透明加粗命中管：管线本体只有 0.13，直接拾取过难
+        const hitGeo = new THREE.TubeGeometry(curve, Math.max(60, pts.length * 3), 0.6, 6, false)
+        const hitMesh = new THREE.Mesh(
+          hitGeo,
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+        )
+        hitMesh.userData.routeName = route.name
+        scene.add(hitMesh)
+        routeHitMeshes.push(hitMesh)
+        tubes.push({ geo: hitGeo, mat: null })
       })
 
       // 灵州道标牌锚点北移至石空，避开"中卫"市名
@@ -787,6 +1348,7 @@ onMounted(() => {
       scene.add(rlabel)
 
       routeEntries.push({
+        name: route.name,
         tubes,
         labelMat: rlabelMat,
         labelTex: rlabelTex,
@@ -813,18 +1375,24 @@ onMounted(() => {
     setPointer(e)
     raycaster.setFromCamera(pointer, camera)
 
-    // 点位优先于市域
+    // 点位优先于古道与市域
     const itemHits = raycaster.intersectObjects(hitMeshes, false)
     if (itemHits.length) {
       selected.value = itemHits[0].object.userData.item
+      clearHoverCard()
       return
     }
-    const cityHits = raycaster.intersectObjects(
-      cityEntries.map((c) => c.fillMesh),
-      false
-    )
+    // 古道：点击聚焦/取消聚焦（与 GIS 地图一致）
+    const routeHits = raycaster.intersectObjects(routeHitMeshes, false)
+    if (routeHits.length) {
+      toggleDim('route', routeHits[0].object.userData.routeName)
+      clearHoverCard()
+      return
+    }
+    const cityHits = raycaster.intersectObjects(cityPickMeshes, false)
     if (cityHits.length) {
       toggleDim('city', cityHits[0].object.userData.cityName)
+      clearHoverCard()
     } else {
       selected.value = null
     }
@@ -834,21 +1402,39 @@ onMounted(() => {
     raycaster.setFromCamera(pointer, camera)
     let cursor = 'grab'
     if (raycaster.intersectObjects(hitMeshes, false).length) {
-      hoverCityName = ''
+      clearHoverCard()
+      hoverRouteName = ''
       cursor = 'pointer'
     } else {
-      const ch = raycaster.intersectObjects(
-        cityEntries.map((c) => c.fillMesh),
-        false
-      )
-      hoverCityName = ch.length ? ch[0].object.userData.cityName : ''
-      if (ch.length) cursor = 'pointer'
+      // 古道优先于市域做悬停强调
+      const rh = raycaster.intersectObjects(routeHitMeshes, false)
+      hoverRouteName = rh.length ? rh[0].object.userData.routeName : ''
+      if (hoverRouteName) cursor = 'pointer'
+
+      const ch = raycaster.intersectObjects(cityPickMeshes, false)
+      const name = ch.length ? ch[0].object.userData.cityName : ''
+      if (name && !hoverRouteName) cursor = 'pointer'
+      // 已选中地市或非遗点位时不再弹出悬停卡，避免遮挡市名标签
+      if (name && !hoverRouteName && !uiState.city && !selected.value) {
+        hoverCityName = name
+        const rect = containerRef.value.getBoundingClientRect()
+        hoverCardPos.x = e.clientX - rect.left
+        hoverCardPos.y = e.clientY - rect.top
+        hoverCardName.value = name
+      } else {
+        clearHoverCard()
+      }
     }
     renderer.domElement.style.cursor = cursor
+  }
+  onLeaveHandler = () => {
+    clearHoverCard()
+    hoverRouteName = ''
   }
   renderer.domElement.addEventListener('pointerdown', onDownHandler)
   renderer.domElement.addEventListener('click', onClickHandler)
   renderer.domElement.addEventListener('pointermove', onMoveHandler)
+  renderer.domElement.addEventListener('pointerleave', onLeaveHandler)
 
   // ---- 动画 ----
   const clock = new THREE.Clock()
@@ -892,29 +1478,40 @@ onMounted(() => {
     }
     if (arcMaterial) arcMaterial.uniforms.uTime.value = elapsed
 
+    // ---- 背景：鎏金网格与星尘淡入 ----
+    const bgIn = reduceMotion ? 1 : Math.min(1, Math.max(0, (elapsed - 0.15) / 1.6))
+    if (gridFloorMat) gridFloorMat.uniforms.uOpacity.value = bgIn * 0.7
+    if (dustMat) {
+      dustMat.uniforms.uTime.value = elapsed
+      dustMat.uniforms.uOpacity.value = bgIn
+    }
+
     // ---- 市域视觉与流光 ----
     cityEntries.forEach((c, ci) => {
       const intro = reduceMotion
         ? 1
         : Math.min(1, Math.max(0, (elapsed - (0.3 + ci * 0.22)) / 1.1))
-      if (!reduceMotion) {
-        const ease = 1 - Math.pow(1 - intro, 3)
-        c.group.position.y = -3.5 * (1 - ease)
-      }
+      const introEase = 1 - Math.pow(1 - intro, 3)
+      const introY = reduceMotion ? 0 : -3.5 * (1 - introEase)
 
       const isActive = uiState.city === c.name
       const anyCity = !!uiState.city
       const isHover = !anyCity && hoverCityName === c.name
       const gold = isActive || isHover
-      const tFill = isActive ? 0.3 : isHover ? 0.22 : anyCity ? 0.05 : 0.14
+
+      // 悬停该市域：整体上浮（参考 demo1 的城市块升起），移出后回落
+      c.lift += ((isHover ? 3.2 : 0) - c.lift) * 0.12
+      c.group.position.y = introY + c.lift
+
+      const tFill = isActive ? 0.3 : isHover ? 0.32 : anyCity ? 0.05 : 0.14
       const tLine = isActive ? 1 : anyCity ? 0.22 : 0.7
       const tLabel = isActive ? 1 : anyCity ? 0.35 : 0.85
 
       c.fillMat.opacity += (tFill * intro - c.fillMat.opacity) * 0.12
       c.lineMat.opacity += (tLine * intro - c.lineMat.opacity) * 0.12
       c.labelMat.opacity += (tLabel * intro - c.labelMat.opacity) * 0.12
-      // 金色流光：常态隐藏，仅鼠标悬停本市时跑动
-      const runnerTarget = isHover ? 0.95 : 0
+      // 金色流光：常态隐藏，仅鼠标悬停本市时沿边界跑动
+      const runnerTarget = isHover ? 1 : 0
       c.runnerMat.opacity += (runnerTarget * intro - c.runnerMat.opacity) * 0.1
 
       const targetCol = gold ? CITY_GOLD_COLOR : CITY_BASE_COLOR
@@ -923,27 +1520,31 @@ onMounted(() => {
       c.labelMat.color.lerp(targetCol, 0.1)
 
       c.runT = (c.runT + delta * 0.14) % 1
-      const f = c.runT * (c.ringPts.length - 1)
-      const i0 = Math.floor(f)
-      const i1 = (i0 + 1) % c.ringPts.length
-      const tt = f - i0
-      const p0 = c.ringPts[i0]
-      const p1 = c.ringPts[i1]
-      c.runnerGeo.setFromPoints([
-        new THREE.Vector3(
-          p0.x + (p1.x - p0.x) * tt,
-          p0.y + (p1.y - p0.y) * tt,
-          p0.z + (p1.z - p0.z) * tt
-        )
-      ])
+      sampleRing(c, c.runT, _runnerTmp)
+      c.trailPos[0] = _runnerTmp.x
+      c.trailPos[1] = _runnerTmp.y
+      c.trailPos[2] = _runnerTmp.z
+      c.runnerGeo.attributes.position.needsUpdate = true
     })
 
     // ---- 丝路古道淡入（市域升起之后依次显现） ----
     for (const r of routeEntries) {
       const t = Math.min(1, Math.max(0, (elapsed - r.start) / 1.0))
       const e = 1 - Math.pow(1 - t, 3)
-      for (const tb of r.tubes) tb.mat.opacity = 0.9 * e
-      r.labelMat.opacity = e
+      // 聚焦某条古道时，其余古道淡化，聚焦项提亮（与 GIS 地图的强调逻辑一致）
+      const isFocus = uiState.route === r.name
+      const isHover = !uiState.route && hoverRouteName === r.name
+      const dim = uiState.route && !isFocus ? 0.18 : 1
+      const boost = isFocus ? 1.4 : isHover ? 1.2 : 1
+      for (const tb of r.tubes) if (tb.mat) tb.mat.opacity = Math.min(1, 0.9 * e * dim * boost)
+      r.labelMat.opacity = e * (uiState.route && !isFocus ? 0.3 : 1)
+    }
+
+    // ---- 地形分层设色：透明 ↔ 有色 平滑过渡 ----
+    if (terrainTintMat) {
+      const tintTarget = showTerrain.value ? 0.92 : 0
+      const u = terrainTintMat.uniforms.uOpacity
+      u.value += (tintTarget - u.value) * 0.12
     }
 
     controls.update()
@@ -968,6 +1569,7 @@ onMounted(() => {
 // ================= 联动：地图 ↔ 图表 =================
 function itemMatches(item) {
   if (uiState.city && item.city !== uiState.city) return false
+  if (uiState.route && item.routeRelation !== uiState.route) return false
   if (uiState.category && item.category !== uiState.category) return false
   if (uiState.level && item.level !== uiState.level) return false
   if (uiState.period && item.period !== uiState.period) return false
@@ -1027,15 +1629,29 @@ function clearDim(dim) {
 function resetAll() {
   selected.value = null
   uiState.city = ''
+  uiState.route = ''
   uiState.category = ''
   uiState.level = ''
   uiState.period = ''
+  showTerrain.value = false
   resetView()
+}
+
+// 周边省份参照层显隐
+function toggleNeighbors() {
+  showNeighbors.value = !showNeighbors.value
+  neighborObjects.forEach((o) => { o.visible = showNeighbors.value })
+}
+
+// 地形分层设色开关
+function toggleTerrain() {
+  showTerrain.value = !showTerrain.value
 }
 
 const activeChips = computed(() => {
   const arr = []
   if (uiState.city) arr.push({ dim: 'city', label: uiState.city })
+  if (uiState.route) arr.push({ dim: 'route', label: uiState.route })
   if (uiState.category) arr.push({ dim: 'category', label: uiState.category })
   if (uiState.level) arr.push({ dim: 'level', label: uiState.level })
   if (uiState.period) arr.push({ dim: 'period', label: uiState.period })
@@ -1069,7 +1685,13 @@ function syncChartHighlight() {
   const catHL = uiState.category || (selected.value ? selected.value.category : '')
   const cityHL = uiState.city || (selected.value ? selected.value.city : '')
   if (catHL) pie.dispatchAction({ type: 'highlight', seriesIndex: 0, name: catHL })
-  if (cityHL) {
+  // 聚焦古道时，高亮沿线项目涉及的各地市柱条
+  if (uiState.route) {
+    const routeCities = new Set(scopedData.value.map((d) => d.city.replace('市', '')))
+    routeCities.forEach((name) => {
+      cityChart.dispatchAction({ type: 'highlight', seriesIndex: 0, name })
+    })
+  } else if (cityHL) {
     cityChart.dispatchAction({
       type: 'highlight', seriesIndex: 0, name: cityHL.replace('市', '')
     })
@@ -1081,7 +1703,7 @@ function syncChartHighlight() {
 watch(uiState, syncChartHighlight, { deep: true })
 watch(selected, syncChartHighlight)
 
-// 选中地市 → 类别环形图、年代条按市域刷新数据
+// 选中地市/古道 → 类别环形图、年代条按范围刷新数据
 function refreshScopedCharts() {
   const pie = charts[0]
   const periodChart = charts[2]
@@ -1103,7 +1725,7 @@ function refreshScopedCharts() {
     series: [{ data: periodCounts.map((d) => d.value) }]
   })
 }
-watch(() => uiState.city, refreshScopedCharts)
+watch(() => [uiState.city, uiState.route], refreshScopedCharts)
 
 // ================= 标签 / 光点纹理工厂 =================
 function makeDotTexture() {
@@ -1131,6 +1753,24 @@ function makeLabelTexture(name) {
   ctx.shadowBlur = 10
   ctx.fillStyle = '#ffffff'
   ctx.fillText(name.replace('市', ''), 256, 74)
+  const tex = new THREE.CanvasTexture(c)
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy()
+  return tex
+}
+
+// 周边省份名标签：弱化的青灰文字，避免与宁夏五地市名抢视觉
+function makeNeighborLabelTexture(name) {
+  const c = document.createElement('canvas')
+  c.width = 512
+  c.height = 140
+  const ctx = c.getContext('2d')
+  ctx.font = '600 76px "Noto Serif SC", serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.shadowColor = 'rgba(0,0,0,0.85)'
+  ctx.shadowBlur = 10
+  ctx.fillStyle = '#9fd0ea'
+  ctx.fillText(name, 256, 74)
   const tex = new THREE.CanvasTexture(c)
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy()
   return tex
@@ -1320,12 +1960,18 @@ onBeforeUnmount(() => {
     onDownHandler && renderer.domElement.removeEventListener('pointerdown', onDownHandler)
     onClickHandler && renderer.domElement.removeEventListener('click', onClickHandler)
     onMoveHandler && renderer.domElement.removeEventListener('pointermove', onMoveHandler)
+    onLeaveHandler && renderer.domElement.removeEventListener('pointerleave', onLeaveHandler)
   }
   arcGeometries.forEach((g) => g.dispose())
   arcMaterial?.dispose()
+  gridFloorGeo?.dispose()
+  gridFloorMat?.dispose()
+  dustGeo?.dispose()
+  dustMat?.dispose()
   cityEntries.forEach((c) => {
     c.fillGeo.dispose()
     c.fillMat.dispose()
+    c.pickMat.dispose()
     c.lineGeos.forEach((g) => g.dispose())
     c.lineMat.dispose()
     c.labelTex.dispose()
@@ -1336,7 +1982,7 @@ onBeforeUnmount(() => {
   routeEntries.forEach((r) => {
     r.tubes.forEach((t) => {
       t.geo.dispose()
-      t.mat.dispose()
+      t.mat?.dispose()
     })
     r.labelTex.dispose()
     r.labelMat.dispose()
@@ -1352,8 +1998,10 @@ onBeforeUnmount(() => {
   flyMaterial?.dispose()
   terrainGeometry?.dispose()
   terrainMaterial?.dispose()
+  terrainTintMat?.dispose()
   baseGeometry?.dispose()
   baseMaterial?.dispose()
+  neighborDisposables.forEach((d) => d.dispose())
   textures.forEach((t) => t.dispose())
   charts.forEach((c) => c.dispose())
   if (clockTimer) clearInterval(clockTimer)
@@ -1496,6 +2144,76 @@ onBeforeUnmount(() => {
   position: relative;
   flex: 1;
   min-width: 0;
+
+  // 径向暗角（参考 demo0 的 HUD 暗角），让地图向外自然沉入背景
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 74% 68% at 50% 47%,
+      transparent 40%,
+      rgba(10, 7, 4, 0.5) 100%
+    );
+  }
+}
+
+/* ---- 悬停地级市：玻璃信息卡 ---- */
+.hover-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 7;
+  min-width: 172px;
+  padding: 10px 14px;
+  border: 1px solid rgba(240, 192, 64, 0.3);
+  border-radius: 10px;
+  background: rgba(43, 30, 20, 0.78);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.42);
+  pointer-events: none;
+  font-size: 12px;
+  color: rgba(255, 248, 231, 0.8);
+  will-change: transform;
+
+  .hc-name {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--scr-gold-light);
+  }
+
+  .hc-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    line-height: 1.9;
+
+    b {
+      font-weight: 600;
+      color: #ffd98a;
+    }
+  }
+
+  .hc-samples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px dashed rgba(240, 192, 64, 0.2);
+
+    span {
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(212, 160, 23, 0.16);
+      font-size: 11px;
+      color: rgba(255, 248, 231, 0.72);
+    }
+  }
 }
 
 .canvas-container { position: absolute; inset: 0; }
@@ -1670,6 +2388,25 @@ onBeforeUnmount(() => {
   .reset-ico { font-size: 14px; line-height: 1; }
 }
 
+.layer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border: 1px solid rgba(124, 192, 228, 0.42);
+  border-radius: var(--radius-full);
+  background: rgba(33, 23, 17, 0.78);
+  backdrop-filter: blur(6px);
+  font-size: 12px;
+  color: #9fd0ea;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: rgba(124, 192, 228, 0.18); }
+  &.is-on { border-color: rgba(124, 192, 228, 0.75); background: rgba(124, 192, 228, 0.16); }
+  .reset-ico { font-size: 14px; line-height: 1; }
+}
+
 .chip-wrap { display: contents; }
 
 .chip {
@@ -1696,6 +2433,7 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 18px;
   bottom: 16px;
+  z-index: 6;
   display: flex;
   gap: 18px;
   padding: 7px 14px;

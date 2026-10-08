@@ -473,7 +473,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import gisIconData from '@iconify-json/gis/icons.json'
 import L from 'leaflet'
@@ -487,6 +487,7 @@ const gisSvg = (name, color, px) =>
   `<svg viewBox="0 0 100 100" width="${px}" height="${px}" style="color:${color};flex:none;display:block;vertical-align:middle;">${gisIconData.icons[name].body}</svg>`
 
 const router = useRouter()
+const route = useRoute()
 const pieChartRef = ref(null)
 const barChartRef = ref(null)
 const lineChartRef = ref(null)
@@ -756,8 +757,9 @@ const initMap = () => {
     renderMarkers(filteredData.value)
     renderRoutes()
 
-    // fitBounds 包含所有点位
+    // fitBounds 包含所有点位（若带深链参数则由 applyDeepLink 覆盖为具体坐标）
     fitAllMarkers()
+    applyDeepLink()
 
     // 注册全局函数供 popup 按钮调用
     window.__mapGoToDetail = (id) => {
@@ -911,6 +913,28 @@ const fitAllMarkers = () => {
     leafletMap.fitBounds(group.getBounds().pad(0.2))
   } else {
     leafletMap.setView(NINGXIA_CENTER, 7)
+  }
+}
+
+// 深链定位：档案页"在地图中查看"携带 lng/lat/zoom/id 进来时，
+// 不走 fitBounds 概览，而是直接飞到该点位并弹开它的信息气泡
+const applyDeepLink = () => {
+  if (!leafletMap) return
+  const { lng, lat, zoom, id } = route.query
+  const hasCoord = lng !== undefined && lat !== undefined && lng !== '' && lat !== ''
+  if (!hasCoord && !id) return
+  const item = id ? heritageData.find(d => String(d.id) === String(id)) : null
+  const targetLng = hasCoord ? Number(lng) : item?.lng
+  const targetLat = hasCoord ? Number(lat) : item?.lat
+  if (targetLng === undefined || targetLat === undefined || Number.isNaN(targetLng) || Number.isNaN(targetLat)) return
+  const z = Math.min(15, Math.max(7, Number(zoom) || 12))
+  flyToView([targetLat, targetLng], z, 0.9)
+  if (item) {
+    setTimeout(() => {
+      markerLayer?.eachLayer(m => {
+        if (String(m.item?.id) === String(item.id)) m.openPopup()
+      })
+    }, 950)
   }
 }
 

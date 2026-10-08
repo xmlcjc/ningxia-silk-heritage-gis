@@ -115,7 +115,10 @@
                   <p>{{ heritage.city }} {{ heritage.county }}</p>
                 </div>
               </div>
-              <router-link to="/map" class="btn btn-primary sidebar-link">
+              <router-link
+                :to="{ path: '/map', query: { id: heritage.id, lng: heritage.lng, lat: heritage.lat, zoom: 12 } }"
+                class="btn btn-primary sidebar-link"
+              >
                 在地图中查看
               </router-link>
             </div>
