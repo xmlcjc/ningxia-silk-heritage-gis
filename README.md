@@ -27,7 +27,8 @@ ningxia-silk-heritage-gis/
 ├── src/
 │   ├── components/            # 公共组件
 │   │   ├── LayoutHeader.vue   # 顶部导航
-│   │   └── LayoutFooter.vue   # 页脚
+│   │   ├── LayoutFooter.vue   # 页脚
+│   │   └── ArtifactViewer.vue # 实景三维场景（3D 高斯泼溅）查看器
 │   ├── pages/                 # 页面组件
 │   │   ├── Home.vue           # 首页
 │   │   ├── Project.vue        # 项目概况
@@ -40,7 +41,7 @@ ningxia-silk-heritage-gis/
 │   │   ├── Screen.vue         # 三维数据大屏（全屏沉浸路由 /screen）
 │   │   └── NotFound.vue       # 404 兜底页
 │   ├── data/
-│   │   ├── heritageData.js            # 非遗图文数据、古道、黄河
+│   │   ├── heritageData.js            # 非遗图文数据、古道、黄河、三维模型索引
 │   │   └── ningxia-neighbors.geo.json # 邻省（甘肃/内蒙古/陕西）行政边界
 │   ├── assets/
 │   │   ├── ningxia-cities.json  # 五地市行政边界 GeoJSON
@@ -53,9 +54,12 @@ ningxia-silk-heritage-gis/
 │   ├── App.vue
 │   └── main.js
 ├── scripts/
-│   └── build-ningxia-textures.mjs # 地形纹理与市域边界数据生成脚本
+│   ├── build-ningxia-textures.mjs # 地形纹理与市域边界数据生成脚本
+│   └── sync-viewer.mjs            # 三维查看器静态资源同步（predev/prebuild 自动执行）
 ├── public/
-│   └── heritage/              # 20 个项目的压缩照片（封面/缩略图/图集）
+│   ├── heritage/              # 20 个项目的压缩照片（封面/缩略图/图集）
+│   ├── models/                # 实景三维场景（照片转 3DGS 压缩为 .sog，共 3 件）
+│   └── viewer/                # 三维查看器静态页（构建期生成，不纳入版本库）
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -65,10 +69,10 @@ ningxia-silk-heritage-gis/
 ## 功能模块
 
 ### 首页
-项目简介、数据概览、创新亮点、研究进度时间轴、GIS 地图预览与项目成果展示。
+项目简介、数据概览、创新亮点、研究进度时间轴、GIS 地图预览与项目成果展示；快捷导航提供三维大屏入口。
 
 ### 项目概况
-项目简介、立项依据、研究内容、技术方案、创新点、预期目标与成果形式。
+项目简介、立项依据、研究内容（含三维数字大屏与沉浸式展示方向）、技术方案、创新点、预期目标与成果形式。
 
 ### GIS 地图（核心）
 - 20 项非遗点位按级别差异化标注（国家级 / 自治区级 / 县级），带破土萌芽入场动画
@@ -95,7 +99,9 @@ ningxia-silk-heritage-gis/
 关键词搜索、多维筛选、分页浏览；档案卡片展示真实项目照片，点击进入非遗详情。
 
 ### 非遗详情
-叙事式图文排版：项目概述首字下沉、技艺特色以工序流程节点串联、文化价值与传承、丝路关联；图集为「首图铺满 + 两列网格」布局，点击进入灯箱查看大图（支持左右方向键循环切换、ESC 关闭）。另含传承人、地理坐标、关联古道、地图定位侧栏、相关项目推荐与上一项 / 下一项导航。
+叙事式图文排版：项目概述首字下沉、技艺特色以工序流程节点串联、文化价值与传承、丝路关联；**场景展示**区块可交互浏览实景扫描场景；图集为「首图铺满 + 两列网格」布局，点击进入灯箱查看大图（支持左右方向键循环切换、ESC 关闭）。另含传承人、地理坐标、关联古道、地图定位侧栏、相关项目推荐与上一项 / 下一项导航。
+
+**场景展示**：仅对已采集三维场景的非遗项目显示。场景由实景照片经 3D 高斯泼溅（3DGS）重建，由自托管的 SuperSplat Viewer 承载，支持拖动环视、滚轮缩放与全屏，初始相机复现原图拍摄视角；同一项目含多个场景时提供切换。为控制首屏体积，查看器默认只显示封面，点击「载入三维场景」后才按需加载，且查看器代码不进入首屏主包；浏览器不支持 WebGL 或场景加载失败时保留封面并给出提示。
 
 ### 其他页面
 保护路径、项目成果、关于我们，以及 404 兜底页。
@@ -129,8 +135,30 @@ npm run preview
 - 4 条丝路古道坐标（灵州道含主线、南线、北线三段）
 - 黄河宁夏段河道坐标（取自 OpenStreetMap）
 - 类别、地市、时期、等级等字典数据
+- 3 件实景三维场景索引（详见下方「三维场景模型」）
 
 三维大屏所用的五地市行政边界（`src/assets/ningxia-cities.json`，取自阿里云 DataV）、邻省行政边界（`src/data/ningxia-neighbors.geo.json`）、自治区轮廓与地形纹理（卫星影像 / SRTM 高程 / 法线，位于 `src/assets/textures/`）由 `scripts/build-ningxia-textures.mjs` 抓取生成，地形管线按行政区轮廓做了透明遮罩裁剪。
+
+### 三维场景模型
+
+三维场景为实景照片经 3D 高斯泼溅（3DGS）重建的数据，位于 `public/models/`，由 `src/data/heritageData.js` 中对应条目的 `models` 字段索引：
+
+| 场景文件 | 对应条目 | 大小 |
+| --- | --- | --- |
+| `helanyan.sog` | 贺兰砚制作技艺（id 1） | 10.35 MB |
+| `huihuaer-a.sog` | 回族花儿（id 2） | 10.31 MB |
+| `huihuaer-b.sog` | 回族花儿（id 2） | 9.90 MB |
+
+- **来源与授权**：三件场景均由作者本人实地采集，可公开发布
+- **格式**：原始数据为照片重建的 3DGS 点云 `.ply`（每件约 66 MB / 118 万高斯点），已用官方工具压缩为 `.sog` 格式（合计约 30 MB），压缩过程不改变高斯点数量
+- **初始视角**：照片转 3DGS 场景在偏离拍摄机位的角度观察会产生伪 3D 感，`scripts/sync-viewer.mjs` 为每件场景解析原图机位并生成初始相机配置，默认复现拍摄视角
+- **重新生成**（源 `.ply` 不在仓库内，需自备）：
+
+  ```bash
+  npx splat-transform <输入.ply> public/models/<输出.sog>
+  ```
+
+- **查看器**：使用 SuperSplat Viewer，静态资源由 `scripts/sync-viewer.mjs` 在 `predev` / `prebuild` 阶段从依赖包同步到 `public/viewer/`（该目录不纳入版本库），并按官方 schema 生成 `settings.json`（含站点暖色背景）
 
 后续如需扩展，可将数据层替换为后端 API。
 
@@ -156,3 +184,9 @@ Chrome / Edge（推荐）、Firefox、Safari。页面适配桌面与移动端，
 ## 许可证
 
 本项目为大学生创新创业训练计划项目演示版本。
+
+### 第三方资源
+
+- 地图图标 [Font-GIS](https://github.com/Viglino/font-gis) by Jean-Marc Viglino · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+- 三维查看器 [SuperSplat Viewer](https://github.com/playcanvas/supersplat-viewer) 与转换工具 [splat-transform](https://github.com/playcanvas/splat-transform) © PlayCanvas · [MIT](https://opensource.org/licenses/MIT)
+- 三维实景场景由作者本人采集，可公开发布
