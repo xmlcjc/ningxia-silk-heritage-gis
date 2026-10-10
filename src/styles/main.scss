@@ -635,28 +635,24 @@ a {
 }
 
 // ============================================
-// 滚动条美化
+// 滚动条美化（低存在感：细、半透明，悬停时才加深）
 // ============================================
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, 
-    var(--color-secondary-dark), 
-    var(--color-primary)
-  );
-  border-radius: var(--radius-sm);
-  
+  background: rgba(139, 69, 19, 0.3);
+  border-radius: 3px;
+
   &:hover {
-    background: var(--color-primary);
+    background: rgba(139, 69, 19, 0.55);
   }
 }
 

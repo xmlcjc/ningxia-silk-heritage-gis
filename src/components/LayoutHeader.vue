@@ -43,8 +43,8 @@
           </button>
         </nav>
         
-        <!-- 右侧工具栏 -->
-        <div class="header-actions">
+        <!-- 右侧工具栏：移动菜单打开时整块隐藏，避免按钮浮在遮罩之上 -->
+        <div class="header-actions" v-show="!isNavOpen">
           <router-link to="/map" class="action-btn action-primary">
             <Icon icon="gis:poi" width="18" height="18" />
             <span>进入地图</span>

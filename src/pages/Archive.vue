@@ -68,7 +68,7 @@
                 clearable
                 class="filter-select"
               >
-                <el-option v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
+                <el-option v-for="cat in categories.slice(1)" :key="cat" :label="cat" :value="cat" />
               </el-select>
               
               <el-select 
@@ -77,7 +77,7 @@
                 clearable
                 class="filter-select"
               >
-                <el-option v-for="city in cities" :key="city" :label="city" :value="city" />
+                <el-option v-for="city in cities.slice(1)" :key="city" :label="city" :value="city" />
               </el-select>
               
               <el-select 
@@ -86,7 +86,7 @@
                 clearable
                 class="filter-select"
               >
-                <el-option v-for="period in periods" :key="period" :label="period" :value="period" />
+                <el-option v-for="period in periods.slice(1)" :key="period" :label="period" :value="period" />
               </el-select>
               
               <el-select 

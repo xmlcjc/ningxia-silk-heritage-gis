@@ -84,7 +84,7 @@
                 clearable
                 class="custom-select"
               >
-                <el-option v-for="city in cities" :key="city" :label="city" :value="city" />
+                <el-option v-for="city in cities.slice(1)" :key="city" :label="city" :value="city" />
               </el-select>
             </div>
 
@@ -99,7 +99,7 @@
                 clearable
                 class="custom-select"
               >
-                <el-option v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
+                <el-option v-for="cat in categories.slice(1)" :key="cat" :label="cat" :value="cat" />
               </el-select>
             </div>
 
@@ -114,7 +114,7 @@
                 clearable
                 class="custom-select"
               >
-                <el-option v-for="p in periods" :key="p" :label="p" :value="p" />
+                <el-option v-for="p in periods.slice(1)" :key="p" :label="p" :value="p" />
               </el-select>
             </div>
 
@@ -129,7 +129,7 @@
                 clearable
                 class="custom-select"
               >
-                <el-option v-for="l in levels" :key="l" :label="l" :value="l" />
+                <el-option v-for="l in levels.slice(1)" :key="l" :label="l" :value="l" />
               </el-select>
             </div>
 
