@@ -20,6 +20,7 @@
             <span class="tag">GIS技术应用</span>
             <span class="tag">非遗数字化</span>
             <span class="tag">数字人文</span>
+            <span class="tag">三维数据大屏</span>
           </div>
         </div>
       </div>
@@ -216,7 +217,7 @@
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">研究内容</h2>
-          <p class="section-subtitle">三大核心方向 · 系统性研究框架</p>
+          <p class="section-subtitle">四大核心方向 · 系统性研究框架</p>
         </div>
         
         <div class="research-framework">
@@ -411,6 +412,12 @@ const researchContent = ref([
     type: 'strategy',
     typeLabel: '应用层',
     tasks: ['非遗保护现状评估', '分级分类保护策略研究', '非遗+文旅融合模式探索', '乡村振兴协同路径分析']
+  },
+  {
+    title: '三维数字大屏与沉浸式展示',
+    type: 'screen',
+    typeLabel: '展示层',
+    tasks: ['三维地形与非遗点位建模', '丝路古道三维可视化', '五市非遗数据大屏联动', '沉浸式交互体验设计']
   }
 ])
 
@@ -947,9 +954,9 @@ const outcomes = ref([
 
 .research-framework {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-xl);
-  
+
   @media (max-width: 992px) {
     grid-template-columns: 1fr;
   }
@@ -979,6 +986,10 @@ const outcomes = ref([
   
   &.research-strategy {
     border-top: 4px solid var(--color-primary);
+  }
+
+  &.research-screen {
+    border-top: 4px solid var(--color-secondary-dark);
   }
 }
 

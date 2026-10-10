@@ -48,6 +48,10 @@
               <span class="nav-dot"></span>
               数字档案
             </router-link>
+            <router-link to="/screen" class="nav-link">
+              <span class="nav-dot"></span>
+              三维大屏
+            </router-link>
           </div>
         </div>
       </div>
@@ -96,6 +100,7 @@
             <div class="intro-tags">
               <span class="tag tag-gold">GIS数据库</span>
               <span class="tag tag-gold">时空可视化</span>
+              <span class="tag tag-gold">三维大屏</span>
               <span class="tag tag-gold">保护路径研究</span>
               <span class="tag tag-green">乡村振兴</span>
               <span class="tag tag-green">文旅融合</span>
@@ -397,6 +402,12 @@ const features = ref([
     title: '保护与振兴策略',
     description: '基于GIS分析提出分级保护与乡村振兴协同建议',
     link: '/protection'
+  },
+  {
+    icon: 'map-stat',
+    title: '三维数据大屏',
+    description: '沉浸式三维大屏，纵览五市非遗格局、丝路古道与核心数据',
+    link: '/screen'
   }
 ])
 
@@ -941,9 +952,9 @@ const results = ref([
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-xl);
-  
+
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
   }
