@@ -26,6 +26,15 @@ export const heritageData = [
       "/heritage/01/03.jpg",
       "/heritage/01/04.jpg",
       "/heritage/01/05.jpg"
+    ],
+    models: [
+      {
+        type: "gsplat",
+        label: "贺兰砚台",
+        url: "/models/helanyan.sog",
+        poster: "/heritage/01/cover.jpg",
+        credit: "作者本人三维扫描采集，可公开发布"
+      }
     ]
   },
   {
@@ -54,6 +63,22 @@ export const heritageData = [
       "/heritage/02/02.jpg",
       "/heritage/02/03.jpg",
       "/heritage/02/04.jpg"
+    ],
+    models: [
+      {
+        type: "gsplat",
+        label: "模型一",
+        url: "/models/huihuaer-a.sog",
+        poster: "/heritage/02/cover.jpg",
+        credit: "作者本人三维扫描采集，可公开发布"
+      },
+      {
+        type: "gsplat",
+        label: "模型二",
+        url: "/models/huihuaer-b.sog",
+        poster: "/heritage/02/cover.jpg",
+        credit: "作者本人三维扫描采集，可公开发布"
+      }
     ]
   },
   {

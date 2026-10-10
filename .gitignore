@@ -7,6 +7,14 @@ dist/
 dist-ssr/
 *.local
 
+# 三维查看器静态资源（由 scripts/sync-viewer.mjs 在 predev/prebuild 阶段生成）
+public/viewer/
+# 各模型初始视角 settings（同为 sync-viewer.mjs 生成，相机配置单一来源在该脚本）
+public/models/*.settings.json
+
+# 内部实施计划/记录文档（仅本地维护，不纳入公开仓库）
+文物3D展示实施计划.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

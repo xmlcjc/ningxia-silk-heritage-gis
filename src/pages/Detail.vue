@@ -88,6 +88,13 @@
               </div>
             </div>
 
+            <!-- 场景展示 -->
+            <div v-if="heritage.models && heritage.models.length" class="detail-section card">
+              <h2 class="section-title-inner">场景展示</h2>
+              <p class="model-hint">可拖动环视、滚轮缩放，浏览实景扫描场景</p>
+              <ArtifactViewer :models="heritage.models" />
+            </div>
+
             <!-- 图集 -->
             <div class="detail-section card">
               <h2 class="section-title-inner">图集展示</h2>
@@ -184,10 +191,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Location, User, Position, MapLocation, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 import { heritageData } from '../data/heritageData'
+
+// 三维查看器按需加载，避免查看器逻辑进入首屏主包
+const ArtifactViewer = defineAsyncComponent(() => import('../components/ArtifactViewer.vue'))
 
 const route = useRoute()
 const router = useRouter()
@@ -383,6 +393,12 @@ onBeforeUnmount(() => {
   padding-bottom: var(--spacing-sm);
   border-bottom: 2px solid var(--color-primary);
   display: inline-block;
+}
+
+.model-hint {
+  margin: 0 0 var(--spacing-md);
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
 .prose,
