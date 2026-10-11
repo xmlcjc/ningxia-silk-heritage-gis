@@ -6,6 +6,8 @@
 🌐 **三维数据大屏**：https://ningxia-silk-heritage-gis.vercel.app/screen
 💬 **讨论交流**：[Discussions](https://github.com/xmlcjc/ningxia-silk-heritage-gis/discussions) ｜ 🐛 问题反馈：[Issues](https://github.com/xmlcjc/ningxia-silk-heritage-gis/issues)
 
+**目录**：[项目简介](#项目简介) · [技术栈](#技术栈) · [视觉与字体](#视觉与字体方案a墨韵丝路) · [项目结构](#项目结构) · [功能模块](#功能模块) · [快速开始](#快速开始) · [数据说明](#数据说明) · [部署](#部署) · [浏览器支持](#浏览器支持) · [许可证](#许可证)
+
 ## 项目简介
 
 本项目以宁夏丝绸之路沿线非物质文化遗产为研究对象，运用 GIS 空间分析技术，系统搜集、整理宁夏丝路非遗资源，构建非遗地理信息数据库；通过 WebGIS 技术实现非遗资源的时空可视化展示，并探索“非遗保护 + 乡村振兴 + 文旅融合”的协同发展路径。
@@ -132,7 +134,7 @@ ningxia-silk-heritage-gis/
 # 安装依赖
 npm install
 
-# 启动开发服务器（默认 http://localhost:3000）
+# 启动开发服务器（默认 http://localhost:3000，端口被占用时 Vite 自动递增）
 npm run dev
 
 # 构建生产版本（输出至 dist/）
