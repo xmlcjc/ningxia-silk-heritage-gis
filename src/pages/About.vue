@@ -211,7 +211,7 @@
           <h2>加入我们，共筑丝路非遗保护新篇章</h2>
           <p>无论你是研究者、开发者还是文化爱好者，这里都有你发挥作用的空间</p>
           <div class="cta-buttons">
-            <a href="mailto:contact@silkheritage-nx.cn" class="btn-primary">
+            <a href="mailto:3313342914@qq.com" class="btn-primary">
               <Icon icon="gis:map-send" width="16" height="16" /> 联系我们
             </a>
             <router-link to="/project" class="btn-ghost">
@@ -289,9 +289,9 @@ const researchAreas = ref([
 
 // 联系方式
 const contactItems = ref([
-  { icon: 'poi', label: '地址', value: '宁夏银川市西夏区文萃北街' },
-  { icon: 'map-send', label: '邮箱', value: 'contact@silkheritage-nx.cn' },
-  { icon: 'phone-map', label: '电话', value: '0951-12345678' }
+  { icon: 'poi', label: '地址', value: '宁夏银川市西夏区贺兰山西路539号文萃校区' },
+  { icon: 'map-send', label: '邮箱', value: '3313342914@qq.com' },
+  { icon: 'phone-map', label: '电话', value: '13649570320' }
 ])
 
 // 合作单位
@@ -563,10 +563,15 @@ const submitForm = () => {
   .section-title {
     color: var(--color-primary);
   }
-  
+
   .section-subtitle {
     color: var(--color-text-light);
   }
+}
+
+// 合作单位区为深棕渐变底，标题用白色保证对比度
+.partners-section .section-header.light .section-title {
+  color: #fff;
 }
 
 .mission-values {

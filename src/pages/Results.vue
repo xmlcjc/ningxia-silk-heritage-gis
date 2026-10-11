@@ -534,6 +534,11 @@ const partnerData = ref({
   color: white;
 }
 
+// 时间轴区为浅色底，标题与上方「项目成果」保持一致的赭石色（.light 白字规则为深底区块设计）
+.timeline-section .section-header.light .section-title {
+  color: var(--color-primary);
+}
+
 // ============================================
 // 成果展示区
 // ============================================
