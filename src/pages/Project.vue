@@ -388,7 +388,7 @@ const basisTabs = ref([
 // 前期准备
 const preparations = ref([
   { icon: 'map-book', title: '文献资料', desc: '已搜集相关文献100余篇，包括宁夏地方志、非遗保护报告、GIS应用案例等', stat: '100+', statLabel: '篇文献' },
-  { icon: 'map', title: '数据基础', desc: '已初步整理宁夏非遗名录200余项，获取宁夏基础地理数据', stat: '200+', statLabel: '项非遗' },
+  { icon: 'map', title: '数据基础', desc: '已初步整理宁夏非遗名录20余项，获取宁夏基础地理数据', stat: '20余项', statLabel: '非遗' },
   { icon: 'globe-gear', title: '技术储备', desc: '团队成员已掌握GIS、Web开发、数据可视化等相关技术', stat: '5', statLabel: '项技术' },
   { icon: 'map-users', title: '团队构成', desc: '由地理信息、计算机、历史文化等多学科背景成员组成', stat: '跨学科', statLabel: '多领域' }
 ])
