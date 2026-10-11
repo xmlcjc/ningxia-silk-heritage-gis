@@ -217,9 +217,9 @@ const filteredData = computed(() => {
   })
 
   if (sortBy.value === 'city') {
-    data = [...data].sort((a, b) => a.city.localeCompare(b.city))
+    data = data.sort((a, b) => a.city.localeCompare(b.city))
   } else if (sortBy.value === 'hot') {
-    data = [...data].sort((a, b) => (b.views || 0) - (a.views || 0))
+    data = data.sort((a, b) => (b.views || 0) - (a.views || 0))
   }
 
   return data

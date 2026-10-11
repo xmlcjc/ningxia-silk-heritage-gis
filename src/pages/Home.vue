@@ -24,7 +24,7 @@
           <!-- 主标题 -->
           <h1 class="hero-title animate-fade-in delay-2">
             <span class="title-main">宁夏丝路非遗地理志</span>
-            <span class="title-sub">Silk Road Heritage GIS Platform</span>
+            <span class="title-sub">Ningxia Silk Road Heritage GIS Platform</span>
           </h1>
           
           <!-- 副标题 -->
@@ -1663,17 +1663,6 @@ const results = ref([
 // ============================================
 // 动画定义
 // ============================================
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.1;
-  }
-}
 
 @keyframes waveFlow {
   0% {

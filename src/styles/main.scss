@@ -181,7 +181,7 @@ body {
 // 标题系统 - 传统优雅风格
 // ============================================
 
-// 大标题（h1/h2）用三极泼墨，小标题（h3-h6）保持衬线
+// 大标题（h1/h2）用毛笔楷书（--font-title），小标题（h3-h6）保持衬线（--font-display）
 h1, h2 {
   font-family: var(--font-title);
   color: var(--color-primary);
@@ -224,7 +224,7 @@ h6 {
 }
 
 // ============================================
-// 方案B 角色字体：副题（行楷）/ 英文展示（Orange Juice）
+// 角色字体：副题（方正书宋，--font-sub）/ 英文展示（Georgia，--font-en）
 // ============================================
 
 .hero-subtitle,
@@ -557,41 +557,6 @@ a {
   to {
     opacity: 1;
     transform: translateX(0);
-  }
-}
-
-// 数字跳动
-@keyframes countUp {
-  from {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-// 波纹流动（丝路河流效果）
-@keyframes waveFlow {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-// 金色闪烁
-@keyframes goldShimmer {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
   }
 }
 
