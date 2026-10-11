@@ -9,6 +9,9 @@
         <div class="hero-silk-lines"></div>
         <div class="hero-sand-dunes"></div>
       </div>
+
+      <!-- 方案A 印章（朱砂印 · 峄山碑篆体，Hero 右上角） -->
+      <div class="hero-seal" aria-hidden="true">丝</div>
       
       <div class="container">
         <div class="hero-content">
@@ -101,6 +104,7 @@
               <span class="tag tag-gold">GIS数据库</span>
               <span class="tag tag-gold">时空可视化</span>
               <span class="tag tag-gold">三维大屏</span>
+              <span class="tag tag-gold">三维场景</span>
               <span class="tag tag-gold">保护路径研究</span>
               <span class="tag tag-green">乡村振兴</span>
               <span class="tag tag-green">文旅融合</span>
@@ -145,7 +149,8 @@
         
         <div class="features-grid">
           <div class="feature-card" v-for="(feature, index) in features" :key="index"
-               :style="{ animationDelay: (index * 0.1) + 's' }">
+               :style="{ animationDelay: (index * 0.1) + 's' }"
+               :title="feature.tip">
             <div class="feature-icon-wrapper">
               <div class="feature-icon"><Icon :icon="'gis:' + feature.icon" /></div>
               <div class="feature-icon-bg"></div>
@@ -408,6 +413,13 @@ const features = ref([
     title: '三维数据大屏',
     description: '沉浸式三维大屏，纵览五市非遗格局、丝路古道与核心数据',
     link: '/screen'
+  },
+  {
+    icon: 'cube-3d',
+    title: '文物三维场景展示',
+    description: '照片转高斯泼溅场景重建，以飞行相机自由漫游查看文物与原境',
+    tip: '基于实景照片的高斯泼溅场景重建，支持飞行相机自由漫游；进入详情页后点击「载入三维场景」即可体验',
+    link: '/archive/1'
   }
 ])
 
@@ -491,6 +503,20 @@ const results = ref([
     typeLabel: '报告',
     title: '数字化保护白皮书',
     description: '非遗保护策略与建议报告'
+  },
+  {
+    icon: 'full-screen',
+    type: 'screen',
+    typeLabel: '大屏',
+    title: '三维数据大屏',
+    description: '五市非遗格局与丝路古道沉浸式可视化'
+  },
+  {
+    icon: 'cube-3d',
+    type: 'scene',
+    typeLabel: '三维',
+    title: '文物三维场景展示',
+    description: '高斯泼溅场景重建，飞行相机自由漫游'
   }
 ])
 </script>
@@ -512,6 +538,44 @@ const results = ref([
   position: absolute;
   inset: 0;
   z-index: 0;
+}
+
+// 方案A 朱砂印章（Hero 右上角：朱砂红底白文 · 峄山碑篆体 · -6° 微旋 + 外圈金环）
+.hero-seal {
+  position: absolute;
+  top: 96px;
+  right: 6vw;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #C62828;                // 朱砂红
+  color: #FFF8E7;                     // 白文
+  border-radius: 10px;
+  font-family: var(--font-seal);
+  font-size: 38px;
+  line-height: 1;
+  transform: rotate(-6deg);
+  box-shadow: 2px 2px 0 rgba(139, 69, 19, 0.35);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border: 2px solid rgba(212, 160, 23, 0.55);
+    border-radius: 50%;
+  }
+
+  @media (max-width: 768px) {
+    top: 80px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+    border-radius: 8px;
+  }
 }
 
 // 主渐变背景
@@ -1362,7 +1426,8 @@ const results = ref([
       font-size: 2rem;
       line-height: 1.1;
       color: var(--color-secondary);
-      font-family: var(--font-title);
+      // 统计数字保持正文数字风格，不随 --font-title 变为泼墨体
+      font-family: var(--font-body);
     }
 
     span {

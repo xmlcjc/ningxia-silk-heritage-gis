@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <title>文物三维场景展示</title>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
+        <link rel="stylesheet" href="/viewer/index.css" />
+        <style>
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            /* 仅保留飞行相机：隐藏环绕/行走相机与动画播放控件 */
+            .sse-orbitCamera,
+            .sse-fpsCamera,
+            .sse-play,
+            .sse-pause,
+            .sse-timelineContainer,
+            .sse-time {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            import { createViewer } from '/viewer/index.js';
+
+            const sp = new URL(location.href).searchParams;
+            const contentUrl = sp.get('content');
+            const settingsUrl = sp.get('settings') || '/viewer/settings.json';
+            const posterUrl = sp.get('poster');
+            const poster = posterUrl ? new Image() : null;
+            if (poster) poster.src = posterUrl;
+
+            const viewer = await createViewer({
+                container: document.body,
+                contentUrl,
+                posterUrl,
+                poster,
+                settings: fetch(settingsUrl).then((response) => response.json()),
+                lang: sp.get('lang') || 'zh-CN',
+                // 取消动画：始终以暂停状态进入
+                noanim: true,
+                ui: true
+            });
+
+            // 仅保留飞行相机：首个渲染帧后切入飞行模式，并拦截后续任何模式切换
+            // （环绕相机 / 动画相机 / 行走模式，含按钮、快捷键与点击触发）
+            const pinFly = () => {
+                if (viewer.state.cameraMode !== 'fly') {
+                    viewer.state.cameraMode = 'fly';
+                }
+            };
+            viewer.events.on('cameraMode:changed', pinFly);
+            viewer.events.on('loaded:changed', (loaded) => {
+                if (loaded) pinFly();
+            });
+            if (viewer.state.loaded) pinFly();
+
+            // 动画保持暂停（模型无动画轨道时同样兜底）
+            viewer.state.animationPaused = true;
+        </script>
+    </body>
+</html>

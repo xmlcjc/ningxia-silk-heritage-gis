@@ -471,6 +471,8 @@ const innovations = ref([
 const outcomes = ref([
   { icon: 'map-stat', text: '宁夏丝路非遗地理数据库' },
   { icon: 'globe', text: 'WebGIS动态展示平台网站' },
+  { icon: 'full-screen', text: '三维数据大屏可视化系统' },
+  { icon: 'cube-3d', text: '文物三维场景展示（高斯泼溅）' },
   { icon: 'map-book', text: '学术论文与研究报告' },
   { icon: 'map-legend', text: '数字化保护白皮书' }
 ])

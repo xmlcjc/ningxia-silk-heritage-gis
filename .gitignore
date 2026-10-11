@@ -15,6 +15,9 @@ public/models/*.settings.json
 # 内部实施计划/记录文档（仅本地维护，不纳入公开仓库）
 文物3D展示实施计划.md
 
+# 字体选型交互预览页（282MB 本地素材，仅本地查看，不纳入仓库/构建）
+font-preview/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

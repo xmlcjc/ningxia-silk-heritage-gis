@@ -49,7 +49,7 @@
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">项目成果</h2>
-          <p class="section-subtitle">三大核心成果 · 全方位展示项目价值</p>
+          <p class="section-subtitle">五大核心成果 · 全方位展示项目价值</p>
         </div>
         
         <div class="results-grid">
@@ -298,7 +298,9 @@ const goToResult = (link) => {
 const resultsData = ref([
   { id: 1, title: '宁夏丝路非遗地理数据库', type: '数据库', typeCategory: 'database', description: '涵盖 20+ 项非遗项目的完整数字档案，包含历史渊源、工艺流程、保护现状与地理坐标等多维信息', color: '#E8DCC8', icon: 'layers', date: '2024-06', size: '500MB', link: '/archive', linkText: '前往数字档案' },
   { id: 2, title: 'GIS 动态地图网页平台', type: '平台', typeCategory: 'platform', description: '基于 WebGIS 的交互式地图，支持时空可视化、图层切换、点位查询与数据统计分析', color: '#F5F0E6', icon: 'globe', date: '2024-08', size: '在线', link: '/map', linkText: '打开GIS地图' },
-  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '系统阐述宁夏丝路非遗数字化保护的理论、方法与实践路径，提出保护与振兴策略建议', color: '#DED3C2', icon: 'map-book', date: '2024-10', link: '/project', linkText: '查看项目概况' }
+  { id: 4, title: '数字化保护白皮书', type: '报告', typeCategory: 'report', description: '系统阐述宁夏丝路非遗数字化保护的理论、方法与实践路径，提出保护与振兴策略建议', color: '#DED3C2', icon: 'map-book', date: '2024-10', link: '/project', linkText: '查看项目概况' },
+  { id: 5, title: '三维数据大屏', type: '应用', typeCategory: 'screen', description: '覆盖宁夏五市的三维数据大屏，沉浸式呈现非遗格局、丝路古道与核心统计数据', color: '#F0E4CC', icon: 'full-screen', date: '2024-12', size: '在线', link: '/screen', linkText: '进入三维大屏' },
+  { id: 6, title: '文物三维场景展示', type: '应用', typeCategory: 'scene', description: '基于实景照片的高斯泼溅场景重建，以飞行相机自由漫游查看文物与其原生场景', color: '#EADDC8', icon: 'cube-3d', date: '2025-01', size: '3D', link: '/archive/1', linkText: '查看三维场景' }
 ])
 
 const newsData = ref([
@@ -596,6 +598,8 @@ const partnerData = ref({
     &.type-database { background: rgba(21, 101, 192, 0.9); }
     &.type-platform { background: rgba(46, 125, 50, 0.9); }
     &.type-report { background: rgba(244, 67, 54, 0.9); }
+    &.type-screen { background: rgba(212, 160, 23, 0.9); }
+    &.type-scene { background: rgba(139, 69, 19, 0.9); }
   }
   
   .image-overlay {

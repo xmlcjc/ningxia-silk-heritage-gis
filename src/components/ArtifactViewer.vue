@@ -86,7 +86,8 @@ const frameSrc = computed(() => {
   })
   if (active.value.poster) params.set('poster', active.value.poster)
   if (reduceMotion.value) params.set('noanim', '')
-  return `/viewer/index.html?${params.toString()}`
+  // 使用自托管嵌入页：已配置仅保留飞行相机（隐藏环绕/行走与动画控件）
+  return `/viewer-embed.html?${params.toString()}`
 })
 
 const launch = () => {

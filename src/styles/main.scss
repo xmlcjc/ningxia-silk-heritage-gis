@@ -4,6 +4,30 @@
 // ============================================
 
 // ===================
+// 方案A 自托管子集字体（public/fonts，按全站字符集子集化）
+// ===================
+@font-face {
+  font-family: 'MaShanZheng';
+  src: url('/fonts/mashanzheng-subset.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'FangZhengShuSong';
+  src: url('/fonts/fangzheng-shusong-subset.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'HuiWenMingChao';
+  src: url('/fonts/huiwen-mingchao-subset.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'YiShanZhuan';
+  src: url('/fonts/yishanzhuan-subset.woff2') format('woff2');
+  font-display: swap;
+}
+
+// ===================
 // 色彩系统 - 丝路文化主题
 // ===================
 :root {
@@ -45,11 +69,17 @@
   --color-error: #C62828;             // 错误红
   
   // ===================
-  // 字体系统
+  // 字体系统（方案A 墨韵丝路：毛笔楷书标题 / 书宋副题 / 明朝正文 / 峄山碑篆体印章 / Georgia 英文）
   // ===================
+  --font-title: 'MaShanZheng', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-sub: 'FangZhengShuSong', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
   --font-display: 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN', 'SimSun', serif;
-  --font-body: 'Noto Sans SC', 'Source Han Sans SC', 'Source Han Sans CN', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-body: 'HuiWenMingChao', 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  --font-en: Georgia, 'Times New Roman', serif;
+  --font-seal: 'YiShanZhuan', 'MaShanZheng', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  // Element Plus 组件文字跟随正文
+  --el-font-family: var(--font-body);
   
   // ===================
   // 间距系统 (8pt基准)
@@ -151,7 +181,16 @@ body {
 // 标题系统 - 传统优雅风格
 // ============================================
 
-h1, h2, h3, h4, h5, h6 {
+// 大标题（h1/h2）用三极泼墨，小标题（h3-h6）保持衬线
+h1, h2 {
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+h3, h4, h5, h6 {
   font-family: var(--font-display);
   color: var(--color-primary);
   font-weight: 600;
@@ -182,6 +221,21 @@ h5 {
 
 h6 {
   font-size: 1rem;
+}
+
+// ============================================
+// 方案B 角色字体：副题（行楷）/ 英文展示（Orange Juice）
+// ============================================
+
+.hero-subtitle,
+.section-subtitle {
+  font-family: var(--font-sub);
+}
+
+.logo-sub,
+.title-sub,
+.example-tag {
+  font-family: var(--font-en);
 }
 
 // ============================================

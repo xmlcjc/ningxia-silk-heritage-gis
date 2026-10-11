@@ -3088,7 +3088,7 @@ onBeforeUnmount(() => {
 
   h2 {
     margin: 0 0 12px;
-    font-family: var(--font-display);
+    font-family: var(--font-title);
     font-size: 26px;
     letter-spacing: 0.03em;
     color: var(--color-gold-ink);
@@ -3227,7 +3227,7 @@ onBeforeUnmount(() => {
 
 .section-title {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-title);
   font-size: 26px;
   letter-spacing: 0.08em;
   color: var(--color-gold-ink);
