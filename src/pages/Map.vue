@@ -374,9 +374,9 @@
           <div class="section-header">
             <div class="header-decoration">
               <span class="deco-line"></span>
+              <h2 class="section-title">数据洞察</h2>
               <span class="deco-line"></span>
             </div>
-            <h2 class="section-title">数据洞察</h2>
           </div>
           
           <div class="charts-grid">
@@ -3211,7 +3211,8 @@ onBeforeUnmount(() => {
 
 .header-decoration {
   display: flex;
-  gap: 7px;
+  align-items: center;
+  gap: 14px;
 }
 
 .deco-line {
