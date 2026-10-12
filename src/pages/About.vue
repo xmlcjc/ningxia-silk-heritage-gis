@@ -9,7 +9,7 @@
       <div class="container">
         <div class="hero-content">
           <div class="hero-badge">
-            <span class="badge-icon">团</span>
+            <Icon class="badge-icon" icon="gis:globe-star" />
             <span class="badge-text">传承丝路文化 · 守护非遗瑰宝</span>
           </div>
           <h1 class="hero-title">关于我们</h1>
@@ -29,7 +29,7 @@
         <div class="section-header">
           <div class="header-decoration">
             <span class="deco-line"></span>
-            <span class="deco-icon">团</span>
+            <Icon class="deco-icon" icon="gis:map-users" />
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">团队简介</h2>
@@ -78,7 +78,7 @@
             <div class="value-content">
               <h3>{{ value.title }}</h3>
               <p>{{ value.desc }}</p>
-              <div class="value-quote">"${{ value.quote }}"</div>
+              <div class="value-quote">{{ value.quote }}</div>
             </div>
           </div>
         </div>
@@ -333,7 +333,8 @@ const submitForm = () => {
 .hero-bg {
   position: absolute;
   inset: 0;
-  
+  pointer-events: none;
+
   .hero-pattern {
     position: absolute;
     inset: 0;
@@ -369,7 +370,7 @@ const submitForm = () => {
     height: 24px;
     background: var(--color-secondary);
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -554,6 +555,8 @@ const submitForm = () => {
 .mission-bg {
   position: absolute;
   inset: 0;
+  // 装饰背景不拦截鼠标事件，否则会盖住下方三张使命卡的 hover 交互
+  pointer-events: none;
   background: 
     radial-gradient(ellipse at 20% 30%, rgba(212, 160, 23, 0.05) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 70%, rgba(46, 139, 87, 0.05) 0%, transparent 40%);
@@ -940,6 +943,7 @@ const submitForm = () => {
 .partners-bg {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
 }
 
@@ -1021,6 +1025,7 @@ const submitForm = () => {
 .cta-bg {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
 }
 

@@ -9,7 +9,7 @@
       <div class="container">
         <div class="hero-content">
           <div class="hero-badge">
-            <span class="badge-icon">丝</span>
+            <Icon class="badge-icon" icon="gis:map-add" />
             <span class="badge-text">大学生创新创业项目</span>
           </div>
           <h1 class="hero-title">项目概况</h1>
@@ -37,7 +37,7 @@
         <div class="section-header">
           <div class="header-decoration">
             <span class="deco-line"></span>
-            <span class="deco-icon">简</span>
+            <Icon class="deco-icon" icon="gis:world-folder" />
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">项目简介</h2>
@@ -530,7 +530,7 @@ const outcomes = ref([
     height: 24px;
     background: var(--color-secondary);
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: white;
     align-items: center;
@@ -741,6 +741,16 @@ const outcomes = ref([
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-secondary);
+  }
 }
 
 .card-header {
@@ -892,17 +902,33 @@ const outcomes = ref([
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
   text-align: center;
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-secondary);
+
+    // 图标底衬放大提亮，与创新点卡的 visual-bg 动效一致
+    .prep-icon-bg {
+      transform: translate(-50%, -50%) scale(1.2);
+      opacity: 0.2;
+    }
+  }
+
   .prep-icon-wrapper {
     position: relative;
     margin-bottom: var(--spacing-lg);
-    
+
     .prep-icon {
       font-size: 2.5rem;
       position: relative;
       z-index: 1;
     }
-    
+
     .prep-icon-bg {
       position: absolute;
       top: 50%;
@@ -913,6 +939,7 @@ const outcomes = ref([
       background: radial-gradient(circle, var(--color-secondary), transparent);
       border-radius: 50%;
       opacity: 0.1;
+      transition: transform 0.3s var(--ease-out), opacity 0.3s var(--ease-out);
     }
   }
   
@@ -1149,7 +1176,15 @@ const outcomes = ref([
 .phase-content {
   background: var(--color-background);
   text-align: center;
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+
   .phase-badge {
     display: inline-block;
     background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
@@ -1329,6 +1364,14 @@ const outcomes = ref([
   background: var(--color-paper);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
+  transition:
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .card-header-white {
@@ -1378,7 +1421,17 @@ const outcomes = ref([
   padding: var(--spacing-md);
   background: rgba(212, 160, 23, 0.05);
   border-radius: var(--radius-md);
-  
+  transition:
+    transform 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out),
+    box-shadow 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateX(6px);
+    background: rgba(212, 160, 23, 0.14);
+    box-shadow: var(--shadow-md);
+  }
+
   .item-icon {
     font-size: 1.2rem;
     flex-shrink: 0;

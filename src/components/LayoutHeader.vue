@@ -11,7 +11,7 @@
         <!-- Logo区域 -->
         <router-link to="/" class="logo">
           <div class="logo-wrapper">
-            <Icon class="logo-icon" icon="gis:compass-rose" />
+            <img class="logo-icon" src="/logo-gold.svg" alt="宁夏丝路非遗地理志" />
             <div class="logo-text-group">
               <span class="logo-text">宁夏丝路非遗地理志</span>
               <span class="logo-sub">Ningxia Silk Road Heritage GIS</span>
@@ -222,7 +222,10 @@ onUnmounted(() => {
   }
   
   .logo-icon {
-    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+    display: block;
+    object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     transition: transform 0.3s var(--ease-out);
   }
@@ -580,7 +583,8 @@ onUnmounted(() => {
     }
     
     .logo-icon {
-      font-size: 1.6rem;
+      width: 2.6rem;
+      height: 2.6rem;
     }
     
     .logo-text {

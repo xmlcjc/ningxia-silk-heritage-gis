@@ -1,4 +1,4 @@
-﻿﻿<template>
+﻿<template>
   <footer class="layout-footer">
     <!-- 顶部装饰波浪 -->
     <div class="footer-wave">
@@ -14,7 +14,7 @@
           <!-- 品牌区域 -->
           <div class="footer-brand">
             <div class="brand-logo">
-              <Icon class="logo-icon" icon="gis:compass-rose" />
+              <img class="logo-icon" src="/logo-gold.svg" alt="宁夏丝路非遗地理志" />
               <div class="logo-text">
                 <h3>宁夏丝路非遗地理志</h3>
                 <span class="logo-sub">Ningxia Silk Road Heritage GIS</span>
@@ -220,7 +220,10 @@ import { Icon } from '@iconify/vue'
     margin-bottom: var(--spacing-lg);
     
     .logo-icon {
-      font-size: 2.5rem;
+      width: 4rem;
+      height: 4rem;
+      display: block;
+      object-fit: contain;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     

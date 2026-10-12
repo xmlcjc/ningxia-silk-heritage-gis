@@ -9,7 +9,7 @@
       <div class="container">
         <div class="hero-content">
           <div class="hero-badge">
-            <span class="badge-icon">档</span>
+            <Icon class="badge-icon" icon="gis:folder-pois" />
             <span class="badge-text">非遗数字档案库</span>
           </div>
           <h1 class="hero-title">宁夏丝路非物质文化遗产</h1>
@@ -303,7 +303,7 @@ const onImgError = (e) => {
     height: 24px;
     background: var(--color-secondary);
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     display: flex;
     align-items: center;

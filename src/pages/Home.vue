@@ -15,9 +15,12 @@
       
       <div class="container">
         <div class="hero-content">
+          <!-- 大号罗盘徽章（品牌主视觉，让 logo 在首屏清晰可辨） -->
+          <img class="hero-emblem animate-fade-in" src="/logo-gold.svg" alt="" aria-hidden="true" />
+
           <!-- 装饰性徽章 -->
           <div class="hero-badge animate-fade-in delay-1">
-            <span class="badge-icon">丝</span>
+            <Icon class="badge-icon" icon="gis:compass" />
             <span class="badge-text">宁夏 · 丝绸之路</span>
           </div>
           
@@ -82,7 +85,7 @@
         <div class="section-header">
           <div class="header-decoration">
             <span class="deco-line"></span>
-            <span class="deco-icon">古</span>
+            <Icon class="deco-icon" icon="gis:story-maps" />
             <span class="deco-line"></span>
           </div>
           <h2 class="section-title">项目简介</h2>
@@ -627,6 +630,16 @@ const results = ref([
   padding: var(--spacing-4xl) 0;
 }
 
+// 大号罗盘徽章
+.hero-emblem {
+  display: block;
+  width: clamp(110px, 16vw, 170px);
+  height: clamp(110px, 16vw, 170px);
+  margin: 0 auto var(--spacing-lg);
+  object-fit: contain;
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.4));
+}
+
 // 徽章
 .hero-badge {
   display: inline-flex;
@@ -647,7 +660,7 @@ const results = ref([
     height: 24px;
     background: var(--color-secondary);
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: white;
   }
