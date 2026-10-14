@@ -6,7 +6,7 @@
 🌐 **三维数据大屏**：https://ningxia-silk-heritage-gis.vercel.app/screen
 💬 **讨论交流**：[Discussions](https://github.com/xmlcjc/ningxia-silk-heritage-gis/discussions) ｜ 🐛 问题反馈：[Issues](https://github.com/xmlcjc/ningxia-silk-heritage-gis/issues)
 
-**目录**：[项目简介](#项目简介) · [技术栈](#技术栈) · [视觉与字体](#视觉与字体方案a墨韵丝路) · [项目结构](#项目结构) · [功能模块](#功能模块) · [快速开始](#快速开始) · [数据说明](#数据说明) · [部署](#部署) · [联系方式](#联系方式) · [浏览器支持](#浏览器支持) · [许可证](#许可证)
+**目录**：[项目简介](#项目简介) · [技术栈](#技术栈) · [视觉与字体](#视觉与字体方案a墨韵丝路) · [项目结构](#项目结构) · [功能模块](#功能模块) · [快速开始](#快速开始) · [数据说明](#数据说明) · [SEO 与无障碍](#seo-与无障碍) · [部署](#部署) · [联系方式](#联系方式) · [浏览器支持](#浏览器支持) · [许可证](#许可证) · [第三方资源](#第三方资源)
 
 ## 项目简介
 
@@ -49,7 +49,8 @@ ningxia-silk-heritage-gis/
 │   ├── components/            # 公共组件
 │   │   ├── LayoutHeader.vue   # 顶部导航
 │   │   ├── LayoutFooter.vue   # 页脚
-│   │   └── ArtifactViewer.vue # 实景三维场景（3D 高斯泼溅）查看器
+│   │   ├── ArtifactViewer.vue # 实景三维场景（3D 高斯泼溅）查看器
+│   │   └── ArtifactModel.vue  # 器物三维预览（自动转盘 · Poly Haven CC0 模型）
 │   ├── pages/                 # 页面组件
 │   │   ├── Home.vue           # 首页
 │   │   ├── Project.vue        # 项目概况
@@ -63,7 +64,10 @@ ningxia-silk-heritage-gis/
 │   │   └── NotFound.vue       # 404 兜底页
 │   ├── data/
 │   │   ├── heritageData.js            # 非遗图文数据、古道、黄河、三维模型索引
+│   │   ├── artifactModels.js          # 器物模型映射（按类别配 Poly Haven CC0 模型）
 │   │   └── ningxia-neighbors.geo.json # 邻省（甘肃/内蒙古/陕西）行政边界
+│   ├── composables/
+│   │   └── useGlobalSelection.js      # 地图 / 大屏 / 档案列表跨页选中态联动
 │   ├── assets/
 │   │   ├── ningxia-cities.json  # 五地市行政边界 GeoJSON
 │   │   ├── ningxia-outline.json # 自治区轮廓 GeoJSON
@@ -80,8 +84,10 @@ ningxia-silk-heritage-gis/
 ├── public/
 │   ├── heritage/              # 20 个项目的压缩照片（封面/缩略图/图集）
 │   ├── models/                # 实景三维场景（照片转 3DGS 压缩为 .sog，共 3 件）
+│   │   └── polyhaven/         # 器物三维预览模型（Poly Haven CC0，gltf + 贴图）
 │   ├── fonts/                 # 方案A 自托管子集字体（woff2）
 │   ├── logo.svg / logo-gold.svg # 八角罗盘徽章 Logo（墨版 / 鎏金版）
+│   ├── robots.txt / sitemap.xml # 搜索引擎抓取与站点地图
 │   ├── viewer/                # 三维查看器静态页（构建期生成，不纳入版本库）
 │   └── viewer-embed.html      # 三维场景嵌入页（仅飞行相机）
 ├── index.html
@@ -99,13 +105,16 @@ ningxia-silk-heritage-gis/
 项目简介、立项依据、研究内容（含三维数字大屏与沉浸式展示方向）、技术方案、创新点、预期目标与成果形式；各栏目卡片均带悬停动效（上浮 + 阴影 + 金色描边，成果条目横向位移）。
 
 ### GIS 地图（核心）
-- 20 项非遗点位按级别差异化标注（国家级 / 自治区级 / 县级），带破土萌芽入场动画
+- 20 项非遗点位按级别差异化标注（国家级 / 自治区级 / 市级），带破土萌芽入场动画
 - 4 条历史考证的丝路古道：**萧关道、环灵道、长安西域道、灵州道**，以及黄河宁夏段真实河道
 - 点击古道：视角飞行居中，选中路线加粗高亮、其余古道与非沿线点位弱化，古道简介卡片弹出（里程、沿线非遗）
 - 古道与下方 ECharts 图表联动（类别分布、地市分布、历史时期），再次点击取消联动
 - 古道名称标签带屏幕空间碰撞检测与自动避让
-- 地市 / 类别 / 时期 / 等级多维度筛选、时光回放时间轴、点位详情弹窗
-- 工具栏：缩放至全图、距离测量、打印、全屏；图例与比例尺
+- 地市 / 类别 / 时期 / 等级多维度筛选、时光回放时间轴、点位详情弹窗；时间轴与「历史时期」筛选互斥，避免规则冲突产生零结果
+- 同址重叠点位自动合并为「重叠点」，点击弹出选择面板，保证每个点位都能独立进入详情页
+- 筛选变化后地图填色、图例、统计卡片与项目列表共用同一套结果，数据口径一致
+- 工具栏：缩放至全图、距离测量、打印、全屏；图例样本与地图标记同构（圆 + 底部尖角图钉，配色 / 形状 / 尺寸比例一致），比例尺内嵌图例卡片
+- 打印时自动隐藏导航、筛选与工具栏，保留地图、图例、比例尺与数据来源说明，并等待瓦片加载完成后再输出
 - 支持地图视图 / 列表视图切换：标记弹窗顶部带项目缩略图；列表视图以缩略图、等级徽章与标签胶囊呈现，点击列表项弹出左图右文的快速预览弹窗
 - 支持从非遗详情页深链直达（`/map?id=..&lng=..&lat=..&zoom=12`），地图自动飞行到项目坐标并弹开信息气泡
 
@@ -116,7 +125,7 @@ ningxia-silk-heritage-gis/
 - 周边省级行政区参照层（甘肃 / 内蒙古 / 陕西），以圆盘边界裁切并径向淡出；参照层填充与省界线统一贴合 DEM 地形，与宁夏五市省界无缝衔接；省名锚点经"点在多边形内"校验落在真实省界内；可一键隐藏切换为仅看宁夏
 - 五地市行政边界贴地渲染，市名 Sprite 标签始终面向相机；鼠标悬停时市域鎏金、边界**单点脉冲流光**（沿边界匀速跑动一个亮点）；点击相机 45° 飞行聚焦
 - 4 条丝路古道（萧关道、环灵道、长安西域道、灵州道三段）以 Catmull-Rom 平滑曲线 + 贴地流光管线呈现，各配主题色名称标牌；支持点击聚焦，聚焦后右栏名录、环形图、年代图、地市柱图自动联动（沿线项目收敛、柱图高亮）
-- 20 项非遗点位立体标注，支持鼠标悬停提示与点击查看
+- 20 项非遗点位立体标注，支持鼠标悬停提示与点击查看；点击标记弹出项目详情卡片，含 3DGS 实景场景的条目内嵌三维查看，其余条目按类别映射展示 Poly Haven CC0 器物模型的自动转盘预览
 - 右下角图例、返回主站；组件卸载时自动释放 Three.js 几何体 / 材质 / 纹理与 ECharts 实例
 
 ### 数字档案
@@ -163,6 +172,7 @@ npm run preview
 - 黄河宁夏段河道坐标（取自 OpenStreetMap）
 - 类别、地市、时期、等级等字典数据
 - 3 件实景三维场景索引（详见下方「三维场景模型」）
+- 器物三维预览模型映射（`src/data/artifactModels.js`，按非遗类别关联 `public/models/polyhaven/` 下的 Poly Haven CC0 模型）
 
 三维大屏所用的五地市行政边界（`src/assets/ningxia-cities.json`，取自阿里云 DataV）、邻省行政边界（`src/data/ningxia-neighbors.geo.json`）、自治区轮廓与地形纹理（卫星影像 / SRTM 高程 / 法线，位于 `src/assets/textures/`）由 `scripts/build-ningxia-textures.mjs` 抓取生成，地形管线按行政区轮廓做了透明遮罩裁剪。
 
@@ -189,12 +199,20 @@ npm run preview
 
 后续如需扩展，可将数据层替换为后端 API。
 
+## SEO 与无障碍
+
+- 每个路由配置独立的 `<title>`、描述、Open Graph 等社交分享元数据，路由切换时同步更新
+- 动态筛选参数 URL（如 `/map?id=..&city=..`）的 canonical 归一至无参数的基础路由，避免被搜索引擎误判为独立页面
+- 站点提供 `robots.txt` 与 `sitemap.xml`，仅收录真实存在、允许公开索引的页面
+- 地图详情弹窗具备 `dialog` 语义与 `aria-modal`，打开时管理键盘焦点、支持 Esc 关闭并在关闭后恢复原焦点；列表项与工具栏图标按钮支持键盘访问并提供可访问名称
+
 ## 部署
 
 项目为纯静态站点，构建产物在 `dist/`，可托管于任意静态平台。以 Vercel 为例，仓库已内置 `vercel.json`，包含：
 
 - SPA History 路由全部回退至 `index.html`
 - `/assets/` 静态资源一年强缓存
+- 全站基础安全响应头：`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin`、`X-Frame-Options: SAMEORIGIN`
 
 其它平台（如 Nginx）部署时同样需要配置前端路由回退：
 
@@ -222,4 +240,5 @@ Chrome / Edge（推荐）、Firefox、Safari。页面适配桌面与移动端，
 
 - 地图图标 [Font-GIS](https://github.com/Viglino/font-gis) by Jean-Marc Viglino · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - 三维查看器 [SuperSplat Viewer](https://github.com/playcanvas/supersplat-viewer) 与转换工具 [splat-transform](https://github.com/playcanvas/splat-transform) © PlayCanvas · [MIT](https://opensource.org/licenses/MIT)
+- 器物三维预览模型 [Poly Haven](https://polyhaven.com/) · [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)（公共领域）
 - 三维实景场景由作者本人采集，可公开发布
