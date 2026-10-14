@@ -337,9 +337,9 @@
 
             <!-- 图例 -->
             <div class="map-legend card-silk" :class="{ collapsed: legendCollapsed }">
-              <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
-                   （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除） -->
-              <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsed">
+              <!-- @mousedown.prevent 阻止鼠标点击给按钮聚焦（聚焦会触发浏览器 scroll-into-view，
+                   当图例按钮被视口下边缘切掉时页面会向下跳动）；不影响键盘 Tab 聚焦与 Enter 激活 -->
+              <button class="legend-toggle" type="button" @mousedown.prevent @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsed">
                 <span>{{ legendCollapsed ? '▸' : '▾' }}</span> 图例
               </button>
               <div v-show="!legendCollapsed" class="legend-body">

@@ -108,11 +108,16 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
+    // 浏览器前进/后退 → 恢复原位置
     if (savedPosition) {
       return savedPosition
-    } else {
-      return { top: 0 }
     }
+    // 同路由仅 query 变化（如地图页选中非遗点同步 URL id 参数）→ 不滚动
+    if (to.path === from.path) {
+      return false
+    }
+    // 跨路由跳转 → 滚动到顶部
+    return { top: 0 }
   }
 })
 
