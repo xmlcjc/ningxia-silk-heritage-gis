@@ -65,8 +65,10 @@
       <!-- 波浪装饰 -->
       <div class="hero-wave">
         <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-          <path class="wave-path wave-1" fill="#FFF8E7" d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,30 1440,60 L1440,120 L0,120 Z"/>
-          <path class="wave-path wave-2" fill="#F5F0E6" d="M0,80 C180,40 360,100 540,60 C720,20 900,80 1080,40 C1260,60 1380,100 1440,80 L1440,120 L0,120 Z"/>
+          <!-- 沙丘脊线改用 Q+T（切线延续）绘制，保证每个接点切线连续、无折角；
+               两层用同一条曲线整体下移 30 单位，避免两层交叉在上包络处形成锐角 -->
+          <path class="wave-path wave-1" fill="#FFF8E7" d="M0,64 Q240,92 480,64 T960,64 T1440,64 L1440,120 L0,120 Z"/>
+          <path class="wave-path wave-2" fill="#F5F0E6" d="M0,94 Q240,122 480,94 T960,94 T1440,94 L1440,120 L0,120 Z"/>
         </svg>
       </div>
       

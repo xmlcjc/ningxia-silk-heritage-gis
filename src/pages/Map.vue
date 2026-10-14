@@ -337,6 +337,8 @@
 
             <!-- 图例 -->
             <div class="map-legend card-silk" :class="{ collapsed: legendCollapsed }">
+              <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
+                   （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除） -->
               <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsed">
                 <span>{{ legendCollapsed ? '▸' : '▾' }}</span> 图例
               </button>
