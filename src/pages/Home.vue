@@ -920,7 +920,7 @@ const results = ref([
 .stats-section {
   position: relative;
   padding: var(--spacing-4xl) 0;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
   overflow: hidden;
 }
 

@@ -15,8 +15,8 @@
 
       <div class="header-right">
         <span class="clock">{{ clockText }}</span>
-        <button class="panel-toggle" @click="mobilePanel = !mobilePanel">
-          {{ mobilePanel ? '收起数据' : '查看数据' }}
+        <button class="panel-toggle" @click="cycleMobilePanel">
+          {{ mobilePanel === 0 ? '查看数据' : mobilePanel === 2 ? '收起数据' : '查看图表' }}
         </button>
       </div>
     </header>
@@ -24,7 +24,7 @@
     <!-- ============ 主体三栏 ============ -->
     <div class="screen-body">
       <!-- 左栏 -->
-      <aside class="panel panel-left" :class="{ 'panel-open': mobilePanel }">
+      <aside class="panel panel-left" :class="{ 'panel-open': mobilePanel === 1 }">
         <div class="stat-grid">
           <div class="stat-item">
             <span class="stat-num">{{ stats.total }}</span>
@@ -128,6 +128,16 @@
             <h3 class="poi-name">{{ selected.name }}</h3>
             <p class="poi-meta">{{ selected.city }} · {{ selected.county }}</p>
             <p class="poi-intro">{{ selected.intro }}</p>
+
+            <!-- 三维预览：有实景场景的条目内嵌 SuperSplat 查看器，其余按类别展示 CC0 器物转盘 -->
+            <div v-if="pipSrc" class="poi-scene">
+              <iframe class="poi-scene-frame" :src="pipSrc" title="实景三维场景" allow="fullscreen" />
+            </div>
+            <div v-else-if="artifactFor(selected.category)" class="poi-artifact">
+              <ArtifactModel :src="artifactFor(selected.category).src" />
+              <span class="poi-artifact-label">{{ artifactFor(selected.category).label }} · 参照器物</span>
+            </div>
+
             <router-link class="poi-link" :to="`/archive/${selected.id}`">
               查看完整档案<span class="poi-arrow">→</span>
             </router-link>
@@ -136,13 +146,14 @@
 
         <div class="stage-legend">
           <span><i class="lg-dot gold"></i>国家级</span>
-          <span><i class="lg-dot cyan"></i>自治区级</span>
+          <span><i class="lg-dot green"></i>自治区级</span>
+          <span><i class="lg-dot bluegray"></i>市级</span>
           <span class="lg-route"><i></i>丝路古道</span>
         </div>
       </main>
 
       <!-- 右栏 -->
-      <aside class="panel panel-right" :class="{ 'panel-open': mobilePanel }">
+      <aside class="panel panel-right" :class="{ 'panel-open': mobilePanel === 2 }">
         <div class="chart-card flex-card">
           <h3 class="chart-title"><i class="bar"></i>五地市项目数量</h3>
           <div ref="cityRef" class="chart-box"></div>
@@ -176,13 +187,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onBeforeUnmount, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onBeforeUnmount, onMounted, defineAsyncComponent } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import * as THREE from 'three'
 import * as echarts from 'echarts'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import outlineData from '@/assets/ningxia-outline.json'
 import citiesGeo from '@/assets/ningxia-cities.json'
 import neighborsGeo from '@/data/ningxia-neighbors.geo.json'
+import { globalSelection, syncGlobalSelection } from '@/composables/useGlobalSelection'
+import { artifactFor } from '@/data/artifactModels'
 import satUrl from '@/assets/textures/nx_sat.webp'
 import dispUrl from '@/assets/textures/nx_disp.jpg'
 import normalUrl from '@/assets/textures/nx_normal.jpg'
@@ -194,12 +208,33 @@ import {
   silkRoadRoutes
 } from '@/data/heritageData.js'
 
+// 器物三维转盘按需加载：仅在下钻卡片打开且条目无实景场景时才拉取 GLTFLoader 代码
+const ArtifactModel = defineAsyncComponent(() => import('@/components/ArtifactModel.vue'))
+
+// 路由（URL 状态化：选中态写入查询参数，可分享、可前进后退）
+const router = useRouter()
+const route = useRoute()
+
 const containerRef = ref(null)
 const pieRef = ref(null)
 const cityRef = ref(null)
 const periodRef = ref(null)
 const selected = ref(null)
-const mobilePanel = ref(false)
+// 实景三维场景嵌入地址（与地图画中画/档案页同源：viewer-embed.html + 同名 settings 初始视角）
+const pipSrc = computed(() => {
+  const m = selected.value?.models?.[0]
+  if (!m) return ''
+  const params = new URLSearchParams({
+    content: m.url,
+    settings: m.url.replace(/\.sog$/i, '.settings.json'),
+    lang: 'zh-CN'
+  })
+  return `/viewer-embed.html?${params.toString()}`
+})
+// 窄屏数据面板开关：单键循环 0 收起 → 1 左栏总览 → 2 右栏图表/名录；
+// 避免两块 280px 面板在 <1024px 窄屏同时展开相互遮挡导致内容被裁切
+const mobilePanel = ref(0)
+const cycleMobilePanel = () => { mobilePanel.value = (mobilePanel.value + 1) % 3 }
 const clockText = ref('')
 // 悬停地级市时的信息卡
 const hoverCardName = ref('')
@@ -232,7 +267,7 @@ const scopedData = computed(() => {
 })
 
 const levelStats = computed(() =>
-  ['国家级', '自治区级', '市级', '县级']
+  ['国家级', '自治区级', '市级']
     .map((name) => ({ name, value: scopedData.value.filter((d) => d.level === name).length }))
     .filter((d) => d.value > 0)
 )
@@ -264,7 +299,7 @@ const hoverCardData = computed(() => {
   return {
     name: hoverCardName.value,
     total: items.length,
-    levels: ['国家级', '自治区级', '市级', '县级']
+    levels: ['国家级', '自治区级', '市级']
       .map((name) => ({ name, value: items.filter((d) => d.level === name).length }))
       .filter((d) => d.value > 0),
     topCat: topCat ? topCat[0] : '—',
@@ -1662,7 +1697,9 @@ function toggleDim(dim, val) {
   if (dim === 'city') {
     if (uiState.city) focusCity(uiState.city)
     else resetView()
+    syncGlobalSelection({ city: uiState.city }, 'screen')
   }
+  if (dim === 'route') syncGlobalSelection({ route: uiState.route }, 'screen')
 }
 
 function clearDim(dim) {
@@ -1671,7 +1708,11 @@ function clearDim(dim) {
     return
   }
   uiState[dim] = ''
-  if (dim === 'city') resetView()
+  if (dim === 'city') {
+    resetView()
+    syncGlobalSelection({ city: '' }, 'screen')
+  }
+  if (dim === 'route') syncGlobalSelection({ route: '' }, 'screen')
 }
 
 function resetAll() {
@@ -1683,7 +1724,69 @@ function resetAll() {
   uiState.period = ''
   showTerrain.value = false
   resetView()
+  syncGlobalSelection({ city: '', route: '' }, 'screen')
 }
+
+// ========== 跨页联动（地图 → 大屏） ==========
+// 页面挂载时恢复选中态：URL 查询参数优先（可分享深链），其次全局选中态（SPA 跨页带入）
+onMounted(() => {
+  const city = route.query.city || globalSelection.city
+  const routeName = route.query.route || globalSelection.route
+  const itemId = route.query.id
+  if (city) {
+    uiState.city = city
+    setTimeout(() => focusCity(city), 300)
+  }
+  if (routeName) uiState.route = routeName
+  // 深链 ?id= 直接打开该项目的下钻卡片
+  if (itemId !== undefined && itemId !== '') {
+    selected.value = heritageData.find(d => String(d.id) === String(itemId)) || null
+  }
+})
+
+// 外部（地图等）改动全局状态时同步本地（来源是自己则跳过，避免循环）
+watch(() => [globalSelection.city, globalSelection.route], ([c, r]) => {
+  if (globalSelection.source === 'screen') return
+  if (uiState.city !== (c || '')) {
+    uiState.city = c || ''
+    if (c) focusCity(c)
+    else resetView()
+  }
+  if (uiState.route !== (r || '')) uiState.route = r || ''
+})
+
+// ---- URL 状态化：?city=&route=&id=（可分享链接，浏览器前进/后退可回退） ----
+// 双向同步以"值相等即跳过"的幂等比较打断 state→URL→state 的循环
+const writeUrl = () => {
+  const next = { ...route.query }
+  delete next.city; delete next.route; delete next.id
+  if (uiState.city) next.city = uiState.city
+  if (uiState.route) next.route = uiState.route
+  if (selected.value?.id) next.id = String(selected.value.id)
+  const cur = route.query
+  if ((cur.city || '') === (next.city || '') &&
+      (cur.route || '') === (next.route || '') &&
+      (cur.id || '') === (next.id || '')) return
+  // 用 push 而非 replace：每次选中态变化都是一个历史记录，浏览器后退即可逐级回退选中态
+  router.push({ query: next })
+}
+watch([() => uiState.city, () => uiState.route, () => selected.value?.id], writeUrl)
+
+// 前进/后退或直接粘贴带参数的链接 → 应用到本地状态
+watch([() => route.query.city, () => route.query.route, () => route.query.id], ([c, r, id]) => {
+  const city = c || ''
+  const routeName = r || ''
+  const itemId = id === undefined ? '' : String(id)
+  if (uiState.city !== city) {
+    uiState.city = city
+    if (city) focusCity(city)
+    else resetView()
+  }
+  if (uiState.route !== routeName) uiState.route = routeName
+  if (String(selected.value?.id || '') !== itemId) {
+    selected.value = itemId ? heritageData.find(d => String(d.id) === itemId) || null : null
+  }
+})
 
 // 周边省份参照层显隐
 function toggleNeighbors() {
@@ -2401,8 +2504,8 @@ onBeforeUnmount(() => {
   color: rgba(255, 248, 231, 0.45);
 
   &.lv-国家级 { color: #ffc857; }
-  &.lv-自治区级 { color: #54d8ff; }
-  &.lv-市级, &.lv-县级 { color: rgba(255, 248, 231, 0.6); }
+  &.lv-自治区级 { color: #5ed68a; }
+  &.lv-市级 { color: #7fb4d8; }
 }
 
 /* ---- 筛选状态条 ---- */
@@ -2494,7 +2597,8 @@ onBeforeUnmount(() => {
 
   .lg-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
   .lg-dot.gold { background: #ffc857; box-shadow: 0 0 7px #ffc857; }
-  .lg-dot.cyan { background: #54d8ff; box-shadow: 0 0 7px #54d8ff; }
+  .lg-dot.green { background: #5ed68a; box-shadow: 0 0 7px #5ed68a; }
+  .lg-dot.bluegray { background: #7fb4d8; box-shadow: 0 0 7px #7fb4d8; }
 
   .lg-route {
     display: inline-flex;
@@ -2543,6 +2647,44 @@ onBeforeUnmount(() => {
 .poi-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 19px; font-weight: 600; color: #fff8e7; }
 .poi-meta { margin: 0 0 12px; font-size: 12px; color: rgba(255, 248, 231, 0.5); }
 .poi-intro { margin: 0 0 16px; font-size: 13px; line-height: 1.7; color: rgba(255, 248, 231, 0.78); }
+
+// 实景三维场景内嵌（3DGS 条目）
+.poi-scene {
+  margin: 0 0 16px;
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #12100c;
+}
+
+.poi-scene-frame {
+  display: block;
+  width: 100%;
+  height: 170px;
+  border: 0;
+}
+
+// 器物参照三维转盘（无实景场景的条目，按类别映射 CC0 器物）
+.poi-artifact {
+  position: relative;
+  margin: 0 0 16px;
+  height: 150px;
+  border: 1px solid rgba(212, 160, 23, 0.22);
+  border-radius: var(--radius-md);
+  background: radial-gradient(ellipse at 50% 82%, rgba(212, 160, 23, 0.12), transparent 62%),
+              linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.18));
+  overflow: hidden;
+}
+
+.poi-artifact-label {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  color: rgba(255, 248, 231, 0.45);
+  pointer-events: none;
+}
 
 .poi-link {
   display: inline-flex; align-items: center; gap: 6px;

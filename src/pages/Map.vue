@@ -60,9 +60,10 @@
                 type="text" 
                 v-model="searchKeyword" 
                 placeholder="搜索非遗项目名称..."
+                aria-label="搜索非遗项目名称"
                 class="custom-input"
               />
-              <button v-if="searchKeyword" class="clear-btn" @click="searchKeyword = ''">×</button>
+              <button v-if="searchKeyword" class="clear-btn" @click="searchKeyword = ''" aria-label="清除搜索关键词">×</button>
             </div>
           </div>
 
@@ -112,10 +113,12 @@
                 v-model="filters.period" 
                 placeholder="选择时期" 
                 clearable
+                :disabled="timePeriodEnabled"
                 class="custom-select"
               >
                 <el-option v-for="p in periods.slice(1)" :key="p" :label="p" :value="p" />
               </el-select>
+              <p v-if="timePeriodEnabled" class="filter-hint">时间轴筛选中，时期改由下方滑块控制</p>
             </div>
 
             <div class="filter-group">
@@ -163,8 +166,18 @@
           <div class="timeline-section">
             <div class="section-title-with-icon">
               <Icon class="icon" icon="gis:map-time" />
-              <h4>历史时期</h4>
-              <button class="play-btn" :title="playing ? '暂停' : '播放演变'" @click="togglePlay">
+              <h4>时期演变</h4>
+              <button
+                class="time-filter-toggle"
+                :class="{ 'is-on': timePeriodEnabled }"
+                :aria-pressed="timePeriodEnabled"
+                :title="timePeriodEnabled ? '关闭时间轴筛选（恢复全部时期）' : '启用时间轴筛选'"
+                @click="toggleTimeFilter"
+              >
+                <span class="time-switch"><span class="time-switch-knob"></span></span>
+                时间轴筛选
+              </button>
+              <button class="play-btn" :title="playing ? '暂停' : '播放演变'" :aria-label="playing ? '暂停演变回放' : '播放演变回放'" :aria-pressed="playing" @click="togglePlay">
                 <svg v-if="playing" viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
                   <rect x="4" y="3" width="5.5" height="18" rx="1"/>
                   <rect x="14.5" y="3" width="5.5" height="18" rx="1"/>
@@ -183,6 +196,8 @@
                 max="4"
                 step="1"
                 class="timeline-slider"
+                :aria-label="'时期演变：' + currentPeriod"
+                @input="onTimeInput"
               />
               <div class="timeline-marks">
                 <span v-for="(label, index) in timeMarks" :key="index" 
@@ -190,9 +205,9 @@
                   {{ label }}
                 </span>
               </div>
-              <div class="current-period">
+              <div class="current-period" :class="{ 'is-filtering': timePeriodEnabled }">
                 <Icon class="period-icon" icon="gis:pyramid" />
-                {{ currentPeriod }}
+                {{ currentPeriod }}<span v-if="timePeriodEnabled" class="period-flag">筛选中</span>
               </div>
             </div>
           </div>
@@ -200,6 +215,11 @@
 
         <!-- 地图主区域 -->
         <main class="map-main">
+          <!-- 打印专用抬头：屏幕端隐藏，打印输出时提供标题与数据来源说明 -->
+          <div class="print-only print-header">
+            <h1>宁夏丝路非遗地理志 · 丝路非遗 GIS 地图</h1>
+            <p>数据来源：宁夏丝路非遗地理志项目（当前筛选 {{ filteredData.length }} 项非遗点位） · 底图：天地图 / 高德地图 · 制图日期：{{ printDate }}</p>
+          </div>
           <div class="map-view">
             <!-- Leaflet 真实地图容器（v-show 保持地图实例存活，切换列表视图后无需重建） -->
             <div v-show="viewMode === 'map'" id="heritage-leaflet-map" class="leaflet-container"></div>
@@ -216,7 +236,12 @@
                     class="list-item"
                     v-for="item in filteredData"
                     :key="item.id"
+                    role="button"
+                    tabindex="0"
+                    :aria-label="`查看 ${item.name} 详情`"
                     @click="openItemPreview(item)"
+                    @keydown.enter.prevent="openItemPreview(item)"
+                    @keydown.space.prevent="openItemPreview(item)"
                   >
                     <div class="item-image">
                       <span class="item-char">{{ item.name.charAt(0) }}</span>
@@ -248,21 +273,27 @@
             <div class="floating-toolbar">
               <button class="toolbar-btn"
                       :title="viewMode === 'map' ? '切换为列表视图' : '切换为地图视图'"
+                      :aria-label="viewMode === 'map' ? '切换为列表视图' : '切换为地图视图'"
                       @click="toggleView">
                 <Icon class="toolbar-icon" :icon="viewMode === 'map' ? 'gis:grid' : 'gis:map'" />
               </button>
-              <button class="toolbar-btn" title="缩放至全图" @click="zoomToFit">
+              <button class="toolbar-btn" title="缩放至全图" aria-label="缩放至全图" @click="zoomToFit">
                 <Icon class="toolbar-icon" icon="gis:extent" />
               </button>
               <button class="toolbar-btn" :class="{ active: measureActive }"
                       :title="measureActive ? '结束测距' : '测量距离'"
+                      :aria-label="measureActive ? '结束测距' : '测量距离'"
+                      :aria-pressed="measureActive"
                       @click="toggleMeasure">
                 <Icon class="toolbar-icon" icon="gis:measure" />
               </button>
-              <button class="toolbar-btn" title="打印地图" @click="printMap">
+              <button class="toolbar-btn" :class="{ busy: printWaiting }"
+                      :title="printWaiting ? '瓦片加载中，完成后自动打印' : '打印地图'"
+                      :aria-label="printWaiting ? '瓦片加载中，完成后自动打印' : '打印地图'"
+                      @click="printMap">
                 <Icon class="toolbar-icon" icon="gis:map-print" />
               </button>
-              <button class="toolbar-btn" title="全屏地图" @click="toggleFullscreen">
+              <button class="toolbar-btn" title="全屏地图" aria-label="全屏地图" @click="toggleFullscreen">
                 <Icon class="toolbar-icon" icon="gis:full-screen" />
               </button>
             </div>
@@ -277,7 +308,7 @@
             <!-- 古道聚焦信息卡 -->
             <transition name="card-slide">
               <div v-if="focusedRoute" class="route-focus-card card-silk">
-                <button class="route-card-close" @click="exitFocus">×</button>
+                <button class="route-card-close" @click="exitFocus" aria-label="关闭古道信息卡">×</button>
                 <div class="route-card-head">
                   <span class="route-card-line" :style="{ background: focusedRoute.color }"></span>
                   <div class="route-card-headtext">
@@ -306,39 +337,39 @@
 
             <!-- 图例 -->
             <div class="map-legend card-silk" :class="{ collapsed: legendCollapsed }">
-              <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed">
+              <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsed">
                 <span>{{ legendCollapsed ? '▸' : '▾' }}</span> 图例
               </button>
               <div v-show="!legendCollapsed" class="legend-body">
                 <div v-if="layers.heritage" class="legend-group">
                   <div class="legend-row">
-                    <span class="sample-marker national"><Icon icon="gis:flag-b" width="16" height="16" style="color:#C99A1E" /></span> 国家级
+                    <span class="legend-slot"><span class="sample-marker national"><Icon icon="gis:flag-b" width="12" height="12" style="color:var(--level-national)" /></span></span> 国家级
                   </div>
                   <div class="legend-row">
-                    <span class="sample-marker regional"><Icon icon="gis:poi" width="16" height="16" style="color:#8B4513" /></span> 自治区级
+                    <span class="legend-slot"><span class="sample-marker regional"><Icon icon="gis:poi" width="10" height="10" style="color:var(--level-regional)" /></span></span> 自治区级
                   </div>
                   <div class="legend-row">
-                    <span class="sample-marker county"></span> 县级及以下
+                    <span class="legend-slot"><span class="sample-marker municipal"><Icon icon="gis:poi" width="8" height="8" style="color:var(--level-municipal)" /></span></span> 市级
                   </div>
                 </div>
                 <div v-if="layers.routes" class="legend-group">
                   <div v-for="r in silkRoadRoutes" :key="r.id" class="legend-row">
-                    <span class="sample-line" :style="{ background: r.color }"></span>{{ r.name }}
+                    <span class="legend-slot"><span class="sample-line" :style="{ background: r.color }"></span></span>{{ r.name }}
                   </div>
                 </div>
                 <div v-if="layers.yellowRiver" class="legend-group">
                   <div class="legend-row">
-                    <span class="sample-line river"></span>黄河
+                    <span class="legend-slot"><span class="sample-line" :style="{ background: yellowRiver.color }"></span></span>黄河
                   </div>
                 </div>
                 <div v-if="layers.heatmap" class="legend-group">
                   <div class="legend-row">
-                    <span class="sample-heat"></span>密集辐射范围
+                    <span class="legend-slot"><span class="sample-heat"></span></span>密集辐射范围
                   </div>
                 </div>
                 <div v-if="layers.choropleth" class="legend-group">
                   <div class="legend-row">
-                    <span class="sample-grad"></span>地市非遗数量 少 → 多
+                    <span class="legend-slot"><span class="sample-grad"></span></span>地市非遗数量 少 → 多
                   </div>
                 </div>
                 <div v-if="!layers.heritage && !layers.routes && !layers.yellowRiver && !layers.heatmap && !layers.choropleth"
@@ -353,6 +384,8 @@
                 :key="b.key"
                 :class="{ active: activeBase === b.key }"
                 :title="b.label + '底图'"
+                :aria-label="b.label + '底图'"
+                :aria-pressed="activeBase === b.key"
                 @click="switchBase(b.key)"
               >
                 <Icon v-if="b.key === 'standard'" icon="gis:map" class="base-icon" />
@@ -364,6 +397,7 @@
 
             <!-- 实时经纬度 -->
             <div v-if="mouseCoords" class="coord-readout">{{ mouseCoords }}</div>
+
           </div>
         </main>
       </div>
@@ -407,12 +441,20 @@
       </section>
     </div>
 
-    <!-- 详情弹窗 -->
+    <!-- 详情弹窗（模态对话框：dialog 语义 + 焦点管理 + Esc 关闭） -->
     <transition name="modal-fade">
       <div v-if="detailDialogVisible" class="detail-modal">
-        <div class="modal-backdrop" @click="detailDialogVisible = false"></div>
-        <div class="modal-content card-silk">
-          <button class="modal-close" @click="detailDialogVisible = false">×</button>
+        <div class="modal-backdrop" @click="closeDetailDialog"></div>
+        <div
+          class="modal-content card-silk"
+          ref="modalEl"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="detail-dialog-title"
+          tabindex="-1"
+          @keydown="onModalKeydown"
+        >
+          <button class="modal-close" @click="closeDetailDialog" aria-label="关闭详情弹窗">×</button>
           
           <div v-if="selectedItem" class="detail-body">
             <div class="detail-image-wrapper">
@@ -421,14 +463,14 @@
               </div>
               <img class="detail-image" :src="selectedItem.thumbImage" :alt="selectedItem.name" @error="onImgError">
               <div class="image-overlay">
-                <span class="level-badge" :class="'level-' + (selectedItem.level?.includes('国家级') ? 'national' : 'regional')">
+                <span class="level-badge" :class="'level-' + (selectedItem.level?.includes('国家级') ? 'national' : selectedItem.level?.includes('自治区级') ? 'regional' : 'municipal')">
                   {{ selectedItem.level }}
                 </span>
               </div>
             </div>
             
             <div class="detail-info">
-              <h2>{{ selectedItem.name }}</h2>
+              <h2 id="detail-dialog-title">{{ selectedItem.name }}</h2>
               
               <div class="detail-tags">
                 <span class="detail-tag tag-category">{{ selectedItem.category }}</span>
@@ -451,14 +493,10 @@
                   <span class="meta-label">经纬度</span>
                   <span class="meta-value">{{ selectedItem.lng }}, {{ selectedItem.lat }}</span>
                 </div>
-                <div class="meta-item">
-                  <span class="meta-label">浏览次数</span>
-                  <span class="meta-value">{{ selectedItem.views || 0 }} 次</span>
-                </div>
               </div>
               
               <div class="detail-actions">
-                <button class="btn-primary" @click="detailDialogVisible = false">关闭</button>
+                <button class="btn-primary" @click="closeDetailDialog">关闭</button>
                 <button class="btn-secondary" @click="goToDetail(selectedItem?.id)">
                   <Icon icon="gis:map-book" width="15" height="15" /> 查看完整档案
                 </button>
@@ -480,6 +518,10 @@ import L from 'leaflet'
 import * as echarts from 'echarts'
 import { heritageData, categories, cities, periods, levels, silkRoadRoutes, yellowRiver } from '../data/heritageData'
 import ningxiaCitiesGeo from '../data/ningxia-cities.geo.json'
+import { globalSelection, syncGlobalSelection } from '../composables/useGlobalSelection'
+import { ElSelect, ElOption } from 'element-plus'
+import 'element-plus/es/components/select/style/css'
+import 'element-plus/es/components/option/style/css'
 
 // Leaflet 的 DivIcon/popup 是原生 HTML，无法使用 Vue 组件：
 // 直接取 Font-GIS 的 path 数据拼成内联 SVG 字符串
@@ -527,6 +569,8 @@ const timeValue = ref(2)
 const timePeriodEnabled = ref(false)  // 时间轴筛选开关
 const detailDialogVisible = ref(false)
 const selectedItem = ref(null)
+const modalEl = ref(null)                    // 详情弹窗容器（dialog 语义 + 焦点陷阱边界）
+let lastFocusedEl = null                     // 弹窗打开前的焦点元素，关闭后归还
 
 // 新增交互状态
 const activeBase = ref('standard')           // 当前底图
@@ -535,13 +579,17 @@ const mouseCoords = ref('')                  // 鼠标经纬度
 const focusedRoute = ref(null)               // 聚焦中的古道
 const playing = ref(false)                   // 时光回放中
 const measureActive = ref(false)             // 测距模式
+// 打印相关：瓦片加载状态（等待打印用）、打印等待中标志、制图日期
+const tilesLoading = ref(false)
+const printWaiting = ref(false)
+const printDate = new Date().toLocaleDateString('zh-CN')
 
 // 底图选项（街道 / 影像 / 地形）
-const baseOptions = [
+const baseOptions = computed(() => [
   { key: 'standard', label: '街道' },
   { key: 'imagery', label: '影像' },
   { key: 'terrain', label: '地形' }
-]
+])
 
 // 聚焦古道沿线非遗
 const focusedRouteItems = computed(() => {
@@ -572,8 +620,9 @@ const filteredData = computed(() => {
     const matchCategory = !filters.value.category || item.category === filters.value.category
     const matchPeriod = !filters.value.period || item.period === filters.value.period
     const matchLevel = !filters.value.level || item.level === filters.value.level
-    const matchTime = !timePeriodEnabled.value || item.period === currentPeriod.value
-    return matchKeyword && matchCity && matchCategory && matchPeriod && matchLevel && matchTime
+    // 时期筛选统一走 filters.period：时间轴筛选开启时由滑块写入该值，关闭时由下拉框写入，
+    // 两者共用同一状态，避免"下拉选明清 + 滑块拖汉唐"式的 AND 冲突导致 0 结果
+    return matchKeyword && matchCity && matchCategory && matchPeriod && matchLevel
   })
 })
 
@@ -583,14 +632,16 @@ const filteredData = computed(() => {
 const NINGXIA_BOUNDS = [[31.3, 99.5], [42.5, 113.8]]  // 以宁夏为中心的大区域
 const NINGXIA_CENTER = [37.5, 106.2]
 
-// 自定义 marker 图标（三等级：国家级 / 自治区级 / 县级及以下；小草发芽动画）
-const levelIcon = (item, delay = 0) => {
+// 自定义 marker 图标（四等级：国家级 / 自治区级 / 市级 / 县级及以下；小草发芽动画）
+const levelIcon = (item, delay = 0, overlapBadge = '') => {
   const tier = item.level?.includes('国家级') ? 'national'
-    : item.level?.includes('自治区级') ? 'regional' : 'county'
+    : item.level?.includes('自治区级') ? 'regional'
+    : item.level?.includes('市级') ? 'municipal' : 'county'
   const conf = {
-    national: { color: '#C62828', bg: '#FFF8F1', size: 46, svgIcon: 'flag-b', svgColor: '#C99A1E', tip: 9, tw: 7, halo: true },
-    regional: { color: '#8B4513', bg: '#FDFBF7', size: 33, svgIcon: 'poi',    svgColor: '#8B4513', tip: 7, tw: 5, halo: false },
-    county:   { color: '#7A8A6E', bg: '#F6F8F2', size: 22, svgIcon: '',       svgColor: '',        tip: 5, tw: 4, halo: false }
+    national:  { color: '#D4A017', bg: '#FFF8F1', size: 46, svgIcon: 'flag-b', svgColor: '#D4A017', tip: 9, tw: 7,   halo: true },
+    regional:  { color: '#2E8B57', bg: '#FDFBF7', size: 33, svgIcon: 'poi',    svgColor: '#2E8B57', tip: 7, tw: 5,   halo: false },
+    municipal: { color: '#3E6E8C', bg: '#F3F7FA', size: 27, svgIcon: 'poi',    svgColor: '#3E6E8C', tip: 6, tw: 4.5, halo: false },
+    county:    { color: '#7A8A6E', bg: '#F6F8F2', size: 22, svgIcon: '',       svgColor: '',        tip: 5, tw: 4,   halo: false }
   }[tier]
   const { color, bg, size, svgIcon, svgColor, tip, tw, halo } = conf
   const tipH = tip + tw
@@ -601,8 +652,10 @@ const levelIcon = (item, delay = 0) => {
     ? '0 0 0 3px rgba(212,175,55,0.95), 0 3px 10px rgba(0,0,0,0.35)'
     : tier === 'regional'
       ? '0 2px 6px rgba(0,0,0,0.28)'
-      : '0 1px 3px rgba(0,0,0,0.2)'
-  const borderW = tier === 'national' ? 3 : tier === 'regional' ? 2.5 : 1.5
+      : tier === 'municipal'
+        ? '0 2px 5px rgba(0,0,0,0.24)'
+        : '0 1px 3px rgba(0,0,0,0.2)'
+  const borderW = tier === 'national' ? 3 : tier === 'regional' ? 2.5 : tier === 'municipal' ? 2 : 1.5
   return L.divIcon({
     className: 'heritage-marker',
     html: `<div class="sprout-pin tier-${tier}" style="
@@ -626,7 +679,8 @@ const levelIcon = (item, delay = 0) => {
         border-right: ${tw}px solid transparent;
         border-top: ${tip}px solid ${color};
       ""></div>
-    </div>`,
+    </div>
+    ${overlapBadge}`,
     // 整体图标包含圆形 + 底部三角
     iconSize: [size, size + tipH],
     // 锚点 = 三角尖端（正好落在经纬度坐标上）
@@ -659,6 +713,31 @@ const createPopupContent = (item) => `
   </div>
 `
 
+// 同址多点的选择面板：真实坐标完全相同的项目共用一个标记，点击后由用户选择进入哪一个
+// 详情。此方案不改动任何真实经纬度，仅在地图交互层做区分。
+const createOverlapPopup = (items) => `
+  <div class="overlap-popup" style="min-width: 216px;">
+    <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#8D6E63;margin-bottom:8px;">
+      ${gisSvg('poi', '#8D6E63', 13)} 同一坐标共 ${items.length} 个项目，请选择
+    </div>
+    ${items.map(it => `
+      <button onclick="window.__mapPickItem && window.__mapPickItem(${it.id})" style="
+        display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+        padding:6px;margin-bottom:6px;background:#FDFBF7;border:1px solid #D9C7A8;
+        border-radius:6px;cursor:pointer;
+      ">
+        <img src="${it.thumbImage}" alt="${it.name}" onerror="this.style.display='none'" style="
+          width:38px;height:38px;object-fit:cover;border-radius:4px;flex:none;background:#EDE2CF;">
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;font-size:13px;font-weight:700;color:#3E2723;">${it.name}</span>
+          <span style="display:block;font-size:11px;color:#8B4513;margin-top:2px;">${it.level} · ${it.category}</span>
+        </span>
+        <span style="color:#8B4513;font-size:13px;">→</span>
+      </button>
+    `).join('')}
+  </div>
+`
+
 const initMap = () => {
   // 等待容器有实际尺寸再初始化（首屏空白的常见原因）
   nextTick(() => {
@@ -686,6 +765,10 @@ const initMap = () => {
     leafletMap.getContainer().parentElement.appendChild(loadBar)
     leafletMap.on('loading', () => loadBar.classList.add('loading'))
     leafletMap.on('load', () => loadBar.classList.remove('loading'))
+    // 瓦片加载状态：打印前据此等待瓦片就绪（复用 Leaflet 地图级 loading/load 事件，
+    // 任意底图图层开始/结束加载都会触发，无需逐层绑定）
+    leafletMap.on('loading', () => { tilesLoading.value = true })
+    leafletMap.on('load', () => { tilesLoading.value = false })
 
     // ========== 底图（三种可切换） ==========
     // 天地图 token（个人申请的"浏览器端"key，可到 https://console.tianditu.gov.cn 管理）
@@ -768,6 +851,12 @@ const initMap = () => {
         router.push(`/archive/${id}`)
       }
     }
+    // 同址选择面板：选中某个项目后在站内弹出其详情预览（与列表点击一致）
+    window.__mapPickItem = (id) => {
+      const it = heritageData.find(d => d.id === id)
+      if (!it) return
+      openDetailPreview(it)
+    }
 
     // 鼠标移动 → 实时经纬度
     leafletMap.on('mousemove', onMapMouseMove)
@@ -787,16 +876,41 @@ const renderMarkers = (data) => {
 
   if (!data || data.length === 0) return
 
-  data.forEach((item, idx) => {
+  // 同址归并：经纬度完全相同的项目合并为一个标记，避免上层标记盖住下层导致其一无法点击。
+  // 真实坐标保持不变，仅在交互层用"重叠点选择面板"（createOverlapPopup）区分
+  const groups = new Map()
+  data.forEach((item) => {
     if (!item.lat || !item.lng) return
+    const key = `${item.lat},${item.lng}`
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(item)
+  })
+
+  let idx = 0
+  groups.forEach((items) => {
     // 错峰延迟：点位像小草一样依次破土而出
     const delay = Math.min(idx * 55, 900)
-    const marker = L.marker([item.lat, item.lng], { icon: levelIcon(item, delay) })
-      .bindPopup(createPopupContent(item), { maxWidth: 280, className: 'heritage-popup-wrap' })
+    idx += 1
+    const anchor = items[0]
+    const isOverlap = items.length > 1
+    const overlapBadge = isOverlap
+      ? `<span class="overlap-badge" title="同址 ${items.length} 个项目，点击选择">${items.length}</span>`
+      : ''
+    const marker = L.marker([anchor.lat, anchor.lng], { icon: levelIcon(anchor, delay, overlapBadge) })
+      .bindPopup(
+        isOverlap ? createOverlapPopup(items) : createPopupContent(anchor),
+        { maxWidth: isOverlap ? 260 : 280, className: 'heritage-popup-wrap' }
+      )
       .on('click', () => {
-        selectedItem.value = item
+        if (isOverlap) {
+          // 同址多点：标记本身不直接进入某一个，交由选择面板决定
+          selectedItem.value = null
+          return
+        }
+        selectedItem.value = anchor
       })
-    marker.item = item
+    marker.item = anchor
+    marker.items = items
     marker.addTo(markerLayer)
   })
 
@@ -930,9 +1044,15 @@ const applyDeepLink = () => {
   const z = Math.min(15, Math.max(7, Number(zoom) || 12))
   flyToView([targetLat, targetLng], z, 0.9)
   if (item) {
+    // 同步选中态：保证 URL 里的 id 与本地状态一致，后续写回 URL 时不会被误判为"已清除"
+    selectedItem.value = item
     setTimeout(() => {
       markerLayer?.eachLayer(m => {
-        if (String(m.item?.id) === String(item.id)) m.openPopup()
+        // 同址归并标记的 anchor 只取该组第一个项目，深链到组内其他项目时
+        // 需按整组成员匹配，才能正确弹出"重叠点选择面板"
+        const isMember = String(m.item?.id) === String(item.id) ||
+          (m.items?.length > 1 && m.items.some(i => String(i.id) === String(item.id)))
+        if (isMember) m.openPopup()
       })
     }, 950)
   }
@@ -966,16 +1086,13 @@ const renderYellowRiver = () => {
 }
 
 // ========== 行政区分级填色 ==========
-const cityCounts = {}
-heritageData.forEach(h => {
-  cityCounts[h.city] = (cityCounts[h.city] || 0) + 1
-})
-const maxCityCount = Math.max(...Object.values(cityCounts))
+// 统计口径：与项目列表 / 统计图表使用同一套筛选结果（filteredData），
+// 筛选变化时填色与 tooltip 同步更新，保证地图颜色、图例、计数和列表表达一致
 
 // 数量 → 颜色（浅米黄 → 深棕）
-const cityFillColor = (n) => {
+const cityFillColor = (n, max) => {
   if (!n) return '#F3ECE0'
-  const ratio = n / maxCityCount
+  const ratio = n / Math.max(1, max)
   const stops = [
     [247, 232, 203],  // 少
     [234, 197, 130],
@@ -993,20 +1110,27 @@ const cityFillColor = (n) => {
 
 const renderChoropleth = () => {
   if (!choroplethLayer) return
+  // 基于当前筛选结果统计各地市项目数量（而非全量数据）
+  const counts = {}
+  filteredData.value.forEach(h => {
+    counts[h.city] = (counts[h.city] || 0) + 1
+  })
+  const maxCount = Math.max(1, ...Object.values(counts))
   choroplethLayer.clearLayers()
-  L.geoJSON(ningxiaCitiesGeo, {
+  // 注意：choroplethLayer 是 LayerGroup（无 resetStyle），需持有内部 GeoJSON 实例用于悬停还原
+  const choroGeo = L.geoJSON(ningxiaCitiesGeo, {
     style: (feature) => ({
-      fillColor: cityFillColor(cityCounts[feature.properties.name] || 0),
+      fillColor: cityFillColor(counts[feature.properties.name] || 0, maxCount),
       weight: 1,
       color: '#8B4513',
       fillOpacity: 0.6
     }),
     onEachFeature: (feature, layer) => {
-      const n = cityCounts[feature.properties.name] || 0
-      layer.bindTooltip(`${feature.properties.name}：${n} 项非遗`, { sticky: true })
+      const n = counts[feature.properties.name] || 0
+      layer.bindTooltip(`${feature.properties.name}：${n} 项非遗（当前筛选）`, { sticky: true })
       layer.on({
         mouseover: (e) => e.target.setStyle({ weight: 2.5, fillOpacity: 0.8 }),
-        mouseout: (e) => choroplethLayer.resetStyle(e.target)
+        mouseout: (e) => choroGeo.resetStyle(e.target)
       })
     }
   }).addTo(choroplethLayer)
@@ -1044,7 +1168,10 @@ const applyFocusDim = () => {
   markerLayer.eachLayer(m => {
     const el = m.getElement()
     if (!el || !m.item) return
-    el.style.opacity = (!focusedRoute.value || m.item.routeRelation === focusedRoute.value.name) ? 1 : 0.2
+    // 同址归并后的标记可能代表多个项目：任一项目属于聚焦古道即保持醒目
+    const items = m.items || [m.item]
+    const dim = !!focusedRoute.value && !items.some(it => it.routeRelation === focusedRoute.value.name)
+    el.style.opacity = dim ? 0.2 : 1
   })
 }
 
@@ -1209,6 +1336,7 @@ const togglePlay = () => {
   }
   if (timeValue.value !== 0) timeValue.value = 0  // 每次播放均从汉唐开始完整演示
   timePeriodEnabled.value = true
+  filters.value.period = currentPeriod.value  // 播放同时把时期筛选取值同步给下拉，保持二者一致
   playing.value = true
   playTimer = setInterval(() => {
     if (timeValue.value >= 4) {
@@ -1217,6 +1345,28 @@ const togglePlay = () => {
     }
     timeValue.value += 1
   }, 1400)
+}
+
+// ========== 时间轴筛选开关 ==========
+// 用户拖动滑块（含键盘方向键）→ 开启时间轴筛选并写入时期筛选值；
+// 程序化改变 timeValue（播放推进 / resetFilters）不触发 @input，避免误开启
+const onTimeInput = (e) => {
+  const v = Number(e.target.value)
+  timeValue.value = v
+  timePeriodEnabled.value = true
+  filters.value.period = periodMap[v]
+}
+
+const toggleTimeFilter = () => {
+  if (timePeriodEnabled.value) {
+    // 关闭时间轴筛选：解除时期过滤并停止播放，结果恢复为未按时期筛选
+    timePeriodEnabled.value = false
+    filters.value.period = ''
+    stopPlay()
+  } else {
+    timePeriodEnabled.value = true
+    filters.value.period = currentPeriod.value
+  }
 }
 
 // ========== 交互式测距 ==========
@@ -1287,18 +1437,103 @@ const toggleMeasure = () => {
 }
 
 const onKeydown = (e) => {
-  if (e.key === 'Escape' && measureActive.value) finishMeasure(true)
+  if (e.key !== 'Escape') return
+  // 模态弹窗优先关闭，避免 Escape 同时触发其他快捷键
+  if (detailDialogVisible.value) {
+    closeDetailDialog()
+    return
+  }
+  if (measureActive.value) finishMeasure(true)
 }
+
+// ========== 跨页联动（地图 ↔ 三维大屏） ==========
+// 页面挂载时从全局状态恢复上一页留下的选中态（模块单例在路由切换后仍存活）
+onMounted(() => {
+  // URL 查询参数优先（可分享的深链），其次全局选中态（SPA 跨页带入）
+  const city = route.query.city || globalSelection.city
+  const routeName = route.query.route || globalSelection.route
+  const hasDeepPoint = route.query.lng !== undefined || route.query.id !== undefined
+  if (city) {
+    filters.value.city = city
+    // 同时带点位深链时，视图交由 applyDeepLink 定位到该点，不再缩放全图
+    if (!hasDeepPoint) setTimeout(() => fitAllMarkers(), 300)
+  }
+  if (routeName) {
+    const target = silkRoadRoutes.find(r => r.name === routeName)
+    if (target) setTimeout(() => focusRoute(target), 400)
+  }
+})
+
+// 本地筛选变化时写回全局状态（syncGlobalSelection 幂等，仅值变化才写）
+watch(() => filters.value.city, (v) => {
+  syncGlobalSelection({ city: v }, 'map')
+})
+watch(focusedRoute, (r) => {
+  syncGlobalSelection({ route: r ? r.name : '' }, 'map')
+})
+
+// 外部（大屏等）改动全局状态时同步本地（仅当来源不是自己）
+watch(() => [globalSelection.city, globalSelection.route], ([c, r]) => {
+  if (globalSelection.source === 'map') return
+  if ((filters.value.city || '') !== (c || '')) {
+    filters.value.city = c || ''
+    setTimeout(() => fitAllMarkers(), 150)
+  }
+  if ((focusedRoute.value?.name || '') !== (r || '')) {
+    const target = r ? silkRoadRoutes.find(x => x.name === r) : null
+    if (target) focusRoute(target)
+    else if (focusedRoute.value) exitFocus()
+  }
+})
+
+// ---- URL 状态化：?city=&route=&id=（可分享链接，浏览器前进/后退可回退） ----
+// 双向同步以"值相等即跳过"的幂等比较打断 state→URL→state 的循环
+const writeUrl = () => {
+  const next = { ...route.query }
+  delete next.city; delete next.route; delete next.id
+  if (filters.value.city) next.city = filters.value.city
+  if (focusedRoute.value?.name) next.route = focusedRoute.value.name
+  if (selectedItem.value?.id) next.id = String(selectedItem.value.id)
+  const cur = route.query
+  if ((cur.city || '') === (next.city || '') &&
+      (cur.route || '') === (next.route || '') &&
+      (cur.id || '') === (next.id || '')) return
+  // 用 push 而非 replace：每次选中态变化都是一个历史记录，浏览器后退即可逐级回退选中态
+  router.push({ query: next })
+}
+watch([() => filters.value.city, () => focusedRoute.value?.name, () => selectedItem.value?.id], writeUrl)
+
+// 前进/后退或直接粘贴带参数的链接 → 应用到本地状态
+watch([() => route.query.city, () => route.query.route, () => route.query.id], ([c, r, id]) => {
+  const city = c || ''
+  const routeName = r || ''
+  const itemId = id === undefined ? '' : String(id)
+  if ((filters.value.city || '') !== city) {
+    filters.value.city = city
+    setTimeout(() => fitAllMarkers(), 150)
+  }
+  if ((focusedRoute.value?.name || '') !== routeName) {
+    const target = routeName ? silkRoadRoutes.find(x => x.name === routeName) : null
+    if (target) focusRoute(target)
+    else if (focusedRoute.value) exitFocus()
+  }
+  if (String(selectedItem.value?.id || '') !== itemId) {
+    const item = itemId ? heritageData.find(d => String(d.id) === itemId) : null
+    selectedItem.value = item
+    if (item) flyToView([item.lat, item.lng], 12, 0.8)
+  }
+})
 
 // ========== 筛选 / 图层 / 时间轴 联动 ==========
 watch(filteredData, (newData) => {
   renderMarkers(newData)
   renderCharts()
+  renderChoropleth()  // 行政区填色同步当前筛选口径
 }, { deep: true })
 
-// 时间轴滑块拖动 → 自动开启时间筛选
+// 时间轴数值变化（播放自动推进或程序化复位）→ 仅在筛选开启时同步时期筛选值
 watch(timeValue, () => {
-  timePeriodEnabled.value = true
+  if (timePeriodEnabled.value) filters.value.period = currentPeriod.value
 })
 
 watch([
@@ -1376,14 +1611,22 @@ const buildChartData = (data) => ({
   }))
 })
 
+// 组件存活标志：卸载后阻止延迟重试继续在已分离的 DOM 上初始化图表（防实例残留）
+let chartsAlive = false
+
 const initCharts = () => {
   nextTick(() => {
+    if (!chartsAlive) return
     // 容器高度未就绪时延迟重试，避免 ECharts 以 0 尺寸初始化
     const refs = [pieChartRef, barChartRef, lineChartRef].map(r => r.value)
     if (refs.some(el => !el || el.clientHeight === 0)) {
-      setTimeout(initCharts, 150)
+      setTimeout(() => { if (chartsAlive) initCharts() }, 150)
       return
     }
+    // 防御重复初始化：同一 DOM 上已有实例时先销毁（HMR / 重挂载场景）
+    pieChartRef.value && echarts.getInstanceByDom(pieChartRef.value)?.dispose()
+    barChartRef.value && echarts.getInstanceByDom(barChartRef.value)?.dispose()
+    lineChartRef.value && echarts.getInstanceByDom(lineChartRef.value)?.dispose()
     pieChart = echarts.init(pieChartRef.value)
     barChart = echarts.init(barChartRef.value)
     lineChart = echarts.init(lineChartRef.value)
@@ -1458,7 +1701,9 @@ const renderCharts = () => {
 const resetFilters = () => {
   searchKeyword.value = ''
   filters.value = { city: '', category: '', period: '', level: '' }
+  // 时间轴状态一并复位：关闭筛选并回到默认刻度（明清），避免残留筛选态
   timePeriodEnabled.value = false
+  timeValue.value = 2
   stopPlay()
   exitFocus()
   if (measureActive.value) finishMeasure(true)
@@ -1474,17 +1719,66 @@ const linkChartFilter = (field, value) => {
 
 const goToDetail = (id) => {
   if (id) {
+    // 跳转离开当前页，无需归还焦点（直接关闭即可，watch 会复位 body 滚动锁定）
     detailDialogVisible.value = false
     router.push(`/archive/${id}`)
   }
 }
 
-// 列表视图内点击项目：先弹出快速预览弹窗（弹窗内可再跳转完整档案）
-const openItemPreview = (item) => {
+// ========== 详情弹窗的无障碍交互 ==========
+// 统一打开入口：记录来源焦点 → 打开弹窗（供列表项、同址选择面板共用）
+const openDetailPreview = (item) => {
   if (!item) return
+  lastFocusedEl = document.activeElement
   selectedItem.value = item
   detailDialogVisible.value = true
 }
+
+// 关闭弹窗：归还焦点到打开前的元素（元素可能已随路由卸载，需做存在性判断）
+const closeDetailDialog = () => {
+  detailDialogVisible.value = false
+  const el = lastFocusedEl
+  lastFocusedEl = null
+  nextTick(() => {
+    if (el && el.isConnected && typeof el.focus === 'function') el.focus()
+  })
+}
+
+// 焦点陷阱：弹窗打开时 Tab / Shift+Tab 只在弹窗内部循环，防止焦点逃逸到背景内容
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+const onModalKeydown = (e) => {
+  if (e.key !== 'Tab' || !modalEl.value) return
+  const nodes = Array.from(modalEl.value.querySelectorAll(FOCUSABLE_SELECTOR))
+  if (nodes.length === 0) { e.preventDefault(); return }
+  const first = nodes[0]
+  const last = nodes[nodes.length - 1]
+  const active = document.activeElement
+  if (e.shiftKey) {
+    if (active === first || !modalEl.value.contains(active)) {
+      e.preventDefault()
+      last.focus()
+    }
+  } else if (active === last || !modalEl.value.contains(active)) {
+    e.preventDefault()
+    first.focus()
+  }
+}
+
+// 打开时锁定背景滚动并把焦点移入弹窗（容器 tabindex=-1，先读到 dialog 语义，再 Tab 进入按钮）
+watch(detailDialogVisible, (visible) => {
+  if (visible) {
+    document.body.style.overflow = 'hidden'
+    nextTick(() => {
+      if (modalEl.value && typeof modalEl.value.focus === 'function') modalEl.value.focus()
+    })
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
+// 列表视图内点击项目：先弹出快速预览弹窗（弹窗内可再跳转完整档案）
+const openItemPreview = (item) => openDetailPreview(item)
 
 const onImgError = (e) => {
   e.target.classList.add('is-failed')
@@ -1505,13 +1799,31 @@ const zoomToFit = () => {
   fitAllMarkers()
 }
 
-const printMap = () => {
+const printMap = async () => {
+  if (!leafletMap) return
+  // 打印前重算尺寸，确保地图容器按当前布局完整渲染
+  leafletMap.invalidateSize()
+  // 瓦片未加载完就触发打印会输出大片空白：等待加载完成（8s 超时兜底，避免极端情况下无响应）
+  if (tilesLoading.value) {
+    printWaiting.value = true
+    const start = Date.now()
+    await new Promise(resolve => {
+      const timer = setInterval(() => {
+        if (!tilesLoading.value || Date.now() - start > 8000) {
+          clearInterval(timer)
+          resolve()
+        }
+      }, 200)
+    })
+    printWaiting.value = false
+  }
   window.print()
 }
 
 // ========== 生命周期 ==========
 onMounted(() => {
   initMap()
+  chartsAlive = true
   initCharts()
   document.addEventListener('fullscreenchange', onFullscreenChange)
   document.addEventListener('keydown', onKeydown)
@@ -1520,6 +1832,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   // 停止回放
   stopPlay()
+  chartsAlive = false
 
   // 清理 Leaflet
   if (leafletMap) {
@@ -1576,7 +1889,7 @@ onBeforeUnmount(() => {
   .hero-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #5D3A1A 0%, #8B4513 50%, #A0522D 100%);
+    background: var(--gradient-primary);
   }
 }
 
@@ -1827,6 +2140,7 @@ onBeforeUnmount(() => {
   // 原点固定在各自三角尖端（= 非遗坐标点），从尖端向上长出
   &.tier-national { transform-origin: 50% calc(100% + 16px); }
   &.tier-regional { transform-origin: 50% calc(100% + 12px); }
+  &.tier-municipal { transform-origin: 50% calc(100% + 11px); }
   &.tier-county   { transform-origin: 50% calc(100% + 9px); }
 }
 
@@ -1843,6 +2157,25 @@ onBeforeUnmount(() => {
 @keyframes tierHalo {
   0%   { transform: scale(0.72); opacity: 0.85; }
   100% { transform: scale(1.35); opacity: 0; }
+}
+
+// 同址多点的数量角标：左上角，提示点击后可从选择面板进入各自详情
+:deep(.overlap-badge) {
+  position: absolute;
+  top: -5px; left: -5px;
+  min-width: 17px; height: 17px;
+  padding: 0 3px;
+  display: flex; align-items: center; justify-content: center;
+  background: #FFF3D6;
+  border: 1.5px solid #8B4513;
+  border-radius: 9px;
+  color: #8B4513;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  pointer-events: none;
 }
 
 @keyframes sprout {
@@ -2069,6 +2402,13 @@ onBeforeUnmount(() => {
         }
       }
     }
+
+    .filter-hint {
+      margin: 4px 0 0;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+    }
   }
   
   .btn-reset {
@@ -2249,7 +2589,72 @@ onBeforeUnmount(() => {
       color: white;
       font-size: 13px;
       font-weight: 600;
+
+      // 筛选生效时的状态提示，与常驻展示态区分
+      .period-flag {
+        padding: 1px 7px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: var(--radius-full);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
     }
+  }
+}
+
+// ============================================
+// 时间轴筛选开关
+// ============================================
+.time-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 3px 8px 3px 5px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  background: var(--color-paper);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+
+  .time-switch {
+    position: relative;
+    flex: none;
+    width: 26px;
+    height: 15px;
+    border-radius: 8px;
+    background: var(--color-border);
+    transition: background-color 0.25s var(--ease-out);
+
+    .time-switch-knob {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.25s var(--ease-out);
+    }
+  }
+
+  &.is-on {
+    color: var(--color-primary);
+    border-color: var(--color-secondary);
+    background: #FFF9EC;
+
+    .time-switch { background: var(--color-secondary); }
+    .time-switch-knob { transform: translateX(11px); }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
   }
 }
 
@@ -2257,7 +2662,7 @@ onBeforeUnmount(() => {
 // 时光回放按钮
 // ============================================
 .play-btn {
-  margin-left: auto;
+  flex: none;
   width: 30px;
   height: 30px;
   border: none;
@@ -2529,6 +2934,12 @@ onBeforeUnmount(() => {
   z-index: 1000;
   width: 172px;
   padding: 10px 12px;
+  // 卡片面统一处理：本卡此前只挂了 .card-silk（仅背景），实测圆角 0px、无边框、无阴影，
+  // 是页面上唯一一个直角、无边界、直接贴死底图的卡片面，与 .base-switcher（同位置浮层：
+  // 12px 圆角 + 1px 边框 + shadow-md）和 .chart-card（12px 圆角）明显不一致。
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 
   &.collapsed {
     width: auto;
@@ -2598,47 +3009,103 @@ onBeforeUnmount(() => {
   line-height: 1.9;
 }
 
-.sample-marker {
-  font-size: 13px;
-  width: 16px;
-  text-align: center;
+// 图例样本槽位：所有样本同宽（22px）并在槽位内居中，
+// 使各行文字左边缘落在同一条竖线上（原先 16/22/26 三种宽度导致文字错位最多 10px）；
+// 槽位固定 24px 高，用于容纳图钉样本的下尖角，保证加了尖角后各行行高仍完全一致
+.legend-slot {
+  flex: none;
+  width: 22px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  &.national { font-size: 15px; filter: drop-shadow(0 0 2px rgba(212,175,55,0.9)); }
-  &.regional { font-size: 12px; }
-  &.county {
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: 1.5px solid #7A8A6E;
-    background: radial-gradient(circle, #7A8A6E 0 26%, #F6F8F2 30%);
+// 保护级别样本：与地图标记同构缩小 —— 圆形色底 + 级别色描边 + 级别图标 + 底部下尖角。
+// 形状取自地图标记（levelIcon：圆 + border 三角尖角），直径按地图 46/33/27 → 图例 20/16/13 缩小，
+// 尖角按同一比例取高 4/3/3px、半宽 3/2/2px
+.sample-marker {
+  --pin-color: var(--color-primary);
+  --pin-tip: 3px; // 下尖角高度
+  --pin-tw: 2px; // 下尖角半宽
+
+  flex: none;
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // 下尖角：与地图标记同一构造（左右透明边框 + 级别色上边框三角），
+  // 上移 2px 与圆下缘咬合，避免圆底切线处露出缝隙
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: var(--pin-tw) solid transparent;
+    border-right: var(--pin-tw) solid transparent;
+    border-top: var(--pin-tip) solid var(--pin-color);
+  }
+
+  // 国家级：最重的描边 + 金色光环，与地图上国家级标记的强调方式呼应
+  &.national {
+    --pin-color: var(--level-national);
+    --pin-tip: 4px;
+    --pin-tw: 3px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--level-national);
+    background: #FFF8F1;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.45);
+  }
+
+  // 描边只保留「国家级更重」这一级差异：16/13px 圆上的 1.5px 级差会被浏览器取整成 1px，
+  // 层级感改由直径与图标尺寸承担（20/16/13、12/10/8），与地图 46/33/27 的比例一致
+  &.regional {
+    --pin-color: var(--level-regional);
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--level-regional);
+    background: #FDFBF7;
+  }
+
+  &.municipal {
+    --pin-color: var(--level-municipal);
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--level-municipal);
+    background: #F3F7FA;
   }
 }
 
 .sample-line {
   flex: none;
-  width: 22px;
+  width: 20px;
   height: 4px;
   border-radius: 2px;
   background: var(--color-secondary);
-
-  &.river { background: #1E88E5; }
 }
 
 .sample-heat {
   flex: none;
-  width: 22px;
-  height: 16px;
+  width: 20px;
+  height: 14px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(198, 40, 40, 0.5), rgba(139, 69, 19, 0.12) 70%, transparent);
 }
 
+// 与行政区填色图层共用同一组 5 级色阶（数量少 → 多），保证图例与地图配色一致
 .sample-grad {
   flex: none;
-  width: 26px;
+  width: 20px;
   height: 10px;
   border-radius: 2px;
-  border: 1px solid var(--color-border-light);
-  background: linear-gradient(90deg, #F7E8CB, #D4A017, #6D4812);
+  background: linear-gradient(90deg, #F7E8CB, #EAC582, #D4A017, #9F6E1E, #6D4812);
 }
 
 .legend-empty {
@@ -2805,6 +3272,14 @@ onBeforeUnmount(() => {
       background: var(--color-secondary);
       transform: translateX(4px);
     }
+  }
+
+  // 键盘可见焦点：列表项可作为 role=button 聚焦并用 Enter/Space 打开详情
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+    border-color: rgba(212, 160, 23, 0.5);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -3081,6 +3556,10 @@ onBeforeUnmount(() => {
   &.level-regional {
     background: linear-gradient(135deg, rgba(160, 130, 90, 0.94) 0%, rgba(139, 69, 19, 0.94) 100%);
   }
+
+  &.level-municipal {
+    background: linear-gradient(135deg, rgba(90, 130, 158, 0.94) 0%, rgba(62, 110, 140, 0.94) 100%);
+  }
 }
 
 .detail-info {
@@ -3199,6 +3678,19 @@ onBeforeUnmount(() => {
   }
 }
 
+// 键盘可见焦点：弹窗内操作按钮与关闭按钮（与全站 focus-visible 规范一致）
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.modal-close:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+// 弹窗容器为程序化聚焦以播报 dialog 语义，不显示大面积描边
+.modal-content:focus {
+  outline: none;
+}
+
 // ============================================
 // 图表卡片与章节标题
 // ============================================
@@ -3303,5 +3795,70 @@ onBeforeUnmount(() => {
   .detail-actions .btn-secondary { flex: 1; }
 
   .section-title { font-size: 22px; }
+}
+
+// ============================================
+// 打印样式：仅保留地图主体、图例（含比例尺）、
+// 打印抬头（标题 + 数据来源），隐藏一切交互 UI
+// ============================================
+.print-only { display: none; }
+
+@media print {
+  // 隐藏与地图内容无关的区块与浮层
+  .page-hero,
+  .map-sidebar,
+  .floating-toolbar,
+  .base-switcher,
+  .route-focus-card,
+  .list-view-overlay,
+  .charts-section,
+  .coord-readout,
+  .detail-modal,
+  .map-loadbar { display: none !important; }
+
+  // Leaflet 交互控件（缩放按钮、弹窗）不随打印输出；attribution 保留作数据来源说明
+  :deep(.leaflet-control-zoom),
+  :deep(.leaflet-popup) { display: none !important; }
+
+  .print-only { display: block; }
+
+  .print-header {
+    padding: 0 0 10px;
+    border-bottom: 2px solid var(--color-secondary);
+    margin-bottom: 10px;
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 18pt;
+      color: #6d3410;
+    }
+
+    p {
+      margin: 0;
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+
+  // 打印布局：地图区域铺满页宽，给定固定高度避免容器塌缩
+  .main-content { padding: 0 !important; }
+  .map-container { display: block !important; padding: 0 !important; }
+  .map-main {
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .map-view {
+    height: 620px !important;
+    border: 1px solid #ccc;
+  }
+  #heritage-leaflet-map { height: 100% !important; }
+
+  // 图例卡片在打印中保持可见但去除屏幕端浮层定位阴影
+  .map-legend {
+    position: absolute !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+  }
 }
 </style>

@@ -37,7 +37,7 @@
       </div>
     </section>
 
-    <section class="section" style="background: #F0E8D8;">
+    <section class="section" style="background: var(--color-surface);">
       <div class="container">
         <div class="section-title">
           <h2>GIS支持下的保护建议</h2>
@@ -97,7 +97,7 @@
       </div>
     </section>
 
-    <section class="section" style="background: linear-gradient(135deg, #8B5A2B 0%, #A0522D 100%);">
+    <section class="section" style="background: var(--gradient-primary);">
       <div class="container">
         <div class="section-title" style="color: var(--color-white);">
           <h2 style="color: var(--color-white);">协同发展路径</h2>
@@ -138,8 +138,8 @@ import { Icon } from '@iconify/vue'
 
 <style scoped>
 .page-header {
-  background: linear-gradient(135deg, #8B5A2B 0%, #A0522D 100%);
-  padding: var(--spacing-xxl) 0;
+  background: var(--gradient-primary);
+  padding: var(--spacing-2xl) 0;
   text-align: center;
   color: var(--color-white);
 }
@@ -237,7 +237,7 @@ import { Icon } from '@iconify/vue'
 .path-step {
   background: var(--color-white);
   padding: var(--spacing-lg);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   text-align: center;
   flex: 1;
   min-width: 200px;

@@ -95,7 +95,7 @@
                 class="filter-select"
               >
                 <el-option label="最新收录" value="new" />
-                <el-option label="热门浏览" value="hot" />
+                <el-option label="保护级别" value="level" />
                 <el-option label="按地区" value="city" />
               </el-select>
             </div>
@@ -130,7 +130,7 @@
                 </div>
                 <img class="card-image" :src="item.thumbImage" :alt="item.name"
                      loading="lazy" @error="onImgError">
-                <div class="card-badge" :class="'level-' + (item.level?.includes('国家级') ? 'national' : 'regional')">
+                <div class="card-badge" :class="'level-' + (item.level?.includes('国家级') ? 'national' : item.level?.includes('自治区级') ? 'regional' : 'municipal')">
                   {{ item.level }}
                 </div>
                 <div class="card-overlay">
@@ -153,10 +153,8 @@
                     {{ item.period }}
                   </span>
                   <span class="meta-item">
-                    <svg class="meta-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                    </svg>
-                    {{ item.views || 0 }}
+                    <Icon class="meta-icon" icon="gis:map-bookmark" />
+                    {{ item.level }}
                   </span>
                 </div>
               </div>
@@ -193,6 +191,11 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
+import { ElInput, ElSelect, ElOption, ElPagination } from 'element-plus'
+import 'element-plus/es/components/input/style/css'
+import 'element-plus/es/components/select/style/css'
+import 'element-plus/es/components/option/style/css'
+import 'element-plus/es/components/pagination/style/css'
 import { heritageData, categories, cities, periods } from '../data/heritageData'
 
 const router = useRouter()
@@ -216,10 +219,13 @@ const filteredData = computed(() => {
     return matchKeyword && matchCategory && matchCity && matchPeriod
   })
 
+  // 保护级别排序：国家级 → 自治区级 → 市级（基于真实 level 字段，同级保持数据原顺序）
+  const levelRank = (lv) => lv?.includes('国家级') ? 0 : lv?.includes('自治区级') ? 1 : 2
+
   if (sortBy.value === 'city') {
     data = data.sort((a, b) => a.city.localeCompare(b.city))
-  } else if (sortBy.value === 'hot') {
-    data = data.sort((a, b) => (b.views || 0) - (a.views || 0))
+  } else if (sortBy.value === 'level') {
+    data = data.sort((a, b) => levelRank(a.level) - levelRank(b.level))
   }
 
   return data
@@ -277,7 +283,7 @@ const onImgError = (e) => {
   .hero-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #5D3A1A 0%, #8B4513 50%, #A0522D 100%);
+    background: var(--gradient-primary);
   }
 }
 
@@ -600,6 +606,10 @@ const onImgError = (e) => {
     
     &.level-regional {
       background: rgba(46, 139, 87, 0.9);
+    }
+    
+    &.level-municipal {
+      background: rgba(62, 110, 140, 0.9);
     }
   }
   

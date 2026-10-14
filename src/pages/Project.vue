@@ -503,7 +503,7 @@ const outcomes = ref([
   .hero-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #5D3A1A 0%, #8B4513 40%, #A0522D 100%);
+    background: var(--gradient-primary);
   }
 }
 
@@ -539,9 +539,9 @@ const outcomes = ref([
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   color: white;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   margin-bottom: var(--spacing-md);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -1329,7 +1329,7 @@ const outcomes = ref([
 .outcomes-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
 }
 
 .bg-pattern {

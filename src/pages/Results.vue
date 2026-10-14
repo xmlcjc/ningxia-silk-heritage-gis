@@ -285,6 +285,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
+import { ElTag } from 'element-plus'
+import 'element-plus/es/components/tag/style/css'
 
 const router = useRouter()
 const activeNewsFilter = ref('all')
@@ -396,7 +398,7 @@ const partnerData = ref({
   .hero-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #5D3A1A 0%, #8B4513 50%, #A0522D 100%);
+    background: var(--gradient-primary);
   }
 }
 
@@ -1087,7 +1089,7 @@ const partnerData = ref({
 .partners-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
 }
 
 .bg-gradient {
@@ -1164,7 +1166,7 @@ const partnerData = ref({
 .cta-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
 }
 
 .cta-content {

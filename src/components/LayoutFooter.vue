@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿﻿<template>
   <footer class="layout-footer">
     <!-- 顶部装饰波浪 -->
     <div class="footer-wave">
@@ -98,19 +98,19 @@
                   <span class="contact-icon">
                     <Icon icon="gis:poi" width="18" height="18" />
                   </span>
-                  <span>宁夏银川市西夏区</span>
+                  <span>宁夏银川市西夏区贺兰山西路539号文萃校区</span>
                 </li>
                 <li>
                   <span class="contact-icon">
                     <Icon icon="gis:map-send" width="18" height="18" />
                   </span>
-                  <span>contact@silkheritage-nx.cn</span>
+                  <span>3313342914@qq.com</span>
                 </li>
                 <li>
                   <span class="contact-icon">
                     <Icon icon="gis:phone-map" width="18" height="18" />
                   </span>
-                  <span>0951-12345678</span>
+                  <span>13649570320</span>
                 </li>
               </ul>
             </div>
@@ -276,7 +276,7 @@ import { Icon } from '@iconify/vue'
   .tag-gold {
     background: linear-gradient(135deg, rgba(212, 160, 23, 0.25), rgba(184, 134, 11, 0.2));
     border: 1px solid rgba(212, 160, 23, 0.4);
-    color: #D4A017;
+    color: var(--color-secondary);
   }
   
   .tag-green {

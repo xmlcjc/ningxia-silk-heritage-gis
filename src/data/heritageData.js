@@ -594,7 +594,7 @@ export const heritageData = [
 export const categories = ['全部', '传统技艺', '传统音乐', '传统美术', '传统舞蹈', '传统戏剧', '传统民俗', '传统体育']
 export const cities = ['全部', '银川市', '石嘴山市', '吴忠市', '固原市', '中卫市']
 export const periods = ['全部', '汉唐', '宋元', '明清', '近现代', '当代']
-export const levels = ['全部', '国家级', '自治区级', '市级', '县级']
+export const levels = ['全部', '国家级', '自治区级', '市级']
 
 export const silkRoadRoutes = [
   {

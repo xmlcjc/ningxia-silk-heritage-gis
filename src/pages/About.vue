@@ -228,6 +228,7 @@
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css'
 
 const form = ref({
   name: '',
@@ -344,7 +345,7 @@ const submitForm = () => {
   .hero-gradient {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #5D3A1A 0%, #8B4513 50%, #A0522D 100%);
+    background: var(--gradient-primary);
   }
 }
 
@@ -944,7 +945,7 @@ const submitForm = () => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
 }
 
 .bg-pattern {
@@ -1026,7 +1027,7 @@ const submitForm = () => {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(135deg, #5D3A1A, #8B4513, #A0522D);
+  background: var(--gradient-primary);
 }
 
 .cta-content {

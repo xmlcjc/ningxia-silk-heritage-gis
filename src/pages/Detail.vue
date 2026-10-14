@@ -118,7 +118,7 @@
               <h3>地图定位</h3>
               <div class="map-location">
                 <div class="location-placeholder">
-                  <el-icon size="60" color="#8B5A2B"><MapLocation /></el-icon>
+                  <el-icon size="60" color="#8B4513"><MapLocation /></el-icon>
                   <p>{{ heritage.city }} {{ heritage.county }}</p>
                 </div>
               </div>
@@ -194,6 +194,10 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Location, User, Position, MapLocation, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { ElTag, ElIcon, ElAlert } from 'element-plus'
+import 'element-plus/es/components/tag/style/css'
+import 'element-plus/es/components/icon/style/css'
+import 'element-plus/es/components/alert/style/css'
 import { heritageData } from '../data/heritageData'
 
 // 三维查看器按需加载，避免查看器逻辑进入首屏主包
@@ -330,7 +334,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 400px;
   object-fit: cover;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   display: block;
 }
 
@@ -465,7 +469,7 @@ onBeforeUnmount(() => {
   margin: var(--spacing-md) 0 0;
   padding: var(--spacing-sm) var(--spacing-md);
   background: var(--color-background);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   color: var(--color-text-light);
   font-size: 0.9rem;
 }
@@ -502,7 +506,7 @@ onBeforeUnmount(() => {
   padding: 0;
   border: none;
   background: var(--color-background);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
   aspect-ratio: 4 / 3;
@@ -564,7 +568,7 @@ onBeforeUnmount(() => {
 .map-location {
   height: 180px;
   background: linear-gradient(135deg, #E8DFD0 0%, #D4C4AD 100%);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -589,7 +593,7 @@ onBeforeUnmount(() => {
 .quick-nav a {
   padding: var(--spacing-sm);
   color: var(--color-text);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   transition: background-color 0.3s var(--ease-out, ease);
 }
 
@@ -609,7 +613,7 @@ onBeforeUnmount(() => {
   gap: var(--spacing-sm);
   cursor: pointer;
   padding: var(--spacing-sm);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   transition: background-color 0.3s var(--ease-out, ease);
 }
 
@@ -621,7 +625,7 @@ onBeforeUnmount(() => {
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
 }
 
 .related-info {
@@ -657,14 +661,14 @@ onBeforeUnmount(() => {
   padding: var(--spacing-lg);
   background: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: border-color 0.3s var(--ease-out, ease), box-shadow 0.3s var(--ease-out, ease);
 }
 
 .nav-btn:hover:not(:disabled) {
   border-color: var(--color-primary);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
 }
 
 .nav-btn:disabled {
