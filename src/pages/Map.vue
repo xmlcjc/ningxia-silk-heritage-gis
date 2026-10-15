@@ -229,7 +229,14 @@
               <div v-if="viewMode === 'list'" class="list-view-overlay">
                 <div class="list-header">
                   <h3>非遗项目列表</h3>
-                  <span class="list-count">{{ filteredData.length }} 项结果</span>
+                  <div class="list-header-right">
+                    <span class="list-count">{{ filteredData.length }} 项结果</span>
+                    <!-- 列表打开时工具栏会一并折叠让位，故此处提供返回地图的入口，
+                         避免只能靠工具栏第一个按钮切回地图 -->
+                    <button class="list-back" @click="toggleView" aria-label="返回地图视图">
+                      <Icon class="vam" icon="gis:map" width="14" height="14" /> 返回地图
+                    </button>
+                  </div>
                 </div>
                 <div class="list-items">
                   <div
@@ -270,7 +277,7 @@
             </transition>
 
             <!-- 地图工具栏：与图例一致可手动折叠（toolbarCollapsed），
-                 详情预览弹窗 / 标记气泡打开时由 toolbarCollapsedUI 自动收起让位 -->
+                 详情预览弹窗 / 标记气泡 / 非遗项目列表打开时由 toolbarCollapsedUI 自动收起让位 -->
             <div class="floating-toolbar" :class="{ collapsed: toolbarCollapsedUI }">
               <button class="toolbar-toggle" @click="toolbarCollapsed = !toolbarCollapsed"
                       :aria-expanded="!toolbarCollapsedUI" aria-label="折叠或展开地图工具栏">
@@ -346,8 +353,8 @@
             <div class="map-legend card-silk" :class="{ collapsed: legendCollapsedUI }">
               <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
                    （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除）
-                   显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡打开时临时收起让位，
-                   关闭后回到用户手动折叠状态（legendCollapsed 未被改写） -->
+                   显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡 / 非遗项目列表打开时
+                   临时收起让位，关闭后回到用户手动折叠状态（legendCollapsed 未被改写） -->
               <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsedUI">
                 <span>{{ legendCollapsedUI ? '▸' : '▾' }}</span> 图例
               </button>
@@ -389,7 +396,7 @@
             </div>
 
             <!-- 底图切换：与图例/工具栏一致可手动折叠（baseCollapsed），
-                 详情预览弹窗 / 标记气泡打开时由 baseCollapsedUI 自动收起让位 -->
+                 详情预览弹窗 / 标记气泡 / 非遗项目列表打开时由 baseCollapsedUI 自动收起让位 -->
             <div class="base-switcher" :class="{ collapsed: baseCollapsedUI }">
               <button class="base-toggle" @click="baseCollapsed = !baseCollapsed"
                       :aria-expanded="!baseCollapsedUI" aria-label="折叠或展开底图切换">
@@ -598,13 +605,14 @@ const baseCollapsed = ref(false)             // 底图切换折叠（手动状�
 const mapPopupOpen = ref(false)              // 地图标记气泡（Leaflet popup）是否打开
 const mouseCoords = ref('')                  // 鼠标经纬度
 
-// 详情预览弹窗、或点击地图标记弹出的气泡打开时，图例、工具栏与底图切换临时收起、
-// 把空间让给预览内容；关闭后回到用户手动设置的状态
+// 详情预览弹窗、地图标记气泡、非遗项目列表任一打开时，图例、工具栏与底图切换
+// 临时收起、把空间让给预览/列表内容；关闭后回到用户手动设置的状态
 // （legendCollapsed / toolbarCollapsed / baseCollapsed 本身不被改写）
 const overlayOpen = computed(() => detailDialogVisible.value || mapPopupOpen.value)
-const legendCollapsedUI = computed(() => legendCollapsed.value || overlayOpen.value)
-const toolbarCollapsedUI = computed(() => toolbarCollapsed.value || overlayOpen.value)
-const baseCollapsedUI = computed(() => baseCollapsed.value || overlayOpen.value)
+const listOpen = computed(() => viewMode.value === 'list')
+const legendCollapsedUI = computed(() => legendCollapsed.value || overlayOpen.value || listOpen.value)
+const toolbarCollapsedUI = computed(() => toolbarCollapsed.value || overlayOpen.value || listOpen.value)
+const baseCollapsedUI = computed(() => baseCollapsed.value || overlayOpen.value || listOpen.value)
 const focusedRoute = ref(null)               // 聚焦中的古道
 const playing = ref(false)                   // 时光回放中
 const measureActive = ref(false)             // 测距模式
@@ -3317,10 +3325,40 @@ onBeforeUnmount(() => {
   }
 }
 
+.list-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .list-count {
   font-size: 13px;
   color: var(--color-secondary-dark);
   white-space: nowrap;
+}
+
+// 列表视图内「返回地图」入口（列表打开时工具栏折叠让位，故在此提供出口）
+.list-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: rgba(212, 160, 23, 0.12);
+  color: var(--color-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+
+  &:hover { background: rgba(212, 160, 23, 0.22); }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
 }
 
 .list-items {
