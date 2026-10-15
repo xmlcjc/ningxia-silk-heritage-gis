@@ -277,7 +277,7 @@
             </transition>
 
             <!-- 地图工具栏：与图例一致可手动折叠（toolbarCollapsed），
-                 详情预览弹窗 / 标记气泡 / 非遗项目列表打开时由 toolbarCollapsedUI 自动收起让位 -->
+                 详情预览弹窗 / 标记气泡 / 古道信息卡 / 非遗项目列表打开时由 toolbarCollapsedUI 自动收起让位 -->
             <div class="floating-toolbar" :class="{ collapsed: toolbarCollapsedUI }">
               <button class="toolbar-toggle" @click="toolbarCollapsed = !toolbarCollapsed"
                       :aria-expanded="!toolbarCollapsedUI" aria-label="折叠或展开地图工具栏">
@@ -353,8 +353,8 @@
             <div class="map-legend card-silk" :class="{ collapsed: legendCollapsedUI }">
               <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
                    （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除）
-                   显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡 / 非遗项目列表打开时
-                   临时收起让位，关闭后回到用户手动折叠状态（legendCollapsed 未被改写） -->
+                   显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡 / 古道信息卡 / 非遗项目列表
+                   打开时临时收起让位，关闭后回到用户手动折叠状态（legendCollapsed 未被改写） -->
               <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsedUI">
                 <span>{{ legendCollapsedUI ? '▸' : '▾' }}</span> 图例
               </button>
@@ -396,7 +396,7 @@
             </div>
 
             <!-- 底图切换：与图例/工具栏一致可手动折叠（baseCollapsed），
-                 详情预览弹窗 / 标记气泡 / 非遗项目列表打开时由 baseCollapsedUI 自动收起让位 -->
+                 详情预览弹窗 / 标记气泡 / 古道信息卡 / 非遗项目列表打开时由 baseCollapsedUI 自动收起让位 -->
             <div class="base-switcher" :class="{ collapsed: baseCollapsedUI }">
               <button class="base-toggle" @click="baseCollapsed = !baseCollapsed"
                       :aria-expanded="!baseCollapsedUI" aria-label="折叠或展开底图切换">
@@ -603,17 +603,18 @@ const legendCollapsed = ref(false)           // 图例折叠（手动状态；�
 const toolbarCollapsed = ref(false)          // 工具栏折叠（手动状态；首次进入保持展开）
 const baseCollapsed = ref(false)             // 底图切换折叠（手动状态；首次进入保持展开）
 const mapPopupOpen = ref(false)              // 地图标记气泡（Leaflet popup）是否打开
+const focusedRoute = ref(null)               // 聚焦中的古道（古道信息卡是否打开）
 const mouseCoords = ref('')                  // 鼠标经纬度
 
-// 详情预览弹窗、地图标记气泡、非遗项目列表任一打开时，图例、工具栏与底图切换
-// 临时收起、把空间让给预览/列表内容；关闭后回到用户手动设置的状态
+// 详情预览弹窗、地图标记气泡、古道信息卡、非遗项目列表任一打开时，图例、工具栏与底图切换
+// 临时收起、把空间让给预览/列表/古道卡片内容；关闭后回到用户手动设置的状态
 // （legendCollapsed / toolbarCollapsed / baseCollapsed 本身不被改写）
-const overlayOpen = computed(() => detailDialogVisible.value || mapPopupOpen.value)
+const overlayOpen = computed(() =>
+  detailDialogVisible.value || mapPopupOpen.value || !!focusedRoute.value)
 const listOpen = computed(() => viewMode.value === 'list')
 const legendCollapsedUI = computed(() => legendCollapsed.value || overlayOpen.value || listOpen.value)
 const toolbarCollapsedUI = computed(() => toolbarCollapsed.value || overlayOpen.value || listOpen.value)
 const baseCollapsedUI = computed(() => baseCollapsed.value || overlayOpen.value || listOpen.value)
-const focusedRoute = ref(null)               // 聚焦中的古道
 const playing = ref(false)                   // 时光回放中
 const measureActive = ref(false)             // 测距模式
 // 打印相关：瓦片加载状态（等待打印用）、打印等待中标志、制图日期
