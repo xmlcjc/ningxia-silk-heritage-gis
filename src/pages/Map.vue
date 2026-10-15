@@ -269,8 +269,14 @@
               </div>
             </transition>
 
-            <!-- 地图工具栏 -->
-            <div class="floating-toolbar">
+            <!-- 地图工具栏：与图例一致可手动折叠（toolbarCollapsed），
+                 详情预览弹窗 / 标记气泡打开时由 toolbarCollapsedUI 自动收起让位 -->
+            <div class="floating-toolbar" :class="{ collapsed: toolbarCollapsedUI }">
+              <button class="toolbar-toggle" @click="toolbarCollapsed = !toolbarCollapsed"
+                      :aria-expanded="!toolbarCollapsedUI" aria-label="折叠或展开地图工具栏">
+                <span>{{ toolbarCollapsedUI ? '▸' : '▾' }}</span> 工具
+              </button>
+              <div v-show="!toolbarCollapsedUI" class="toolbar-body">
               <button class="toolbar-btn"
                       :title="viewMode === 'map' ? '切换为列表视图' : '切换为地图视图'"
                       :aria-label="viewMode === 'map' ? '切换为列表视图' : '切换为地图视图'"
@@ -296,6 +302,7 @@
               <button class="toolbar-btn" title="全屏地图" aria-label="全屏地图" @click="toggleFullscreen">
                 <Icon class="toolbar-icon" icon="gis:full-screen" />
               </button>
+              </div>
             </div>
 
             <!-- 测距提示 -->
@@ -336,13 +343,15 @@
             </transition>
 
             <!-- 图例 -->
-            <div class="map-legend card-silk" :class="{ collapsed: legendCollapsed }">
-              <!-- @mousedown.prevent 阻止鼠标点击给按钮聚焦（聚焦会触发浏览器 scroll-into-view，
-                   当图例按钮被视口下边缘切掉时页面会向下跳动）；不影响键盘 Tab 聚焦与 Enter 激活 -->
-              <button class="legend-toggle" type="button" @mousedown.prevent @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsed">
-                <span>{{ legendCollapsed ? '▸' : '▾' }}</span> 图例
+            <div class="map-legend card-silk" :class="{ collapsed: legendCollapsedUI }">
+              <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
+                   （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除）
+                   显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡打开时临时收起让位，
+                   关闭后回到用户手动折叠状态（legendCollapsed 未被改写） -->
+              <button class="legend-toggle" @click="legendCollapsed = !legendCollapsed" :aria-expanded="!legendCollapsedUI">
+                <span>{{ legendCollapsedUI ? '▸' : '▾' }}</span> 图例
               </button>
-              <div v-show="!legendCollapsed" class="legend-body">
+              <div v-show="!legendCollapsedUI" class="legend-body">
                 <div v-if="layers.heritage" class="legend-group">
                   <div class="legend-row">
                     <span class="legend-slot"><span class="sample-marker national"><Icon icon="gis:flag-b" width="12" height="12" style="color:var(--level-national)" /></span></span> 国家级
@@ -379,22 +388,29 @@
               </div>
             </div>
 
-            <!-- 底图切换 -->
-            <div class="base-switcher">
-              <button
-                v-for="b in baseOptions"
-                :key="b.key"
-                :class="{ active: activeBase === b.key }"
-                :title="b.label + '底图'"
-                :aria-label="b.label + '底图'"
-                :aria-pressed="activeBase === b.key"
-                @click="switchBase(b.key)"
-              >
-                <Icon v-if="b.key === 'standard'" icon="gis:map" class="base-icon" />
-                <Icon v-else-if="b.key === 'imagery'" icon="gis:satellite" class="base-icon" />
-                <Icon v-else icon="gis:height-map" class="base-icon" />
-                <span class="base-label">{{ b.label }}</span>
+            <!-- 底图切换：与图例/工具栏一致可手动折叠（baseCollapsed），
+                 详情预览弹窗 / 标记气泡打开时由 baseCollapsedUI 自动收起让位 -->
+            <div class="base-switcher" :class="{ collapsed: baseCollapsedUI }">
+              <button class="base-toggle" @click="baseCollapsed = !baseCollapsed"
+                      :aria-expanded="!baseCollapsedUI" aria-label="折叠或展开底图切换">
+                <span>{{ baseCollapsedUI ? '▸' : '▾' }}</span> 底图
               </button>
+              <div v-show="!baseCollapsedUI" class="base-body">
+                <button
+                  v-for="b in baseOptions"
+                  :key="b.key"
+                  :class="{ active: activeBase === b.key }"
+                  :title="b.label + '底图'"
+                  :aria-label="b.label + '底图'"
+                  :aria-pressed="activeBase === b.key"
+                  @click="switchBase(b.key)"
+                >
+                  <Icon v-if="b.key === 'standard'" icon="gis:map" class="base-icon" />
+                  <Icon v-else-if="b.key === 'imagery'" icon="gis:satellite" class="base-icon" />
+                  <Icon v-else icon="gis:height-map" class="base-icon" />
+                  <span class="base-label">{{ b.label }}</span>
+                </button>
+              </div>
             </div>
 
             <!-- 实时经纬度 -->
@@ -576,8 +592,19 @@ let lastFocusedEl = null                     // 弹窗打开前的焦点元素�
 
 // 新增交互状态
 const activeBase = ref('standard')           // 当前底图
-const legendCollapsed = ref(false)           // 图例折叠
+const legendCollapsed = ref(false)           // 图例折叠（手动状态；首次进入保持展开）
+const toolbarCollapsed = ref(false)          // 工具栏折叠（手动状态；首次进入保持展开）
+const baseCollapsed = ref(false)             // 底图切换折叠（手动状态；首次进入保持展开）
+const mapPopupOpen = ref(false)              // 地图标记气泡（Leaflet popup）是否打开
 const mouseCoords = ref('')                  // 鼠标经纬度
+
+// 详情预览弹窗、或点击地图标记弹出的气泡打开时，图例、工具栏与底图切换临时收起、
+// 把空间让给预览内容；关闭后回到用户手动设置的状态
+// （legendCollapsed / toolbarCollapsed / baseCollapsed 本身不被改写）
+const overlayOpen = computed(() => detailDialogVisible.value || mapPopupOpen.value)
+const legendCollapsedUI = computed(() => legendCollapsed.value || overlayOpen.value)
+const toolbarCollapsedUI = computed(() => toolbarCollapsed.value || overlayOpen.value)
+const baseCollapsedUI = computed(() => baseCollapsed.value || overlayOpen.value)
 const focusedRoute = ref(null)               // 聚焦中的古道
 const playing = ref(false)                   // 时光回放中
 const measureActive = ref(false)             // 测距模式
@@ -859,6 +886,10 @@ const initMap = () => {
       if (!it) return
       openDetailPreview(it)
     }
+
+    // 标记气泡开合 → 驱动浮层自动让位（与详情预览弹窗同一套 overlayOpen 逻辑）
+    leafletMap.on('popupopen', () => { mapPopupOpen.value = true })
+    leafletMap.on('popupclose', () => { mapPopupOpen.value = false })
 
     // 鼠标移动 → 实时经纬度
     leafletMap.on('mousemove', onMapMouseMove)
@@ -2691,20 +2722,48 @@ onBeforeUnmount(() => {
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px;
+  gap: 5px;
+  padding: 5px;
   background: rgba(255, 250, 240, 0.95);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+
+  // 折叠态（手动折叠、或详情预览弹窗打开时自动收起）：只留标题开关，收成小标签
+  &.collapsed {
+    width: auto;
+    padding: 5px 10px;
+  }
+}
+
+// 工具栏折叠开关：与 .legend-toggle 保持同一形态
+.toolbar-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toolbar-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 7px;
 }
 
 .toolbar-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
@@ -2731,8 +2790,8 @@ onBeforeUnmount(() => {
 }
 
 .toolbar-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex: none;
 }
 
@@ -2935,7 +2994,7 @@ onBeforeUnmount(() => {
   left: 12px;
   z-index: 1000;
   width: 172px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   // 卡片面统一处理：本卡此前只挂了 .card-silk（仅背景），实测圆角 0px、无边框、无阴影，
   // 是页面上唯一一个直角、无边界、直接贴死底图的卡片面，与 .base-switcher（同位置浮层：
   // 12px 圆角 + 1px 边框 + shadow-md）和 .chart-card（12px 圆角）明显不一致。
@@ -2955,8 +3014,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 10px;
-  padding-top: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
   border-top: 1px dashed var(--color-border-light);
 
   .legend-scale-label {
@@ -2993,11 +3052,11 @@ onBeforeUnmount(() => {
 }
 
 .legend-body {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .legend-group {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 
   &:last-child { margin-bottom: 0; }
 }
@@ -3005,7 +3064,7 @@ onBeforeUnmount(() => {
 .legend-row {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   font-size: 11.5px;
   color: var(--color-text);
   line-height: 1.9;
@@ -3124,6 +3183,7 @@ onBeforeUnmount(() => {
   right: 12px;
   z-index: 1000;
   display: flex;
+  align-items: center;
   gap: 4px;
   padding: 4px;
   background: rgba(255, 250, 240, 0.95);
@@ -3131,7 +3191,29 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 
-  button {
+  // 折叠态（手动折叠、或详情预览弹窗打开时自动收起）：只留标题开关，收成小标签
+  &.collapsed {
+    padding: 4px 10px;
+  }
+
+  // 折叠开关：与 .legend-toggle / .toolbar-toggle 同一形态
+  .base-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px;
+    border: none;
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .base-body { display: flex; gap: 4px; }
+
+  .base-body button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3781,14 +3863,32 @@ onBeforeUnmount(() => {
   .item-content p { margin: 4px 0 6px; }
   .item-action { display: none; }
 
-  .detail-modal { padding: 0; }
+  // 详情弹窗：移动端改「居中缩放卡片」（宽 92%、限高 88vh、保留圆角），
+  // 不再 height:100% 直角整屏铺满——四周露出遮罩背景，减轻占满屏幕的压迫感；
+  // 88vh 之后补一条 88dvh 渐进增强，避免手机地址栏收缩时高度跳动
+  .detail-modal { padding: 16px; }
   .modal-content {
-    height: 100%;
-    max-height: 100vh;
+    height: auto;
+    width: 92%;
+    max-height: 88vh;
+    max-height: 88dvh;
     padding: 22px 18px;
-    border-radius: 0;
   }
-  .detail-body { grid-template-columns: 1fr; gap: 18px; }
+  .detail-body {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  // 古道聚焦卡：窄屏下固定 280px 宽（约 75% 屏宽）会压住地图，
+  // 改为贴底横向卡片（左右各留 12px）并限高，底部 96px 让开底图切换按钮
+  .route-focus-card {
+    top: auto;
+    bottom: 96px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-height: 52%;
+  }
   .detail-image-wrapper { aspect-ratio: 16 / 9; }
   .placeholder-char { font-size: 56px; }
   .detail-info h2 { font-size: 22px; }
