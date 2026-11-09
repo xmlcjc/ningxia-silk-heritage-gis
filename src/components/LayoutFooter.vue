@@ -128,9 +128,9 @@
             <span class="link-divider">|</span>
             <a href="#" class="link-item">使用条款</a>
             <span class="link-divider">|</span>
-            <a href="#" class="link-item">网站地图</a>
+            <a href="/sitemap.xml" class="link-item">网站地图</a>
             <span class="link-divider">|</span>
-            <a href="#" class="link-item">参考资料</a>
+            <a href="https://github.com/xmlcjc/ningxia-silk-heritage-gis#第三方资源" class="link-item">第三方资源</a>
           </div>
           
           <div class="copyright">

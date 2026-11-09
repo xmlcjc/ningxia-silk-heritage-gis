@@ -187,7 +187,12 @@ const applySeo = (to) => {
 }
 
 // 懒加载分包期间给出轻量进度反馈（本地 Mock 下瞬时，弱网下可见）
-router.beforeEach(() => { document.body.style.cursor = 'progress' })
+router.beforeEach((to) => {
+  if (to.name === 'Detail' && !heritageData.some(h => String(h.id) === to.params.id)) {
+    return { name: 'NotFound', params: { pathMatch: ['archive', to.params.id] }, query: to.query, hash: to.hash }
+  }
+  document.body.style.cursor = 'progress'
+})
 router.afterEach((to) => {
   document.body.style.cursor = ''
   applySeo(to)

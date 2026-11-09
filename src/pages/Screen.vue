@@ -72,6 +72,11 @@
       <!-- 中央 3D -->
       <main class="stage">
         <div ref="containerRef" class="canvas-container"></div>
+        <div v-if="terrainUnavailable" class="terrain-fallback" role="status">
+          <h2>无法显示三维地图</h2>
+          <p>当前浏览器或设备无法启动 WebGL。请尝试开启浏览器的硬件加速，或换用支持 WebGL 的浏览器。</p>
+          <RouterLink to="/map" class="layer-btn">打开二维地图</RouterLink>
+        </div>
 
         <!-- 悬停地级市：玻璃信息卡（跟随鼠标） -->
         <div
@@ -94,7 +99,7 @@
           </div>
         </div>
 
-        <div class="filter-bar">
+        <div v-if="!terrainUnavailable" class="filter-bar">
           <button class="reset-btn" @click="resetAll">
             <span class="reset-ico">⟲</span>复位视图
           </button>
@@ -216,6 +221,7 @@ const router = useRouter()
 const route = useRoute()
 
 const containerRef = ref(null)
+const terrainUnavailable = ref(false)
 const pieRef = ref(null)
 const cityRef = ref(null)
 const periodRef = ref(null)
@@ -474,6 +480,28 @@ onMounted(() => {
 
   reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+  initCharts()
+  startClock()
+
+  resizeHandler = () => {
+    if (renderer) {
+      const w = container.clientWidth
+      const h = container.clientHeight
+      camera.aspect = w / h
+      camera.updateProjectionMatrix()
+      renderer.setSize(w, h)
+    }
+    charts.forEach((chart) => chart.resize())
+  }
+  window.addEventListener('resize', resizeHandler)
+
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true })
+  } catch {
+    terrainUnavailable.value = true
+    return
+  }
+
   scene = new THREE.Scene()
   scene.background = new THREE.Color('#1d1510')
   scene.fog = new THREE.Fog('#1d1510', 240, 480)
@@ -483,7 +511,6 @@ onMounted(() => {
   camera.position.set(0, 114, -114)
   camera.lookAt(0, 2, 0)
 
-  renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   container.appendChild(renderer.domElement)
@@ -1635,18 +1662,6 @@ onMounted(() => {
   }
   animate()
 
-  resizeHandler = () => {
-    const w = container.clientWidth
-    const h = container.clientHeight
-    camera.aspect = w / h
-    camera.updateProjectionMatrix()
-    renderer.setSize(w, h)
-    charts.forEach((c) => c && c.resize())
-  }
-  window.addEventListener('resize', resizeHandler)
-
-  initCharts()
-  startClock()
 })
 
 // ================= 联动：地图 ↔ 图表 =================
@@ -2368,6 +2383,21 @@ onBeforeUnmount(() => {
 }
 
 .canvas-container { position: absolute; inset: 0; }
+
+.terrain-fallback {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #f5e6c8;
+
+  p { max-width: 32ch; margin: 12px 0 20px; }
+  a { text-decoration: none; }
+}
 
 /* ---- 统计网格 ---- */
 .stat-grid {

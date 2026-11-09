@@ -218,7 +218,7 @@
           <!-- 打印专用抬头：屏幕端隐藏，打印输出时提供标题与数据来源说明 -->
           <div class="print-only print-header">
             <h1>宁夏丝路非遗地理志 · 丝路非遗 GIS 地图</h1>
-            <p>数据来源：宁夏丝路非遗地理志项目（当前筛选 {{ filteredData.length }} 项非遗点位） · 底图：天地图 / 高德地图 · 制图日期：{{ printDate }}</p>
+            <p>数据来源：宁夏丝路非遗地理志项目（当前筛选 {{ filteredData.length }} 项非遗点位） · 底图：{{ baseSources[activeBase] }}<template v-if="layers.yellowRiver"> · 黄河：© OpenStreetMap contributors</template> · 制图日期：{{ printDate }}</p>
           </div>
           <div class="map-view">
             <!-- Leaflet 真实地图容器（v-show 保持地图实例存活，切换列表视图后无需重建） -->
@@ -377,7 +377,12 @@
                 </div>
                 <div v-if="layers.yellowRiver" class="legend-group">
                   <div class="legend-row">
-                    <span class="legend-slot"><span class="sample-line" :style="{ background: yellowRiver.color }"></span></span>黄河
+                    <span class="legend-slot">
+                      <svg width="22" height="12" viewBox="0 0 22 12" fill="none" stroke-linecap="round" aria-hidden="true">
+                        <path d="M2.5 7.5 C8 2 13 10 19.5 4.5" :stroke="riverCasing" stroke-width="4.5" />
+                        <path d="M2.5 7.5 C8 2 13 10 19.5 4.5" :stroke="riverStroke" stroke-width="2.5" />
+                      </svg>
+                    </span>黄河干流
                   </div>
                 </div>
                 <div v-if="layers.heatmap" class="legend-group">
@@ -541,8 +546,9 @@ import { Icon } from '@iconify/vue'
 import gisIconData from '@iconify-json/gis/icons.json'
 import L from 'leaflet'
 import * as echarts from 'echarts'
-import { heritageData, categories, cities, periods, levels, silkRoadRoutes, yellowRiver } from '../data/heritageData'
+import { heritageData, categories, cities, periods, levels, silkRoadRoutes } from '../data/heritageData'
 import ningxiaCitiesGeo from '../data/ningxia-cities.geo.json'
+import yellowRiverGeo from '../data/yellow-river.geo.json'
 import { globalSelection, syncGlobalSelection } from '../composables/useGlobalSelection'
 import { ElSelect, ElOption } from 'element-plus'
 import 'element-plus/es/components/select/style/css'
@@ -575,9 +581,23 @@ let markerLayer = null
 let routeLayer = null
 let heatmapLayer = null
 let yellowRiverLayer = null
+const riverStroke = '#287b96'
+const riverCasing = '#eaf8f4'
 let choroplethLayer = null
 let measureLayer = null
-const baseLayers = {}  // 底图集合（街道/影像/地形/古风）
+const baseLayers = {}
+const localBaseImages = import.meta.glob('../assets/basemaps/*.webp', {
+  eager: true, query: '?url', import: 'default'
+})
+const overviewBounds = [[27.0591257844, 95.625], [45.0890355648, 118.125]]
+const detailBounds = [[34.3071438563, 103.359375], [40.4469470596, 108.984375]]
+// 纬度分界取 Web Mercator 图幅的像素中线。
+const detailCenter = [37.4399740523, 106.171875]
+const baseSources = {
+  standard: '天地图 / 高德地图',
+  imagery: 'EOX Sentinel-2 cloudless（2016）',
+  terrain: 'Mapzen Terrain Tiles / USGS'
+}
 
 // ECharts 实例引用（用于 dispose / setOption 更新）
 let pieChart = null
@@ -776,6 +796,44 @@ const createOverlapPopup = (items) => `
   </div>
 `
 
+const createLocalBasemap = (map, name, alt, attribution) => {
+  const image = (suffix, bounds, options) => L.imageOverlay(
+    localBaseImages[`../assets/basemaps/ningxia-${name}${suffix}.webp`],
+    bounds,
+    { pane: 'tilePane', ...options }
+  )
+  const [[south, west], [north, east]] = detailBounds
+  const [midLat, midLng] = detailCenter
+  const areas = {
+    nw: [[midLat, west], [north, midLng]],
+    ne: [[midLat, midLng], [north, east]],
+    sw: [[south, west], [midLat, midLng]],
+    se: [[south, midLng], [midLat, east]]
+  }
+  const detailLayers = Object.entries(areas).map(([key, bounds]) => image(`-${key}`, bounds, { zIndex: 3 }))
+  const group = L.layerGroup([
+    image('-overview', overviewBounds, { alt, attribution, zIndex: 1 }),
+    image('', detailBounds, { zIndex: 2 })
+  ])
+  const updateDetail = () => {
+    const zoom = map.getZoom()
+    const visible = map.getBounds()
+    for (const layer of detailLayers) {
+      if (zoom >= 9 && visible.intersects(layer.getBounds())) group.addLayer(layer)
+      else group.removeLayer(layer)
+    }
+  }
+  group.on('add', () => {
+    updateDetail()
+    map.on('moveend zoomend', updateDetail)
+  })
+  group.on('remove', () => {
+    map.off('moveend zoomend', updateDetail)
+    for (const layer of detailLayers) group.removeLayer(layer)
+  })
+  return group
+}
+
 const initMap = () => {
   // 等待容器有实际尺寸再初始化（首屏空白的常见原因）
   nextTick(() => {
@@ -815,14 +873,14 @@ const initMap = () => {
       `https://t{s}.tianditu.gov.cn/${layer}_${matrix}/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0` +
       `&LAYER=${layer}&STYLE=default&TILEMATRIXSET=${matrix}&FORMAT=tiles` +
       `&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TDT_TK}`
-    const tdtOpts = { subdomains: '01234567', maxZoom: 18 }
+    const tdtOpts = { subdomains: '01234567', maxZoom: 18, detectRetina: true }
 
     // 街道：天地图矢量底图 + 中文注记（矢量服务配额失效时自动降级为高德矢量，避免空白）
     const tdtVec = L.tileLayer(tdtUrl('vec'), { ...tdtOpts, attribution: '&copy; 天地图' })
     const tdtCva = L.tileLayer(tdtUrl('cva'), tdtOpts)
     const gaodeVec = L.tileLayer(
       'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
-      { subdomains: '1234', maxZoom: 18, attribution: '&copy; 高德地图' }
+      { subdomains: '1234', maxZoom: 18, detectRetina: true, attribution: '&copy; 高德地图' }
     )
     baseLayers.standard = L.layerGroup([tdtVec, tdtCva])
     let vecFellBack = false
@@ -834,16 +892,11 @@ const initMap = () => {
       group.removeLayer(tdtCva)
       group.addLayer(gaodeVec)
     })
-    // 影像：天地图卫星影像 + 中文注记叠加
-    baseLayers.imagery = L.layerGroup([
-      L.tileLayer(tdtUrl('img'), { ...tdtOpts, attribution: '&copy; 天地图' }),
-      L.tileLayer(tdtUrl('cia'), tdtOpts)
-    ])
-    // 地形：天地图地形晕渲 + 地形注记叠加
-    baseLayers.terrain = L.layerGroup([
-      L.tileLayer(tdtUrl('ter'), { ...tdtOpts, attribution: '&copy; 天地图' }),
-      L.tileLayer(tdtUrl('cta'), tdtOpts)
-    ])
+    // 静态底图放在瓦片窗格，非遗点位、古道和行政区等专题图层保持在上方。
+    baseLayers.imagery = createLocalBasemap(leafletMap, 'imagery', '宁夏及周边卫星影像',
+      '<a href="https://cloudless.eox.at/">Sentinel-2 cloudless</a> by <a href="https://eox.at/">EOX IT Services GmbH</a> (Contains modified Copernicus Sentinel data 2016)')
+    baseLayers.terrain = createLocalBasemap(leafletMap, 'terrain', '宁夏及周边地形晕渲',
+      '<a href="https://registry.opendata.aws/terrain-tiles/">Mapzen Terrain Tiles</a> · SRTM data courtesy of the U.S. Geological Survey')
     baseLayers.standard.addTo(leafletMap)
 
     // ========== 比例尺（移入图例卡片内部，宽度与图例匹配；刻度仍由 Leaflet 按真实分辨率计算） ==========
@@ -865,7 +918,10 @@ const initMap = () => {
     markerLayer = L.layerGroup().addTo(leafletMap)
     routeLayer = L.layerGroup().addTo(leafletMap)
     heatmapLayer = L.layerGroup()
-    yellowRiverLayer = L.layerGroup()
+    const riverPane = leafletMap.createPane('riverPane')
+    riverPane.style.zIndex = '390'
+    riverPane.style.pointerEvents = 'none'
+    yellowRiverLayer = L.featureGroup()
     choroplethLayer = L.layerGroup()
     measureLayer = L.layerGroup().addTo(leafletMap)
 
@@ -898,7 +954,16 @@ const initMap = () => {
 
     // 标记气泡开合 → 驱动浮层自动让位（与详情预览弹窗同一套 overlayOpen 逻辑）
     leafletMap.on('popupopen', () => { mapPopupOpen.value = true })
-    leafletMap.on('popupclose', () => { mapPopupOpen.value = false })
+    leafletMap.on('popupclose', () => {
+      mapPopupOpen.value = false
+      // 切换标记时旧气泡先关闭，同一轮内新气泡会打开。
+      const item = selectedItem.value
+      nextTick(() => {
+        if (leafletMap && !mapPopupOpen.value && !detailDialogVisible.value && selectedItem.value === item) {
+          selectedItem.value = null
+        }
+      })
+    })
 
     // 鼠标移动 → 实时经纬度
     leafletMap.on('mousemove', onMapMouseMove)
@@ -1062,11 +1127,12 @@ const emphasizeRoute = (route, on) => {
   }
 }
 
-const fitAllMarkers = () => {
+const fitAllMarkers = (includeRiver = false) => {
   if (!leafletMap || !markerLayer) return
-  const group = L.featureGroup(markerLayer.getLayers())
-  if (group.getLayers().length > 0) {
-    leafletMap.fitBounds(group.getBounds().pad(0.2))
+  const bounds = L.featureGroup(markerLayer.getLayers()).getBounds()
+  if (includeRiver && yellowRiverLayer) bounds.extend(yellowRiverLayer.getBounds())
+  if (bounds.isValid()) {
+    leafletMap.fitBounds(bounds.pad(0.2))
   } else {
     leafletMap.setView(NINGXIA_CENTER, 7)
   }
@@ -1086,45 +1152,56 @@ const applyDeepLink = () => {
   const z = Math.min(15, Math.max(7, Number(zoom) || 12))
   flyToView([targetLat, targetLng], z, 0.9)
   if (item) {
-    // 同步选中态：保证 URL 里的 id 与本地状态一致，后续写回 URL 时不会被误判为"已清除"
     selectedItem.value = item
-    setTimeout(() => {
-      markerLayer?.eachLayer(m => {
-        // 同址归并标记的 anchor 只取该组第一个项目，深链到组内其他项目时
-        // 需按整组成员匹配，才能正确弹出"重叠点选择面板"
-        const isMember = String(m.item?.id) === String(item.id) ||
-          (m.items?.length > 1 && m.items.some(i => String(i.id) === String(item.id)))
-        if (isMember) m.openPopup()
-      })
-    }, 950)
+    openSelectedPopup(item)
   }
+}
+
+const openSelectedPopup = (item) => {
+  setTimeout(() => {
+    if (selectedItem.value?.id !== item.id || viewMode.value !== 'map') return
+    // 同址标记按整组成员匹配。
+    markerLayer?.eachLayer(marker => {
+      if (marker.items.some(member => member.id === item.id)) marker.openPopup()
+    })
+  }, reduceMotion ? 0 : 950)
 }
 
 // ========== 黄河水系图层 ==========
 const renderYellowRiver = () => {
   if (!yellowRiverLayer) return
   yellowRiverLayer.clearLayers()
-  const latlngs = yellowRiver.coordinates.map(c => [c[1], c[0]])
+  const latlngs = L.GeoJSON.coordsToLatLngs(yellowRiverGeo.geometry.coordinates)
+  const pathOptions = { pane: 'riverPane', interactive: false, lineCap: 'round', lineJoin: 'round' }
   L.polyline(latlngs, {
-    color: yellowRiver.color,
+    ...pathOptions,
+    className: 'yellow-river-casing',
+    color: riverCasing,
     weight: 5,
-    opacity: 0.75,
-    lineCap: 'round'
+    opacity: 0.85
   }).addTo(yellowRiverLayer)
-  // 黄河标签（青铜峡段附近）
-  L.marker(latlngs[3], {
-    icon: L.divIcon({
+  L.polyline(latlngs, {
+    ...pathOptions,
+    className: 'yellow-river-centerline',
+    color: riverStroke,
+    weight: 2.75,
+    attribution: '水系 © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+  }).addTo(yellowRiverLayer)
+
+  // 在中卫段和银川以北各标一次，给点位和古道标签留出空间。
+  const labels = [
+    { position: [37.401256, 104.908013], anchor: [-8, -8] },
+    { position: [38.88416, 106.76842], anchor: [-8, 9] }
+  ]
+  for (const { position, anchor } of labels) {
+    const icon = L.divIcon({
       className: 'river-label',
-      html: `<span style="
-        background: rgba(30,136,229,0.92); color:#fff;
-        padding:2px 8px; border-radius:10px;
-        font-size:11px; font-weight:600; white-space:nowrap;
-      ">黄河</span>`,
-      iconSize: [44, 20],
-      iconAnchor: [0, 10]
-    }),
-    interactive: false
-  }).addTo(yellowRiverLayer)
+      html: '<span class="river-name">黄河</span>',
+      iconSize: [36, 18],
+      iconAnchor: anchor
+    })
+    L.marker(position, { icon, interactive: false, keyboard: false, zIndexOffset: -1000 }).addTo(yellowRiverLayer)
+  }
 }
 
 // ========== 行政区分级填色 ==========
@@ -1537,6 +1614,11 @@ const writeUrl = () => {
   if (focusedRoute.value?.name) next.route = focusedRoute.value.name
   if (selectedItem.value?.id) next.id = String(selectedItem.value.id)
   const cur = route.query
+  if (cur.id && cur.id !== next.id) {
+    delete next.lng
+    delete next.lat
+    delete next.zoom
+  }
   if ((cur.city || '') === (next.city || '') &&
       (cur.route || '') === (next.route || '') &&
       (cur.id || '') === (next.id || '')) return
@@ -1552,7 +1634,7 @@ watch([() => route.query.city, () => route.query.route, () => route.query.id], (
   const itemId = id === undefined ? '' : String(id)
   if ((filters.value.city || '') !== city) {
     filters.value.city = city
-    setTimeout(() => fitAllMarkers(), 150)
+    if (!itemId) setTimeout(() => fitAllMarkers(), 150)
   }
   if ((focusedRoute.value?.name || '') !== routeName) {
     const target = routeName ? silkRoadRoutes.find(x => x.name === routeName) : null
@@ -1562,7 +1644,15 @@ watch([() => route.query.city, () => route.query.route, () => route.query.id], (
   if (String(selectedItem.value?.id || '') !== itemId) {
     const item = itemId ? heritageData.find(d => String(d.id) === itemId) : null
     selectedItem.value = item
-    if (item) flyToView([item.lat, item.lng], 12, 0.8)
+    if (!item) {
+      leafletMap?.closePopup()
+      if (detailDialogVisible.value) closeDetailDialog()
+    } else if (viewMode.value === 'list' || detailDialogVisible.value) {
+      openDetailPreview(item)
+    } else {
+      flyToView([item.lat, item.lng], 12, 0.8)
+      openSelectedPopup(item)
+    }
   }
 })
 
@@ -1779,6 +1869,8 @@ const openDetailPreview = (item) => {
 // 关闭弹窗：归还焦点到打开前的元素（元素可能已随路由卸载，需做存在性判断）
 const closeDetailDialog = () => {
   detailDialogVisible.value = false
+  selectedItem.value = null
+  leafletMap?.closePopup()
   const el = lastFocusedEl
   lastFocusedEl = null
   nextTick(() => {
@@ -1835,10 +1927,10 @@ const toggleView = () => {
 }
 
 const zoomToFit = () => {
-  // 处于古道聚焦态时先退出，恢复多古道展示与图表常态，再缩放到全部点位
+  // 退出古道聚焦，并让已开启的黄河干流纳入全图视野。
   if (focusedRoute.value) exitFocus()
   if (leafletMap) leafletMap.closePopup()
-  fitAllMarkers()
+  fitAllMarkers(layers.value.yellowRiver)
 }
 
 const printMap = async () => {
@@ -3159,6 +3251,15 @@ onBeforeUnmount(() => {
   height: 4px;
   border-radius: 2px;
   background: var(--color-secondary);
+}
+
+:deep(.river-name) {
+  color: #19596e;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px #fff, 0 -1px 2px #fff, 1px 0 2px #fff, -1px 0 2px #fff;
 }
 
 .sample-heat {
