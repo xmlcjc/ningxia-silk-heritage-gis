@@ -24,7 +24,7 @@ const routes = [
     component: () => import('../pages/Project.vue'),
     meta: {
       title: `项目概况 · ${SITE_NAME}`,
-      description: '基于 GIS 与 WebGIS 的宁夏丝路非遗数字化保护、时空可视化与传播展示平台的项目背景、技术路线与创新亮点。'
+      description: '宁夏丝路非遗地理志的研究背景、研究内容、技术路线与项目创新点。'
     }
   },
   {
@@ -64,13 +64,9 @@ const routes = [
     }
   },
   {
+    // 项目成果已并入项目概况页，保留旧链接重定向
     path: '/results',
-    name: 'Results',
-    component: () => import('../pages/Results.vue'),
-    meta: {
-      title: `项目成果与资讯 · ${SITE_NAME}`,
-      description: '记录项目进展 · 分享研究成果 · 传播非遗文化，汇集宁夏丝路非遗地理志项目的阶段性成果与资讯。'
-    }
+    redirect: { path: '/project', hash: '#results' }
   },
   {
     path: '/about',
@@ -78,7 +74,7 @@ const routes = [
     component: () => import('../pages/About.vue'),
     meta: {
       title: `关于我们 · ${SITE_NAME}`,
-      description: '以 GIS 技术为支撑，构建宁夏丝路非遗数字化保护与展示平台。'
+      description: '宁夏丝路非遗地理志的平台介绍、项目理念、数据来源与致谢。'
     }
   },
   {
@@ -111,6 +107,13 @@ const router = createRouter({
     // 浏览器前进/后退 → 恢复原位置
     if (savedPosition) {
       return savedPosition
+    }
+    // 带锚点的跳转（如 /project#results）→ 定位到对应区块，预留固定导航高度
+    // 目标页为懒加载组件，延迟一帧确保锚点元素已渲染
+    if (to.hash) {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve({ el: to.hash, top: 96 }), 300)
+      })
     }
     // 同路由仅 query 变化（如地图页选中非遗点同步 URL id 参数）→ 不滚动
     if (to.path === from.path) {

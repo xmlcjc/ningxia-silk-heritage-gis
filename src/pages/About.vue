@@ -7,13 +7,13 @@
         <div class="hero-gradient"></div>
       </div>
       <div class="container">
-        <div class="hero-content">
+        <div class="hero-content" data-reveal-stagger>
           <div class="hero-badge">
             <Icon class="badge-icon" icon="gis:globe-star" />
             <span class="badge-text">传承丝路文化 · 守护非遗瑰宝</span>
           </div>
           <h1 class="hero-title">关于我们</h1>
-          <p class="hero-subtitle">以 GIS 技术为支撑，构建宁夏丝路非遗数字化保护与展示平台</p>
+          <p class="hero-subtitle">平台说明 · 项目理念 · 数据来源</p>
         </div>
       </div>
       <div class="hero-wave">
@@ -23,36 +23,45 @@
       </div>
     </div>
 
-    <!-- 团队简介区 -->
-    <section class="section team-section">
+    <!-- 平台介绍 -->
+    <section class="section platform-section">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <div class="header-decoration">
             <span class="deco-line"></span>
             <Icon class="deco-icon" icon="gis:map-users" />
             <span class="deco-line"></span>
           </div>
-          <h2 class="section-title">团队简介</h2>
-          <p class="section-subtitle">跨学科创新创业团队 · 多专业协同合作</p>
+          <h2 class="section-title">平台介绍</h2>
+          <p class="section-subtitle">{{ projectMeta.scope }} · 非遗资源的空间组织与数字展示</p>
         </div>
-        
-        <div class="team-wrapper">
-          <div class="team-intro card-silk">
-            <p class="intro-text">
-              我们是一支由<span class="highlight">大学生组成</span>的跨学科创新创业团队，成员来自
-              <span class="highlight">地理信息科学</span>、<span class="highlight">计算机科学与技术</span>、
-              <span class="highlight">历史学</span>、<span class="highlight">文化产业管理</span>等多个专业。
-              我们怀揣着对丝路文化的热爱和对非遗保护的责任感，致力于运用现代技术手段，为宁夏丝路非遗的
-              <span class="highlight">保护、传承与传播</span>贡献力量。
+
+        <div class="platform-grid">
+          <div class="platform-card card-silk" data-reveal>
+            <h3>{{ projectMeta.name }}</h3>
+            <p>
+              平台以 GIS 与 WebGIS 为技术支撑，将宁夏丝绸之路沿线的非物质文化遗产
+              放回地理空间中进行记录、整理与展示。
             </p>
-            
-            <div class="team-skills">
-              <div class="skill-item" v-for="(skill, index) in teamSkills" :key="index">
-                <div class="skill-icon"><Icon :icon="'gis:' + skill.icon" /></div>
-                <div class="skill-info">
-                  <h4>{{ skill.name }}</h4>
-                  <p>{{ skill.desc }}</p>
-                </div>
+            <p>
+              平台范围覆盖{{ projectMeta.scope }}，以经纬度、行政区、级别、类别与所属古道组织项目记录，
+              并通过地图、数字档案与三维场景三种方式呈现非遗项目的空间关系与文化信息。
+            </p>
+
+            <div class="team-note">
+              <h4>团队与合作信息</h4>
+              <p>项目团队成员及具体分工信息暂未公开，待正式确认后更新。</p>
+              <p v-if="!projectPartners.length">合作与支持信息以正式确认的公开资料为准。</p>
+              <p v-else>已确认合作单位：{{ projectPartners.map((item) => item.name).join('、') }}</p>
+            </div>
+          </div>
+
+          <div class="focus-list" data-reveal-stagger>
+            <div v-for="item in focusAreas" :key="item.title" class="focus-item">
+              <Icon class="focus-icon" :icon="'gis:' + item.icon" />
+              <div>
+                <h4>{{ item.title }}</h4>
+                <p>{{ item.desc }}</p>
               </div>
             </div>
           </div>
@@ -60,17 +69,17 @@
       </div>
     </section>
 
-    <!-- 使命价值观区 -->
+    <!-- 项目理念 -->
     <section class="section mission-section">
       <div class="mission-bg"></div>
       <div class="container">
-        <div class="section-header light">
-          <h2 class="section-title">项目使命</h2>
-          <p class="section-subtitle">让非遗在数字地图上“看得见、查得到、讲得清、传得开”</p>
+        <div class="section-header light" data-reveal>
+          <h2 class="section-title">项目理念</h2>
+          <p class="section-subtitle">记录 · 表达 · 传播</p>
         </div>
-        
-        <div class="mission-values">
-          <div class="value-card" v-for="(value, index) in missionValues" :key="index">
+
+        <div class="mission-values" data-reveal-stagger>
+          <div class="value-card" v-for="value in missionValues" :key="value.title">
             <div class="value-visual">
               <Icon class="value-icon" :icon="'gis:' + value.icon" />
               <div class="value-bg"></div>
@@ -85,139 +94,83 @@
       </div>
     </section>
 
-    <!-- 研究方向区 -->
-    <section class="section research-section">
+    <!-- 数据来源与致谢 -->
+    <section class="section sources-section">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">研究方向</h2>
-          <p class="section-subtitle">三大研究领域 · 推动文化科技创新</p>
+        <div class="section-header" data-reveal>
+          <h2 class="section-title">数据来源与致谢</h2>
+          <p class="section-subtitle">官方统计 · 口径说明 · 第三方资源</p>
         </div>
-        
-        <div class="research-grid">
-          <div class="research-card" v-for="(area, index) in researchAreas" :key="index"
-               :style="{ animationDelay: (index * 0.1) + 's' }">
-            <div class="card-number">{{ index + 1 }}</div>
-            <Icon class="card-icon" :icon="'gis:' + area.icon" />
-            <h3>{{ area.title }}</h3>
-            <p>{{ area.desc }}</p>
-            <ul class="research-tags">
-              <li v-for="tag in area.tags" :key="tag" class="tag-sm">{{ tag }}</li>
-            </ul>
-          </div>
+
+        <p class="source-note" data-reveal>
+          平台同时使用两类信息：区域官方统计数据，以及平台逐条整理的非遗项目记录。
+          下列来源用于说明官方统计数字，并不构成平台收录记录的逐项出处。
+        </p>
+
+        <ul class="stat-list" data-reveal-stagger>
+          <li v-for="item in officialStats" :key="item.id" class="stat-row">
+            <span class="stat-value">{{ item.value }}<em>{{ item.unit }}</em></span>
+            <div class="stat-body">
+              <h3>{{ item.label }}</h3>
+              <p class="stat-scope">{{ item.scope }}</p>
+              <p class="stat-meta">
+                <span v-if="item.statisticalReference">统计参照：{{ item.statisticalReference }}</span>
+                <span v-else>统计时间：原文未注明</span>
+                <span class="meta-sep">·</span>
+                <template v-for="(source, index) in item.sources" :key="source.id">
+                  <a :href="source.url" target="_blank" rel="noopener">{{ source.title }}</a>
+                  <span v-if="index < item.sources.length - 1">、</span>
+                </template>
+              </p>
+            </div>
+          </li>
+        </ul>
+
+        <p class="stat-footnote" data-reveal>
+          以上为区域官方统计口径，不是本平台收录量；平台收录记录以数字档案与项目成果页为准。
+        </p>
+
+        <div class="credit-block" data-reveal>
+          <h3>第三方资源与服务</h3>
+          <ul class="credit-list">
+            <li v-for="credit in credits" :key="credit.name">
+              <strong>{{ credit.name }}</strong>
+              <p>{{ credit.use }}</p>
+              <span class="license">
+                {{ credit.license }}
+                <template v-if="credit.url">
+                  · <a :href="credit.url" target="_blank" rel="noopener">来源</a>
+                </template>
+              </span>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- 联系合作区 -->
-    <section class="section contact-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">联系合作</h2>
-          <p class="section-subtitle">期待与您携手，共同守护丝路非遗</p>
-        </div>
-        
-        <div class="contact-wrapper">
-          <div class="contact-info-panel">
-            <h3>联系方式</h3>
-            <div class="contact-cards">
-              <div class="contact-card" v-for="(item, index) in contactItems" :key="index">
-                <div class="contact-icon-wrapper">
-                  <Icon class="contact-icon" :icon="'gis:' + item.icon" />
-                  <div class="icon-bg"></div>
-                </div>
-                <div class="contact-text">
-                  <h4>{{ item.label }}</h4>
-                  <p>{{ item.value }}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="office-hours">
-              <h4>工作时间</h4>
-              <p>周一至周五：9:00 - 17:00</p>
-              <p>周末及节假日：休息</p>
-            </div>
-          </div>
-          
-          <div class="contact-form-panel card">
-            <h3>留言给我们</h3>
-            <form class="custom-form" @submit.prevent="submitForm">
-              <div class="form-group">
-                <label>姓名 <span class="required">*</span></label>
-                <input type="text" v-model="form.name" placeholder="请输入您的姓名" required />
-              </div>
-              
-              <div class="form-group">
-                <label>邮箱 <span class="required">*</span></label>
-                <input type="email" v-model="form.email" placeholder="请输入邮箱地址" required />
-              </div>
-              
-              <div class="form-group">
-                <label>主题 <span class="required">*</span></label>
-                <select v-model="form.subject" required>
-                  <option value="">请选择留言主题</option>
-                  <option value="合作">项目合作</option>
-                  <option value="咨询">非遗咨询</option>
-                  <option value="建议">建议反馈</option>
-                  <option value="其他">其他</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label>留言 <span class="required">*</span></label>
-                <textarea v-model="form.message" rows="5" placeholder="请输入您的留言内容" required></textarea>
-              </div>
-              
-              <button type="submit" class="btn-submit">
-                <span class="btn-text">提交留言</span>
-                <span class="btn-arrow">→</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 合作单位区 -->
-    <section class="section partners-section">
-      <div class="partners-bg">
-        <div class="bg-pattern"></div>
-      </div>
-      <div class="container">
-        <div class="section-header light">
-          <h2 class="section-title">合作单位</h2>
-          <p class="section-subtitle">多方协作 · 汇聚力量</p>
-        </div>
-        
-        <div class="partners-grid">
-          <div class="partner-card" v-for="(partner, index) in partners" :key="index">
-            <div class="partner-logo-wrapper">
-              <div class="partner-placeholder">
-                <Icon class="placeholder-icon" icon="gis:pyramid" />
-              </div>
-            </div>
-            <h4>{{ partner.name }}</h4>
-            <p>{{ partner.type }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA 区域 -->
+    <!-- 了解与参与 -->
     <section class="section cta-section">
       <div class="cta-bg"></div>
       <div class="container">
         <div class="cta-content">
-          <h2>加入我们，共筑丝路非遗保护新篇章</h2>
-          <p>无论你是研究者、开发者还是文化爱好者，这里都有你发挥作用的空间</p>
+          <h2>继续了解这个项目</h2>
+          <p>研究背景与技术路线、已交付成果、空间地图与数字档案。</p>
           <div class="cta-buttons">
-            <a href="mailto:3313342914@qq.com" class="btn-primary">
-              <Icon icon="gis:map-send" width="16" height="16" /> 联系我们
-            </a>
-            <router-link to="/project" class="btn-ghost">
-              <Icon icon="gis:map-book" width="16" height="16" /> 了解项目
-            </router-link>
+            <router-link to="/project" class="btn btn-lg btn-ghost">项目概况</router-link>
+            <router-link to="/project#results" class="btn btn-lg btn-primary">项目成果</router-link>
+            <router-link to="/map" class="btn btn-lg btn-ghost">GIS 地图</router-link>
+            <router-link to="/archive" class="btn btn-lg btn-ghost">数字档案</router-link>
           </div>
+
+          <div v-if="contactVerified && hasContact" class="contact-block">
+            <a v-if="contact.email" :href="'mailto:' + contact.email">{{ contact.email }}</a>
+            <a v-if="contact.phone" :href="'tel:' + contact.phone">{{ contact.phone }}</a>
+            <span v-if="contact.address">{{ contact.address }}</span>
+            <span v-if="contact.officeHours">{{ contact.officeHours }}</span>
+          </div>
+          <p v-else class="contact-note">
+            当前暂未开放公开联系渠道。
+          </p>
         </div>
       </div>
     </section>
@@ -225,95 +178,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import { ElMessage } from 'element-plus'
-import 'element-plus/es/components/message/style/css'
+import { projectMeta, projectPartners, contact, dataSources, officialStatistics } from '@/data/project'
 
-const form = ref({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
+// 官方统计与来源：数字与口径均来自统一数据层，不在此重复维护
+const sourceById = Object.fromEntries(dataSources.map((source) => [source.id, source]))
+const officialStats = officialStatistics.map((item) => ({
+  ...item,
+  sources: item.sourceIds.map((id) => sourceById[id]).filter(Boolean)
+}))
 
-// 团队技能
-const teamSkills = ref([
-  { icon: 'map', name: 'GIS 技术', desc: '空间数据分析与可视化' },
-  { icon: 'globe-gear', name: 'Web 开发', desc: '全栈开发与用户体验设计' },
-  { icon: 'map-book', name: '文化研究', desc: '丝路文化与非遗学术探讨' }
-])
+// 联系方式仅在字段存在且整体状态为已核验时展示
+const contactVerified = contact.verificationStatus === 'VERIFIED'
+const hasContact = Boolean(contact.email || contact.phone || contact.address || contact.officeHours)
 
-// 使命价值观
-const missionValues = ref([
+const focusAreas = [
+  { icon: 'map', title: '研究对象', desc: '宁夏丝绸之路沿线的代表性非物质文化遗产。' },
+  { icon: 'network', title: '空间组织', desc: '以经纬度、行政区、级别、类别与所属古道组织项目记录。' },
+  { icon: 'cube-3d', title: '数字展示', desc: '通过 WebGIS 地图、数字档案与三维场景呈现文化信息。' }
+]
+
+const missionValues = [
   {
     icon: 'globe-shield',
-    title: '保护传承',
-    desc: '建立完整的非遗数字档案，确保珍贵文化遗产永久保存',
-    quote: '守护每一份珍贵的文化记忆'
+    title: '记录与保存',
+    desc: '以结构化记录保存非遗项目的名称、类别、级别、地区与技艺信息，为后续研究与展示提供稳定底稿。',
+    quote: '让档案先于展示'
   },
   {
     icon: 'location-arrow',
-    title: '创新驱动',
-    desc: '运用现代技术手段，为传统非遗注入新活力',
-    quote: '用科技点亮传统文化'
+    title: '空间表达',
+    desc: '把非遗放回山川、古道与行政区之中，用地图呈现项目之间的空间关系。',
+    quote: '让位置成为阅读线索'
   },
   {
     icon: 'globe-share',
-    title: '开放合作',
-    desc: '汇聚各方力量，共建共享非遗保护成果',
-    quote: '凝聚合力，共创未来'
+    title: '公共传播',
+    desc: '通过地图、档案与三维场景，让更多人看见并理解宁夏丝路非遗。',
+    quote: '让文化信息抵达更多人'
   }
-])
+]
 
-// 研究方向
-const researchAreas = ref([
-  {
-    icon: 'map',
-    title: 'GIS 与文化遗产',
-    desc: '运用地理信息系统技术，研究文化遗产的空间分布特征与演变规律',
-    tags: ['空间分析', '遗产地图', '时空演变']
-  },
-  {
-    icon: 'globe',
-    title: '数字人文',
-    desc: '探索数字化技术在人文研究中的应用，推动人文研究的创新发展',
-    tags: ['数字方法', '文本挖掘', '数据可视化']
-  },
-  {
-    icon: 'poi-home',
-    title: '乡村振兴',
-    desc: '研究非遗保护与乡村振兴的协同路径，促进地方经济社会发展',
-    tags: ['文旅融合', '产业振兴', '社区发展']
-  }
-])
-
-// 联系方式
-const contactItems = ref([
-  { icon: 'poi', label: '地址', value: '宁夏银川市西夏区贺兰山西路539号文萃校区' },
-  { icon: 'map-send', label: '邮箱', value: '3313342914@qq.com' },
-  { icon: 'phone-map', label: '电话', value: '13649570320' }
-])
-
-// 合作单位
-const partners = ref([
-  { name: '宁夏大学', type: '主办单位' },
-  { name: '宁夏非物质文化遗产保护中心', type: '指导单位' },
-  { name: '银川市文化和旅游局', type: '支持单位' },
-  { name: '宁夏回族自治区博物馆', type: '合作单位' },
-  { name: '宁夏民间文艺家协会', type: '合作单位' },
-  { name: '宁夏文化产业协会', type: '合作单位' }
-])
-
-const submitForm = () => {
-  if (!form.value.name || !form.value.email || !form.value.subject || !form.value.message) {
-    ElMessage.warning('请填写完整的信息')
-    return
-  }
-  
-  ElMessage.success('感谢您的留言！我们会尽快回复。')
-  form.value = { name: '', email: '', subject: '', message: '' }
-}
+// 第三方资源说明：依据 README 与 package.json 中已记录的来源和许可
+const credits = [
+  { name: 'Font-GIS', use: '地图与界面图标', license: 'CC BY 4.0', url: 'https://github.com/viglino/font-gis' },
+  { name: 'SuperSplat Viewer / splat-transform', use: '三维场景查看与格式转换', license: 'MIT', url: 'https://github.com/playcanvas/supersplat-viewer' },
+  { name: 'Poly Haven', use: '器物三维预览模型（第三方素材，非本项目原创成果）', license: 'CC0 1.0', url: 'https://polyhaven.com/' },
+  { name: '天地图 / 高德地图', use: '地图底图服务', license: '服务条款', url: 'https://www.tianditu.gov.cn/' },
+  { name: 'dengcao/free-fonts', use: '自托管中文字体来源', license: '商用部署前需自行核查授权', url: 'https://github.com/dengcao/free-fonts' }
+]
 </script>
 
 <style lang="scss" scoped>
@@ -408,12 +321,8 @@ const submitForm = () => {
 }
 
 // ============================================
-// 团队简介区
+// 公共标题
 // ============================================
-
-.team-section {
-  background: var(--color-background);
-}
 
 .section-header {
   text-align: center;
@@ -462,59 +371,77 @@ const submitForm = () => {
   color: var(--color-text-light);
 }
 
-.team-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
+// ============================================
+// 平台介绍
+// ============================================
+
+.platform-section {
+  background: var(--color-background);
 }
 
-.team-intro {
-  padding: var(--spacing-2xl);
-}
-
-.intro-text {
-  font-size: 1.15rem;
-  line-height: 2;
-  color: var(--color-text);
-  text-align: center;
-  margin-bottom: var(--spacing-2xl);
-  
-  .highlight {
-    color: var(--color-primary);
-    font-weight: 600;
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--color-secondary);
-      opacity: 0.5;
-    }
-  }
-}
-
-.team-skills {
+.platform-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-lg);
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--spacing-2xl);
+  align-items: start;
 
   @media (max-width: 992px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  @media (max-width: 576px) {
     grid-template-columns: 1fr;
   }
 }
 
-.skill-item {
+.platform-card {
+  padding: var(--spacing-2xl);
+
+  h3 {
+    font-size: 1.35rem;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+  }
+
+  p {
+    color: var(--color-text-light);
+    line-height: 1.9;
+
+    & + p {
+      margin-top: var(--spacing-md);
+    }
+  }
+}
+
+.team-note {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: rgba(212, 160, 23, 0.06);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: var(--radius-md);
+
+  h4 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  p {
+    margin: 0;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    line-height: 1.7;
+
+    & + p {
+      margin-top: var(--spacing-sm);
+    }
+  }
+}
+
+.focus-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  gap: var(--spacing-md);
+}
+
+.focus-item {
+  display: flex;
+  gap: var(--spacing-md);
   padding: var(--spacing-lg);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
@@ -525,26 +452,27 @@ const submitForm = () => {
     border-color: var(--color-secondary);
     box-shadow: var(--shadow-md);
   }
-}
 
-.skill-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-md);
-}
+  .focus-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
 
-.skill-info h4 {
-  color: var(--color-primary);
-  margin-bottom: 4px;
-}
+  h4 {
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
 
-.skill-info p {
-  color: var(--color-text-light);
-  font-size: 0.9rem;
-  margin: 0;
+  p {
+    margin: 0;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
 }
 
 // ============================================
-// 使命价值观区
+// 项目理念
 // ============================================
 
 .mission-section {
@@ -556,9 +484,9 @@ const submitForm = () => {
 .mission-bg {
   position: absolute;
   inset: 0;
-  // 装饰背景不拦截鼠标事件，否则会盖住下方三张使命卡的 hover 交互
+  // 装饰背景不拦截鼠标事件，避免盖住使命卡的 hover 交互
   pointer-events: none;
-  background: 
+  background:
     radial-gradient(ellipse at 20% 30%, rgba(212, 160, 23, 0.05) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 70%, rgba(46, 139, 87, 0.05) 0%, transparent 40%);
 }
@@ -571,11 +499,6 @@ const submitForm = () => {
   .section-subtitle {
     color: var(--color-text-light);
   }
-}
-
-// 合作单位区为深棕渐变底，标题用白色保证对比度
-.partners-section .section-header.light .section-title {
-  color: #fff;
 }
 
 .mission-values {
@@ -653,369 +576,164 @@ const submitForm = () => {
 }
 
 // ============================================
-// 研究方向区
+// 数据来源与致谢
 // ============================================
 
-.research-section {
+.sources-section {
   background: var(--color-background);
 }
 
-.research-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xl);
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr;
-  }
-  
-  @media (max-width: 576px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.research-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-2xl);
-  position: relative;
-  overflow: hidden;
-  transition:
-    transform 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out),
-    border-color 0.3s var(--ease-out);
-
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-secondary);
-    
-    .card-number {
-      background: var(--color-secondary);
-    }
-  }
-}
-
-.card-number {
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-  width: 36px;
-  height: 36px;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  transition: background-color 0.3s var(--ease-out);
-}
-
-.card-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-lg);
-}
-
-.research-card h3 {
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-md);
-}
-
-.research-card > p {
+.source-note {
+  max-width: 820px;
+  margin: 0 auto var(--spacing-xl);
+  text-align: center;
   color: var(--color-text-light);
-  line-height: 1.7;
-  margin-bottom: var(--spacing-lg);
+  font-size: 0.95rem;
+  line-height: 1.8;
 }
 
-.research-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
+.stat-list {
   list-style: none;
   padding: 0;
-  margin: 0;
-}
-
-.tag-sm {
-  background: rgba(212, 160, 23, 0.1);
-  color: var(--color-secondary-dark);
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-// ============================================
-// 联系合作区
-// ============================================
-
-.contact-section {
-  background: var(--color-surface);
-}
-
-.contact-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: var(--spacing-2xl);
-  align-items: start;
-  
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.contact-info-panel {
-  h3 {
-    font-size: 1.3rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-xl);
-  }
-}
-
-.contact-cards {
+  max-width: 920px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.contact-card {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: var(--color-background);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
-
-  &:hover {
-    border-color: var(--color-secondary);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-.contact-icon-wrapper {
-  position: relative;
-  flex-shrink: 0;
-  
-  .contact-icon {
-    font-size: 2rem;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .icon-bg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 56px;
-    height: 56px;
-    background: radial-gradient(circle, var(--color-secondary), transparent);
-    border-radius: 50%;
-    opacity: 0.1;
-  }
-}
-
-.contact-text h4 {
-  color: var(--color-primary);
-  margin-bottom: 4px;
-}
-
-.contact-text p {
-  color: var(--color-text);
-  margin: 0;
-}
-
-.office-hours {
-  margin-top: var(--spacing-2xl);
-  padding: var(--spacing-lg);
-  background: var(--color-background);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  
-  h4 {
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  p {
-    color: var(--color-text-light);
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-  }
-}
-
-.contact-form-panel {
-  h3 {
-    font-size: 1.3rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-xl);
-  }
-}
-
-.custom-form {
-  .form-group {
-    margin-bottom: var(--spacing-lg);
-    
-    label {
-      display: block;
-      color: var(--color-text);
-      font-weight: 500;
-      margin-bottom: 6px;
-      
-      .required {
-        color: var(--color-error);
-        margin-left: 4px;
-      }
-    }
-    
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--color-background);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      color: var(--color-text);
-      transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
-
-      &:focus {
-        outline: none;
-        border-color: var(--color-secondary);
-        box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.1);
-      }
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-  }
-}
-
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--spacing-md);
-  width: 100%;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
-  color: var(--color-gold-ink);
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out);
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 160, 23, 0.4);
-    
-    .btn-arrow {
-      transform: translateX(4px);
-    }
-  }
-  
-  .btn-arrow {
-    font-size: 1.2rem;
-    transition: transform 0.3s var(--ease-out);
-  }
 }
 
-// ============================================
-// 合作单位区
-// ============================================
-
-.partners-section {
-  position: relative;
-  overflow: hidden;
-}
-
-.partners-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: var(--gradient-primary);
-}
-
-.bg-pattern {
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A017' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-.partners-grid {
+.stat-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 120px minmax(0, 1fr);
   gap: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
+  padding: var(--spacing-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
   }
 }
 
-.partner-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-2xl);
-  text-align: center;
-  transition: background-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-secondary-dark);
+  line-height: 1.2;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-4px);
+  em {
+    margin-left: 4px;
+    font-style: normal;
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
   }
 }
 
-.partner-logo-wrapper {
-  margin-bottom: var(--spacing-md);
-  
-  .partner-placeholder {
-    width: 80px;
-    height: 80px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-  }
-  
-  .placeholder-icon {
-    font-size: 2.5rem;
-  }
-}
-
-.partner-card h4 {
-  color: white;
+.stat-body h3 {
+  color: var(--color-primary);
+  font-size: 1rem;
   margin-bottom: 4px;
 }
 
-.partner-card p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
+.stat-scope {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.stat-meta {
+  margin-top: var(--spacing-sm);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+
+  a {
+    color: var(--color-secondary-dark);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .meta-sep {
+    margin: 0 6px;
+  }
+}
+
+.stat-footnote {
+  max-width: 920px;
+  margin: var(--spacing-lg) auto 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.credit-block {
+  max-width: 920px;
+  margin: var(--spacing-2xl) auto 0;
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-border-light);
+
+  h3 {
+    text-align: center;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-lg);
+  }
+}
+
+.credit-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  li {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+
+    strong {
+      color: var(--color-primary);
+    }
+
+    p {
+      margin-top: 4px;
+      color: var(--color-text-light);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    .license {
+      display: block;
+      margin-top: 4px;
+      color: var(--color-text-muted);
+      font-size: 0.78rem;
+
+      a {
+        color: var(--color-secondary-dark);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
 }
 
 // ============================================
-// CTA 区域
+// 了解与参与
 // ============================================
 
 .cta-section {
@@ -1054,23 +772,34 @@ const submitForm = () => {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  border-radius: var(--radius-full);
-  font-size: 15px;
-  font-weight: 500;
-  text-decoration: none;
-  transition:
-    background-color 0.3s var(--ease-out),
-    color 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out),
-    transform 0.3s var(--ease-out);
+.contact-note {
+  margin-top: var(--spacing-xl);
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
+.contact-block {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+
+  a {
+    color: #F5E6C8;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// CTA 深色底上的按钮配色
 .btn-primary {
   background: var(--color-secondary);
   color: var(--color-gold-ink);
@@ -1086,7 +815,7 @@ const submitForm = () => {
   background: transparent;
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.1);
     border-color: white;

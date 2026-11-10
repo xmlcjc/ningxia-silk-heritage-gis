@@ -7,7 +7,7 @@
         <div class="hero-gradient"></div>
       </div>
       <div class="container">
-        <div class="hero-content">
+        <div class="hero-content" data-reveal-stagger>
           <div class="hero-badge">
             <Icon class="badge-icon" icon="gis:map-add" />
             <span class="badge-text">大学生创新创业项目</span>
@@ -16,12 +16,15 @@
           <p class="hero-subtitle">
             基于GIS与WebGIS的宁夏丝路非遗数字化保护、时空可视化与传播展示平台
           </p>
-          <div class="hero-tags">
-            <span class="tag">GIS技术应用</span>
-            <span class="tag">非遗数字化</span>
-            <span class="tag">数字人文</span>
-            <span class="tag">三维数据大屏</span>
-          </div>
+          <nav class="hero-tags" aria-label="本页目录">
+            <a class="tag" href="#intro">项目简介</a>
+            <a class="tag" href="#basis">立项依据</a>
+            <a class="tag" href="#research">研究内容</a>
+            <a class="tag" href="#tech">技术路线</a>
+            <a class="tag" href="#innovation">创新点</a>
+            <a class="tag" href="#results">项目成果</a>
+            <a class="tag" href="#goals">建设目标</a>
+          </nav>
         </div>
       </div>
       <div class="hero-wave">
@@ -32,9 +35,9 @@
     </div>
 
     <!-- 项目简介 -->
-    <section class="section intro-section">
+    <section id="intro" class="section intro-section">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <div class="header-decoration">
             <span class="deco-line"></span>
             <Icon class="deco-icon" icon="gis:world-folder" />
@@ -44,7 +47,7 @@
         </div>
         
         <div class="intro-wrapper">
-          <div class="intro-main card-silk">
+          <div class="intro-main card-silk" data-reveal>
             <p class="intro-text">
               本项目以<span class="highlight">宁夏丝绸之路沿线非物质文化遗产</span>为研究对象，
               运用<span class="highlight">GIS空间分析技术</span>，系统搜集、整理宁夏丝路非遗资源，
@@ -54,7 +57,7 @@
             </p>
           </div>
           
-          <div class="intro-points">
+          <div class="intro-points" data-reveal-stagger>
             <div class="point-card" v-for="(point, index) in introPoints" :key="index">
               <Icon class="point-icon" :icon="'gis:' + point.icon" />
               <div class="point-content">
@@ -68,15 +71,15 @@
     </section>
 
     <!-- 立项依据 -->
-    <section class="section basis-section">
+    <section id="basis" class="section basis-section">
       <div class="section-bg"></div>
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <h2 class="section-title">立项依据</h2>
-          <p class="section-subtitle">深入调研 · 科学规划 · 切实可行</p>
+          <p class="section-subtitle">研究背景 · 现状 · 工作基础</p>
         </div>
         
-        <div class="basis-tabs">
+        <div class="basis-tabs" data-reveal data-reveal-delay="80">
           <div class="tabs-header">
             <button 
               v-for="tab in basisTabs" 
@@ -157,34 +160,32 @@
                 <div class="status-card">
                   <div class="status-header">
                     <Icon class="status-flag" icon="gis:earth" />
-                    <h3>国外研究现状</h3>
+                    <h3>国际研究与实践</h3>
                   </div>
                   <p>
-                    欧美等发达国家较早将GIS技术应用于文化遗产保护，如联合国教科文组织的
-                    <strong>世界遗产GIS数据库</strong>、英国的<strong>遗产地图系统</strong>等。
-                    数字人文领域也积极探索GIS与历史文化研究的结合，形成了较为成熟的理论与方法体系。
+                    GIS 与数字人文的结合已有较长积累，文化遗产的空间分布、历史地理与可视化表达是常见研究方向。
+                    相关实践为非遗资源的空间组织、地图表达与公众展示提供了方法参考。
                   </p>
                   <div class="status-examples">
-                    <span class="example-tag">UNESCO Heritage GIS</span>
-                    <span class="example-tag">英国遗产地图</span>
-                    <span class="example-tag">欧洲数字人文</span>
+                    <span class="example-tag">空间人文</span>
+                    <span class="example-tag">遗产地图</span>
+                    <span class="example-tag">数字人文</span>
                   </div>
                 </div>
                 
                 <div class="status-card">
                   <div class="status-header">
                     <Icon class="status-flag" icon="gis:earth-asia" />
-                    <h3>国内研究现状</h3>
+                    <h3>国内研究与实践</h3>
                   </div>
                   <p>
-                    近年来，我国越来越多的学者开始运用GIS技术进行文化遗产研究，在非遗数字化、
-                    文化资源空间分布等方面取得了一定成果。但针对<strong>宁夏丝路非遗</strong>的
-                    系统性GIS研究仍有不足，本项目旨在填补这一空白。
+                    国内相关研究在非遗数字化、文化资源空间分布与知识组织等方向持续展开。
+                    针对宁夏丝路非遗的系统性空间整理与公众展示仍相对有限，本项目尝试在这一方向上作出补充。
                   </p>
                   <div class="status-examples">
                     <span class="example-tag">非遗数字化</span>
-                    <span class="example-tag">文化资源GIS</span>
-                    <span class="example-tag">文化遗产图谱</span>
+                    <span class="example-tag">文化资源 GIS</span>
+                    <span class="example-tag">数字档案</span>
                   </div>
                 </div>
               </div>
@@ -200,10 +201,6 @@
                   </div>
                   <h4>{{ prep.title }}</h4>
                   <p>{{ prep.desc }}</p>
-                  <div class="prep-stat">
-                    <span class="stat-num">{{ prep.stat }}</span>
-                    <span class="stat-label">{{ prep.statLabel }}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -213,14 +210,14 @@
     </section>
 
     <!-- 研究内容 -->
-    <section class="section research-section">
+    <section id="research" class="section research-section">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <h2 class="section-title">研究内容</h2>
           <p class="section-subtitle">四大核心方向 · 系统性研究框架</p>
         </div>
         
-        <div class="research-framework">
+        <div class="research-framework" data-reveal-stagger>
           <div class="research-card" v-for="(item, index) in researchContent" :key="index"
                :class="'research-' + item.type">
             <div class="research-header">
@@ -243,48 +240,47 @@
       </div>
     </section>
 
-    <!-- 技术方案 -->
-    <section class="section timeline-section">
+    <!-- 技术路线 -->
+    <section id="tech" class="section tech-section">
       <div class="section-bg-alt"></div>
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">技术方案</h2>
-          <p class="section-subtitle">四阶段推进 · 12个月周期</p>
+        <div class="section-header" data-reveal>
+          <h2 class="section-title">技术路线</h2>
+          <p class="section-subtitle">资料整理 → 空间组织 → 地理处理 → 可视化 → 数字档案</p>
         </div>
-        
-        <div class="phase-timeline">
-          <div class="timeline-track">
-            <div class="track-progress"></div>
-          </div>
-          
-          <div class="timeline-cards">
-            <div class="phase-card" v-for="(phase, index) in phases" :key="index">
-              <div class="phase-marker">
-                <span class="marker-num">{{ index + 1 }}</span>
-                <div class="marker-ring"></div>
-              </div>
-              <div class="phase-content card">
-                <div class="phase-badge">{{ phase.period }}</div>
-                <h3>{{ phase.title }}</h3>
-                <ul class="phase-list">
-                  <li v-for="task in phase.tasks" :key="task">{{ task }}</li>
-                </ul>
-              </div>
+
+        <ol class="tech-steps" data-reveal-stagger>
+          <li v-for="(step, index) in techRoute" :key="step.title" class="tech-step">
+            <span class="tech-step__no">{{ index + 1 }}</span>
+            <div class="tech-step__body">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.desc }}</p>
             </div>
-          </div>
+          </li>
+        </ol>
+
+        <div class="tech-stack" data-reveal>
+          <span class="tech-stack__label">当前技术栈</span>
+          <ul>
+            <li v-for="item in techStack" :key="item">{{ item }}</li>
+          </ul>
+          <p class="tech-note">
+            平台当前为纯前端静态站点，未使用后端接口或数据库服务；地图底图来自天地图与高德，
+            三维场景使用 3D 高斯泼溅查看器。
+          </p>
         </div>
       </div>
     </section>
 
     <!-- 创新点 -->
-    <section class="section innovation-section">
+    <section id="innovation" class="section innovation-section">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <h2 class="section-title">项目创新点</h2>
-          <p class="section-subtitle">跨学科融合 · 技术创新 · 全链条路径</p>
+          <p class="section-subtitle">空间组织 · 地图联动 · 三维辅助</p>
         </div>
         
-        <div class="innovation-showcase">
+        <div class="innovation-showcase" data-reveal-stagger>
           <div class="innovation-card" v-for="(item, index) in innovations" :key="index">
             <div class="innovation-visual">
               <Icon class="visual-icon" :icon="'gis:' + item.icon" />
@@ -302,62 +298,97 @@
       </div>
     </section>
 
-    <!-- 预期目标与成果 -->
-    <section class="section outcomes-section">
+    <!-- 项目成果 -->
+    <section id="results" class="section results-section">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <h2 class="section-title">项目成果</h2>
+          <p class="section-subtitle">{{ deliverableCount }} 项已核实成果 · 软件、数据与场景资源均可在站内或数据文件中追溯</p>
+        </div>
+
+        <div class="results-grid" data-reveal-stagger>
+          <component
+            :is="item.route ? 'router-link' : 'div'"
+            v-for="item in projectDeliverables"
+            :key="item.id"
+            :to="item.route || undefined"
+            class="result-card card-silk"
+            :class="{ 'is-static': !item.route }"
+          >
+            <div class="card-image-wrapper">
+              <div class="result-placeholder" :class="'bg-' + item.category.toLowerCase()">
+                <Icon class="placeholder-icon" :icon="iconForDeliverable(item.category)" />
+              </div>
+              <div class="result-badge" :class="'type-' + categoryKey(item.category)">
+                {{ categoryLabel(item.category) }}
+              </div>
+              <div v-if="item.route" class="image-overlay">
+                <span class="overlay-btn">打开平台 →</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <h3 class="result-title">{{ item.name }}</h3>
+              <p class="result-desc">{{ item.description }}</p>
+
+              <div class="result-meta">
+                <span class="meta-tag" :class="statusClass(item.verificationStatus)">
+                  {{ statusLabel(item.verificationStatus) }}
+                </span>
+                <span class="meta-tag go-tag" v-if="item.route">站内入口</span>
+                <span class="meta-tag" v-else>数据与资源</span>
+              </div>
+
+              <p v-if="item.verificationNote" class="result-note">
+                <span class="note-label">核验说明</span>{{ item.verificationNote }}
+              </p>
+            </div>
+          </component>
+        </div>
+      </div>
+    </section>
+
+    <!-- 建设目标 -->
+    <section id="goals" class="section outcomes-section">
       <div class="outcomes-bg">
         <div class="bg-pattern"></div>
       </div>
       <div class="container">
-        <div class="section-header light">
-          <h2 class="section-title">预期目标与成果</h2>
-          <p class="section-subtitle">务实创新 · 知行合一</p>
+        <div class="section-header light" data-reveal>
+          <h2 class="section-title">建设目标</h2>
+          <p class="section-subtitle">方向性目标 · 不代表已交付成果</p>
         </div>
         
-        <div class="outcomes-grid">
+        <div class="outcomes-grid" data-reveal-stagger>
           <div class="outcome-card card-white">
             <div class="card-header-white">
-              <Icon class="header-icon" icon="gis:location-arrow" />
-              <h3>预期目标</h3>
+              <Icon class="header-icon" icon="gis:flag-finish" />
+              <h3>后续建设方向</h3>
             </div>
-            <ul class="outcome-list">
-              <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-                完成宁夏丝路非遗地理数据库建设，收录非遗项目200项以上
-              </li>
-              <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-                开发完成WebGIS展示平台，实现时空可视化等核心功能
-              </li>
-              <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-                发表学术论文1-2篇，形成研究报告1份
-              </li>
-              <li>
-                <svg class="check-icon" viewBox="0 0 24 24" width="17" height="17" fill="currentColor">
-                  <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
-                为3-5项非遗项目提供数字化保护方案
-              </li>
+            <ul class="goal-list">
+              <li v-for="goal in goals" :key="goal">{{ goal }}</li>
             </ul>
           </div>
           
           <div class="outcome-card card-white">
             <div class="card-header-white">
-              <Icon class="header-icon" icon="gis:flag-finish" />
-              <h3>成果形式</h3>
+              <Icon class="header-icon" icon="gis:network" />
+              <h3>查看已交付成果</h3>
             </div>
-            <div class="成果-items">
-              <div class="成果-item" v-for="(item, index) in outcomes" :key="index">
-                <Icon class="item-icon" :icon="'gis:' + item.icon" />
-                <span class="item-text">{{ item.text }}</span>
-              </div>
+            <div class="goal-links">
+              <a href="#results" class="goal-link">
+                项目成果清单 <span aria-hidden="true">→</span>
+              </a>
+              <router-link to="/map" class="goal-link">
+                GIS 地图 <span aria-hidden="true">→</span>
+              </router-link>
+              <router-link to="/archive" class="goal-link">
+                数字档案 <span aria-hidden="true">→</span>
+              </router-link>
             </div>
+            <p class="goal-note">
+              成果清单由统一数据层提供，仅收录可验证的软件、数据与场景资源。
+            </p>
           </div>
         </div>
       </div>
@@ -368,8 +399,22 @@
 <script setup>
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { projectDeliverables } from '@/data/project'
 
 const activeBasisTab = ref('purpose')
+
+// 项目成果：数据来自统一数据层
+const deliverableCount = projectDeliverables.length
+const categoryLabels = { SOFTWARE: '软件平台', DATA: '数据成果', ASSET: '场景资源' }
+const categoryKeys = { SOFTWARE: 'platform', DATA: 'database', ASSET: 'scene' }
+const categoryIcons = { SOFTWARE: 'gis:globe', DATA: 'gis:layers', ASSET: 'gis:cube-3d' }
+const statusLabels = { VERIFIED: '已核验', CONDITIONAL: '有条件核验', NOT_VERIFIED: '未核验' }
+const categoryLabel = (category) => categoryLabels[category] || category
+const categoryKey = (category) => categoryKeys[category] || 'platform'
+const iconForDeliverable = (category) => categoryIcons[category] || 'gis:folder-map'
+const statusLabel = (status) => statusLabels[status] || status
+const statusClass = (status) =>
+  ({ VERIFIED: 'is-verified', CONDITIONAL: 'is-conditional', NOT_VERIFIED: 'is-unverified' }[status] || 'is-unverified')
 
 // 项目简介要点
 const introPoints = ref([
@@ -382,110 +427,101 @@ const introPoints = ref([
 const basisTabs = ref([
   { key: 'purpose', label: '研究目的与意义', icon: 'location-arrow' },
   { key: 'status', label: '国内外研究现状', icon: 'map-book' },
-  { key: 'preparation', label: '项目前期准备', icon: 'map-legend' }
+  { key: 'preparation', label: '研究基础', icon: 'map-legend' }
 ])
 
-// 前期准备
+// 研究基础
 const preparations = ref([
-  { icon: 'map-book', title: '文献资料', desc: '已搜集相关文献100余篇，包括宁夏地方志、非遗保护报告、GIS应用案例等', stat: '100+', statLabel: '篇文献' },
-  { icon: 'map', title: '数据基础', desc: '已初步整理宁夏非遗名录20余项，获取宁夏基础地理数据', stat: '20余项', statLabel: '非遗' },
-  { icon: 'globe-gear', title: '技术储备', desc: '团队成员已掌握GIS、Web开发、数据可视化等相关技术', stat: '5', statLabel: '项技术' },
-  { icon: 'map-users', title: '团队构成', desc: '由地理信息、计算机、历史文化等多学科背景成员组成', stat: '跨学科', statLabel: '多领域' }
+  { icon: 'map-book', title: '文献与名录', desc: '整理宁夏地方志、非遗名录与相关研究资料，作为项目背景与项目释文的参考。' },
+  { icon: 'map', title: '空间数据', desc: '为非遗项目补充经纬度与所属行政区，形成可查询、可关联的空间记录结构。' },
+  { icon: 'globe-gear', title: '技术实现', desc: '使用 Vue、Leaflet、ECharts 与 Three.js 完成地图、图表和三维展示功能。' },
+  { icon: 'map-legend', title: '资料核验', desc: '区分平台收录记录与官方统计口径，对尚未核实的字段保留说明空间。' }
 ])
 
 // 研究内容
 const researchContent = ref([
   {
-    title: 'GIS数据库构建与空间分析',
+    title: '非遗资源整理与空间组织',
     type: 'database',
     typeLabel: '数据层',
-    tasks: ['宁夏丝路非遗资源普查与整理', '非遗地理信息数据库设计与构建', '非遗空间分布特征分析', '丝路古道与非遗关联性研究']
+    tasks: ['宁夏丝路非遗资源整理与分类', '非遗地理信息记录结构设计', '非遗空间分布特征分析', '丝路古道与非遗关联性研究']
   },
   {
-    title: 'WebGIS动态展示平台开发',
+    title: 'WebGIS 地图与档案联动',
     type: 'platform',
     typeLabel: '技术层',
-    tasks: ['WebGIS地图功能实现', '时空可视化展示模块', '互动式用户界面设计', '响应式网站开发']
+    tasks: ['WebGIS 地图功能实现', '时空筛选与联动展示', '地图与数字档案互链', '响应式页面开发']
   },
   {
-    title: '非遗保护路径优化与乡村振兴协同',
+    title: '非遗保护与传播路径研究',
     type: 'strategy',
     typeLabel: '应用层',
-    tasks: ['非遗保护现状评估', '分级分类保护策略研究', '非遗+文旅融合模式探索', '乡村振兴协同路径分析']
+    tasks: ['非遗保护与传播路径梳理', '分级分类展示策略研究', '非遗与文旅融合案例整理', '乡村振兴协同路径探讨']
   },
   {
-    title: '三维数字大屏与沉浸式展示',
+    title: '三维地形与场景辅助展示',
     type: 'screen',
     typeLabel: '展示层',
-    tasks: ['三维地形与非遗点位建模', '丝路古道三维可视化', '五市非遗数据大屏联动', '沉浸式交互体验设计']
+    tasks: ['三维地形与非遗点位展示', '丝路古道三维可视化', '五市非遗数据大屏联动', '实景三维场景辅助展示']
   }
 ])
 
-// 研究阶段
-const phases = ref([
-  {
-    title: '调研建档与数据筹备',
-    period: '第1-3个月',
-    tasks: ['文献资料搜集与整理', '非遗项目田野调查', '地理数据获取与处理', 'GIS数据库设计', '数据录入与质量控制']
-  },
-  {
-    title: 'GIS平台与网页开发',
-    period: '第4-6个月',
-    tasks: ['WebGIS地图功能开发', '前端页面设计与实现', '后端接口开发', '时空可视化模块', '系统测试与优化']
-  },
-  {
-    title: '内容研发与品牌推广',
-    period: '第7-9个月',
-    tasks: ['品牌策划与设计', '宣传推广活动', '合作资源对接', '应用案例整理']
-  },
-  {
-    title: '落地运营与模式优化',
-    period: '第10-12个月',
-    tasks: ['平台正式上线', '用户反馈收集', '合作单位对接', '运营模式总结', '项目验收与推广']
-  }
+// 技术路线（按实际实现整理，不含时间计划）
+const techRoute = ref([
+  { title: '资料与名录整理', desc: '以公开名录、地方志与项目资料为基础，逐条整理非遗项目的名称、类别、级别、地区与传承信息。' },
+  { title: '空间数据组织', desc: '为每条记录补充经纬度与所属行政区，形成可查询、可关联的空间记录结构。' },
+  { title: '地理信息处理', desc: '按地市、类别、级别与历史时期进行分组统计，并将项目与丝路古道、黄河河道建立空间关联。' },
+  { title: 'WebGIS 可视化', desc: '基于 Leaflet 构建交互地图，支持筛选、时间轴回放、古道联动与点位详情查看。' },
+  { title: '数字档案与三维展示', desc: '以图文档案承载项目信息，并在地图与大屏中提供三维地形、古道与实景三维场景的辅助展示。' }
 ])
+
+const techStack = ['Vue 3 + Vite', 'Vue Router', 'Leaflet', 'ECharts', 'Three.js', 'GeoJSON', '3D 高斯泼溅（SuperSplat）']
 
 // 创新点
 const innovations = ref([
   {
-    icon: 'theodolite',
-    title: '跨学科融合创新',
-    desc: '将GIS技术与历史文化研究、非遗保护深度融合，形成数字人文新范式',
-    tags: ['GIS', '历史', '非遗', '数字人文']
-  },
-  {
-    icon: 'map-time',
-    title: '时空可视化技术',
-    desc: '地图与时间轴联动，直观呈现非遗的空间分布格局与历史演变过程',
-    tags: ['可视化', '时空分析', 'WebGIS']
+    icon: 'map-stat',
+    title: '非遗资源空间化组织',
+    desc: '将非遗项目的类别、级别、地区与经纬度统一组织，并与丝路古道、黄河河道建立空间关联，使文化信息可以按地理关系检索。',
+    tags: ['空间组织', '地理关联', '数据记录']
   },
   {
     icon: 'network',
-    title: '全链条保护路径',
-    desc: '构建"保护—展示—研究—传播"四位一体的非遗传承体系',
-    tags: ['全链条', '保护', '传播']
+    title: '地图与数字档案联动',
+    desc: '地图选点、档案详情与 URL 状态双向同步，读者可以从空间位置直接进入项目档案，再回到地图继续浏览。',
+    tags: ['地图联动', '数字档案', '深链']
+  },
+  {
+    icon: 'cube-3d',
+    title: '三维场景辅助展示',
+    desc: '以三维地形大屏与实景高斯泼溅场景，补充平面地图难以表达的地貌与场景信息。',
+    tags: ['三维地形', '实景场景', '辅助展示']
   }
 ])
 
-// 成果形式
-const outcomes = ref([
-  { icon: 'map-stat', text: '宁夏丝路非遗地理数据库' },
-  { icon: 'globe', text: 'WebGIS动态展示平台网站' },
-  { icon: 'full-screen', text: '三维数据大屏可视化系统' },
-  { icon: 'cube-3d', text: '文物三维场景展示（高斯泼溅）' },
-  { icon: 'map-book', text: '学术论文与研究报告' },
-  { icon: 'map-legend', text: '数字化保护白皮书' }
+// 建设目标（方向性，不代表已交付）
+const goals = ref([
+  '持续完善非遗项目记录的结构与信息完整度',
+  '提升非遗空间分布的可视化与检索能力',
+  '完善地图、数字档案与三维场景之间的联动',
+  '补充可核验的数据来源与更新记录',
+  '为研究、教学与公众传播提供稳定的信息入口'
 ])
 </script>
 
 <style lang="scss" scoped>
+// 页内锚点：避开固定导航
+.project-page section[id] {
+  scroll-margin-top: 96px;
+}
+
 // ============================================
 // 页面英雄区
 // ============================================
 
 .page-hero {
   position: relative;
-  padding: var(--spacing-4xl) 0 var(--spacing-2xl);
+  padding: var(--spacing-3xl) 0 var(--spacing-xl);
   overflow: hidden;
 }
 
@@ -556,6 +592,7 @@ const outcomes = ref([
 
 .hero-tags {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-md);
   justify-content: center;
   
@@ -566,6 +603,13 @@ const outcomes = ref([
     border-radius: var(--radius-full);
     color: white;
     font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
   }
 }
 
@@ -953,24 +997,6 @@ const outcomes = ref([
     font-size: 0.9rem;
     margin-bottom: var(--spacing-md);
   }
-  
-  .prep-stat {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-sm);
-    
-    .stat-num {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--color-secondary);
-    }
-    
-    .stat-label {
-      color: var(--color-text-muted);
-      font-size: 0.85rem;
-    }
-  }
 }
 
 // ============================================
@@ -1084,10 +1110,10 @@ const outcomes = ref([
 }
 
 // ============================================
-// 技术方案时间线
+// 技术路线
 // ============================================
 
-.timeline-section {
+.tech-section {
   position: relative;
   background: var(--color-surface);
 }
@@ -1101,126 +1127,104 @@ const outcomes = ref([
     linear-gradient(-45deg, rgba(212, 160, 23, 0.03) 0%, transparent 50%);
 }
 
-.phase-timeline {
-  max-width: 900px;
+.tech-steps {
+  list-style: none;
+  max-width: 980px;
   margin: 0 auto;
-}
-
-.timeline-track {
-  position: relative;
-  height: 6px;
-  background: var(--color-sand);
-  border-radius: var(--radius-full);
-  margin-bottom: var(--spacing-2xl);
-  
-  .track-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 25%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
-    border-radius: var(--radius-full);
-  }
-}
-
-.timeline-cards {
+  padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-lg);
-  
+  gap: var(--spacing-md);
+
+  @media (min-width: 993px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
   @media (max-width: 992px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
   }
 }
 
-.phase-card {
+.tech-step {
   position: relative;
-  
-  .phase-marker {
-    position: relative;
-    width: 48px;
-    height: 48px;
-    margin: 0 auto var(--spacing-md);
-    
-    .marker-num {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1;
-      width: 32px;
-      height: 32px;
-      background: var(--color-secondary);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-    }
-    
-    .marker-ring {
-      position: absolute;
-      inset: 0;
-      border: 2px solid rgba(212, 160, 23, 0.2);
-      border-radius: 50%;
-    }
-  }
-}
-
-.phase-content {
+  padding: var(--spacing-lg);
   background: var(--color-background);
-  text-align: center;
-  transition:
-    transform 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out);
+  border: 1px solid var(--color-border-light);
+  border-top: 3px solid var(--color-secondary);
+  border-radius: var(--radius-lg);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
 
   &:hover {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
   }
 
-  .phase-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  &__no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-bottom: var(--spacing-sm);
+    border-radius: 50%;
+    background: var(--color-secondary);
     color: white;
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    margin-bottom: var(--spacing-md);
+    font-size: 0.85rem;
+    font-weight: 700;
   }
-  
-  h3 {
+
+  &__body h3 {
     color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
     font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  &__body p {
+    color: var(--color-text-light);
+    font-size: 0.85rem;
+    line-height: 1.7;
   }
 }
 
-.phase-list {
-  list-style: none;
-  padding: 0;
-  text-align: left;
-  
-  li {
-    position: relative;
-    padding-left: var(--spacing-md);
-    margin-bottom: 4px;
-    color: var(--color-text-light);
-    font-size: 0.85rem;
-    
-    &::before {
-      content: '•';
-      position: absolute;
-      left: 0;
-      color: var(--color-secondary);
+.tech-stack {
+  max-width: 980px;
+  margin: var(--spacing-xl) auto 0;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border-light);
+
+  &__label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 4px 12px;
+      background: rgba(212, 160, 23, 0.1);
+      color: var(--color-secondary-dark);
+      border-radius: var(--radius-full);
+      font-size: 12px;
     }
   }
+}
+
+.tech-note {
+  margin-top: var(--spacing-md);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.7;
 }
 
 // ============================================
@@ -1318,7 +1322,171 @@ const outcomes = ref([
 }
 
 // ============================================
-// 预期目标与成果
+// 项目成果
+// ============================================
+
+.results-section {
+  background: var(--color-background);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.result-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+
+    .image-overlay {
+      opacity: 1;
+    }
+  }
+
+  &.is-static {
+    cursor: default;
+  }
+}
+
+.card-image-wrapper {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+
+  .result-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.bg-software { background: #E8DCC8; }
+    &.bg-data { background: #F5F0E6; }
+    &.bg-asset { background: #EADDC8; }
+  }
+
+  .placeholder-icon {
+    font-size: 4rem;
+    opacity: 0.5;
+  }
+
+  .result-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    backdrop-filter: blur(4px);
+
+    &.type-database { background: rgba(139, 69, 19, 0.92); }
+    &.type-platform { background: rgba(160, 82, 45, 0.92); }
+    &.type-scene { background: rgba(110, 83, 51, 0.92); }
+  }
+
+  .image-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(139, 69, 19, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+
+    .overlay-btn {
+      display: inline-block;
+      padding: 10px 24px;
+      background: white;
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}
+
+.card-body {
+  padding: var(--spacing-xl);
+}
+
+.result-title {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.result-desc {
+  font-size: 14px;
+  color: var(--color-text-light);
+  line-height: 1.7;
+  margin-bottom: var(--spacing-md);
+}
+
+.result-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+
+  .meta-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(212, 160, 23, 0.1);
+    color: var(--color-secondary-dark);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+
+    &.is-verified {
+      background: rgba(46, 139, 87, 0.12);
+      color: #2E7D57;
+    }
+
+    &.is-conditional {
+      background: rgba(212, 160, 23, 0.16);
+      color: #8A5A00;
+    }
+
+    &.is-unverified {
+      background: rgba(126, 106, 85, 0.14);
+      color: #6B5B4A;
+    }
+  }
+
+  .go-tag {
+    font-weight: 600;
+    background: rgba(212, 160, 23, 0.18);
+  }
+}
+
+.result-note {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px dashed var(--color-border-light);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+
+  .note-label {
+    margin-right: 6px;
+    color: var(--color-secondary-dark);
+    font-weight: 600;
+  }
+}
+
+// ============================================
+// 建设目标
 // ============================================
 
 .outcomes-section {
@@ -1390,56 +1558,69 @@ const outcomes = ref([
   }
 }
 
-.outcome-list {
+.goal-list {
   list-style: none;
   padding: 0;
-  
+
   li {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+    position: relative;
+    padding-left: var(--spacing-lg);
     margin-bottom: var(--spacing-md);
     color: var(--color-text);
-    
-    .check-icon {
-      color: var(--color-success);
-      flex-shrink: 0;
+    line-height: 1.7;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-secondary);
     }
   }
 }
 
-.成果-items {
+.goal-links {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
 }
 
-.成果-item {
+.goal-link {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
   padding: var(--spacing-md);
-  background: rgba(212, 160, 23, 0.05);
+  background: rgba(212, 160, 23, 0.06);
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
+  color: var(--color-text);
+  text-decoration: none;
   transition:
-    transform 0.3s var(--ease-out),
     background-color 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out);
+    border-color 0.3s var(--ease-out),
+    transform 0.3s var(--ease-out);
 
   &:hover {
-    transform: translateX(6px);
     background: rgba(212, 160, 23, 0.14);
-    box-shadow: var(--shadow-md);
+    border-color: var(--color-secondary);
+    transform: translateX(4px);
+    color: var(--color-primary);
   }
 
-  .item-icon {
-    font-size: 1.2rem;
-    flex-shrink: 0;
+  span {
+    color: var(--color-primary);
   }
-  
-  .item-text {
-    color: var(--color-text);
-  }
+}
+
+.goal-note {
+  margin-top: var(--spacing-lg);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
 }
 
 // ============================================

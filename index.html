@@ -20,18 +20,25 @@
     <meta name="twitter:title" content="宁夏丝路非遗地理志 · GIS 时空可视化平台" />
     <meta name="twitter:description" content="立足宁夏丝路非遗，以 GIS 与 WebGIS 技术让丝路非遗在数字地图上看得见、查得到、讲得清、传得开。" />
     <meta name="twitter:image" content="https://ningxia-silk-heritage-gis.vercel.app/logo.svg" />
-    <!-- 品牌字体（国内镜像，display=swap 保证先显示后替换） -->
+    <!-- 品牌字体（国内镜像，display=swap）：异步加载，避免外部字体 CSS 阻塞首屏渲染 -->
     <link rel="preconnect" href="https://fonts.googleapis.cn" />
     <link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.cn/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.cn/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap"
+      />
+    </noscript>
     <!-- 方案A 自托管子集字体预加载 -->
     <link rel="preload" href="/fonts/mashanzheng-subset.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/fangzheng-shusong-subset.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/huiwen-mingchao-subset.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/yishanzhuan-subset.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
     <div id="app"></div>

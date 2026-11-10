@@ -58,7 +58,6 @@ ningxia-silk-heritage-gis/
 │   │   ├── Archive.vue        # 数字档案列表
 │   │   ├── Detail.vue         # 非遗详情页
 │   │   ├── Protection.vue     # 保护路径
-│   │   ├── Results.vue        # 项目成果
 │   │   ├── About.vue          # 关于我们
 │   │   ├── Screen.vue         # 三维数据大屏（全屏沉浸路由 /screen）
 │   │   └── NotFound.vue       # 404 兜底页
@@ -137,8 +136,8 @@ ningxia-silk-heritage-gis/
 
 **场景展示**：仅对已采集三维场景的非遗项目显示。场景由实景照片经 3D 高斯泼溅（3DGS）重建，通过自托管嵌入页 `public/viewer-embed.html` 承载：**仅保留飞行相机**（隐藏环绕 / 行走相机与动画播放控件，并锁定模式防止切换），支持拖动环视、滚轮缩放与全屏。为控制首屏体积，查看器默认只显示封面，点击「载入三维场景」后才按需加载，且查看器代码不进入首屏主包；浏览器不支持 WebGL 或场景加载失败时保留封面并给出提示。
 
-### 项目成果（`/results`）
-五大核心成果可点击直达：地理数据库、GIS 动态地图、三维数据大屏、文物三维场景展示与数字化保护白皮书，另含项目动态资讯与四阶段进度。
+### 项目成果（`/project#results`）
+项目概况页「项目成果」栏目按统一数据层展示 5 项已核实成果：GIS 动态地图、数字档案、三维数据大屏、非遗项目数据与三维场景资源，并标注核验状态。旧 `/results` 链接会重定向到该栏目。
 
 ### 其他页面
 保护路径、关于我们，以及 404 兜底页。
@@ -243,3 +242,4 @@ Chrome / Edge（推荐）、Firefox、Safari。页面适配桌面与移动端，
 - 三维查看器 [SuperSplat Viewer](https://github.com/playcanvas/supersplat-viewer) 与转换工具 [splat-transform](https://github.com/playcanvas/splat-transform) © PlayCanvas · [MIT](https://opensource.org/licenses/MIT)
 - 器物三维预览模型 [Poly Haven](https://polyhaven.com/) · [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)（公共领域）
 - 三维实景场景由作者本人采集，可公开发布
+- 非遗工艺示意图（详情页「技艺特色」区块的等距插图）使用 [anatomy](https://github.com/wheresryan22/anatomy) © Ryan · [MIT](https://opensource.org/licenses/MIT)，仅取用其等距绘图 kit（`kit/iso-kit.mjs`、`kit/lathe.mjs`、`kit/iso.css`）离线生成；示意图中的结构与数量依据公开报道，由本项目自行绘制

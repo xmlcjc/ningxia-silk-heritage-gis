@@ -1,374 +1,346 @@
 <template>
   <div class="home-page">
-    <!-- ==================== Hero 区域 ==================== -->
-    <section class="hero-section">
-      <!-- 动态背景层 -->
-      <div class="hero-background">
-        <div class="hero-gradient"></div>
-        <div class="hero-pattern"></div>
-        <div class="hero-silk-lines"></div>
-        <div class="hero-sand-dunes"></div>
-      </div>
-
-      <!-- 方案A 印章（朱砂印 · 峄山碑篆体，Hero 右上角） -->
-      <div class="hero-seal" aria-hidden="true">丝</div>
-      
-      <div class="container">
-        <div class="hero-content">
-          <!-- 大号罗盘徽章（品牌主视觉，让 logo 在首屏清晰可辨） -->
-          <img class="hero-emblem animate-fade-in" src="/logo-gold.svg" alt="" aria-hidden="true" />
-
-          <!-- 装饰性徽章 -->
-          <div class="hero-badge animate-fade-in delay-1">
-            <Icon class="badge-icon" icon="gis:compass" />
-            <span class="badge-text">宁夏 · 丝绸之路</span>
-          </div>
-          
-          <!-- 主标题 -->
-          <h1 class="hero-title animate-fade-in delay-2">
-            <span class="title-main">宁夏丝路非遗地理志</span>
-            <span class="title-sub">Ningxia Silk Road Heritage GIS Platform</span>
-          </h1>
-          
-          <!-- 副标题 -->
-          <p class="hero-subtitle animate-fade-in delay-3">
-            让丝路非遗在数字地图上
-            <span class="highlight">看得见、查得到、讲得清、传得开</span>
+    <!-- ==================== 首屏：品牌叙事 + 真实地理主视觉 ==================== -->
+    <section class="home-hero">
+      <div class="container home-hero__inner">
+        <div class="hero-copy">
+          <p class="hero-eyebrow" data-reveal>
+            <span class="eyebrow-line" aria-hidden="true"></span>
+            宁夏 · 丝绸之路 · 非遗地理
           </p>
-          
-          <!-- 行动按钮 -->
-          <div class="hero-buttons animate-fade-in delay-4">
-            <router-link to="/map" class="btn btn-primary btn-large">
-              <Icon class="btn-icon" icon="gis:poi" width="20" height="20" />
-              进入GIS地图
+
+          <h1 class="hero-title" data-reveal data-reveal-delay="60">
+            <span class="hero-title__line">宁夏丝路</span><span class="hero-title__line">非遗地理志</span>
+          </h1>
+          <p class="hero-en" data-reveal data-reveal-delay="110">Ningxia Silk Road Heritage GIS Platform</p>
+
+          <p class="hero-lead" data-reveal data-reveal-delay="160">
+            以地理为索引，把宁夏境内的代表性非物质文化遗产放回山川、河流与古道之间，
+            让丝路非遗在数字地图上看得见、查得到、讲得清、传得开。
+          </p>
+
+          <div class="hero-actions" data-reveal data-reveal-delay="220">
+            <router-link to="/map" class="btn btn-primary btn-lg">
+              <Icon icon="gis:poi" width="19" height="19" />
+              进入 GIS 地图
             </router-link>
-            <router-link to="/project" class="btn btn-secondary btn-large">
-              <Icon class="btn-icon" icon="gis:map-book" width="20" height="20" />
-              查看项目概况
-            </router-link>
-          </div>
-          
-          <!-- 快捷导航 -->
-          <div class="hero-nav animate-fade-in delay-5">
-            <router-link to="/archive" class="nav-link">
-              <span class="nav-dot"></span>
-              数字档案
-            </router-link>
-            <router-link to="/screen" class="nav-link">
-              <span class="nav-dot"></span>
-              三维大屏
+            <router-link to="/archive" class="btn btn-secondary btn-lg">
+              <Icon icon="gis:map-book" width="19" height="19" />
+              浏览数字档案
             </router-link>
           </div>
-        </div>
-      </div>
-      
-      <!-- 波浪装饰 -->
-      <div class="hero-wave">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-          <!-- 沙丘脊线改用 Q+T（切线延续）绘制，保证每个接点切线连续、无折角；
-               两层用同一条曲线整体下移 30 单位，避免两层交叉在上包络处形成锐角 -->
-          <path class="wave-path wave-1" fill="#FFF8E7" d="M0,64 Q240,92 480,64 T960,64 T1440,64 L1440,120 L0,120 Z"/>
-          <path class="wave-path wave-2" fill="#F5F0E6" d="M0,94 Q240,122 480,94 T960,94 T1440,94 L1440,120 L0,120 Z"/>
-        </svg>
-      </div>
-      
-      <!-- 黄河流动线条 -->
-      <div class="river-flow">
-        <svg class="river-svg" viewBox="0 0 1440 200" preserveAspectRatio="none">
-          <path class="river-path" stroke="#D4A017" stroke-width="2" fill="none" opacity="0.3"
-            d="M0,100 Q200,80 400,100 T800,90 T1200,110 T1440,100"/>
-        </svg>
-      </div>
-    </section>
 
-    <!-- ==================== 项目简介 ==================== -->
-    <section class="section intro-section texture-paper">
-      <div class="container">
-        <div class="section-header">
-          <div class="header-decoration">
-            <span class="deco-line"></span>
-            <Icon class="deco-icon" icon="gis:story-maps" />
-            <span class="deco-line"></span>
-          </div>
-          <h2 class="section-title">项目简介</h2>
-          <p class="section-subtitle">数字化保护 · 时空可视化 · 文化传承</p>
+          <ul class="hero-stats" data-reveal data-reveal-delay="280">
+            <li v-for="stat in platformStats" :key="stat.label">
+              <span class="hero-stat__value">{{ stat.value }}</span>
+              <span class="hero-stat__unit">{{ stat.unit }}</span>
+              <span class="hero-stat__label">{{ stat.label }}</span>
+            </li>
+          </ul>
+
+          <p class="hero-quick" data-reveal data-reveal-delay="330">
+            <span class="hero-quick__label">延伸浏览</span>
+            <router-link to="/project">项目概况</router-link>
+            <i aria-hidden="true">·</i>
+            <router-link to="/screen">三维大屏</router-link>
+            <i aria-hidden="true">·</i>
+            <router-link to="/protection">保护路径</router-link>
+          </p>
         </div>
-        
-        <div class="intro-content">
-          <div class="intro-card card-silk">
-            <div class="intro-text">
-              <p class="intro-paragraph">
-                本项目以<span class="highlight-text">GIS技术</span>为核心，系统搜集宁夏境内丝路相关非遗资源，
-                构建非遗地理数据库，通过<span class="highlight-text">空间分析</span>和
-                <span class="highlight-text">WebGIS可视化</span>展示非遗分布格局、传播脉络和历史演变，
-                并探索<span class="highlight-text">“非遗保护+乡村振兴+文旅融合”</span>的协同路径。
-              </p>
-            </div>
-            
-            <div class="intro-tags">
-              <span class="tag tag-gold">GIS数据库</span>
-              <span class="tag tag-gold">时空可视化</span>
-              <span class="tag tag-gold">三维大屏</span>
-              <span class="tag tag-gold">三维场景</span>
-              <span class="tag tag-gold">保护路径研究</span>
-              <span class="tag tag-green">乡村振兴</span>
-              <span class="tag tag-green">文旅融合</span>
-            </div>
+
+        <div class="hero-visual" data-reveal="image" data-reveal-delay="180">
+          <div class="hero-visual__inner" data-parallax="0.35">
+            <HomeGeoMap />
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 数据概览 ==================== -->
-    <section class="section stats-section">
-      <div class="stats-background">
-        <div class="stats-pattern"></div>
-      </div>
-      <div class="container">
-        <div class="stats-header">
-          <h2 class="stats-title">数据概览</h2>
-          <p class="stats-subtitle">宁夏丝路非遗数字化保护成果</p>
-        </div>
-        
-        <div class="stats-grid">
-          <div class="stat-card" v-for="(stat, index) in stats" :key="index"
-               :class="'stat-' + stat.type">
-            <div class="stat-icon">
-              <component :is="stat.iconComponent" />
-            </div>
-            <div class="stat-number" :data-value="stat.value">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
-            <div class="stat-bar" :style="{ width: stat.percent + '%' }"></div>
+    <!-- ==================== 平台定位 ==================== -->
+    <section class="section intro-section">
+      <div class="container intro-grid">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow"><span>01</span>平台定位</p>
+          <h2>以地理为索引，重述丝路非遗</h2>
+          <p class="section-desc">
+            本项目以<span class="em">GIS 技术</span>为核心，系统搜集宁夏境内丝路相关非遗资源，
+            构建非遗地理数据库，通过空间分析与 WebGIS 可视化展示非遗分布格局、传播脉络和历史演变，
+            并探索“非遗保护 + 乡村振兴 + 文旅融合”的协同路径。
+          </p>
+          <div class="intro-tags">
+            <span class="tag">GIS 数据库</span>
+            <span class="tag">时空可视化</span>
+            <span class="tag">三维大屏</span>
+            <span class="tag">三维场景</span>
+            <span class="tag">保护路径研究</span>
+            <span class="tag tag-green">乡村振兴</span>
+            <span class="tag tag-green">文旅融合</span>
           </div>
         </div>
+
+        <ol class="workflow" data-reveal-stagger>
+          <li v-for="(step, index) in workflow" :key="step.title">
+            <span class="workflow-no">{{ pad(index + 1) }}</span>
+            <div>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.desc }}</p>
+            </div>
+          </li>
+        </ol>
       </div>
     </section>
 
-    <!-- ==================== 核心功能 ==================== -->
-    <section class="section features-section texture-silk">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">核心功能</h2>
-          <p class="section-subtitle">全方位非遗数字化保护平台</p>
-        </div>
-        
-        <div class="features-grid">
-          <div class="feature-card" v-for="(feature, index) in features" :key="index"
-               :style="{ animationDelay: (index * 0.1) + 's' }"
-               :title="feature.tip">
-            <div class="feature-icon-wrapper">
-              <div class="feature-icon"><Icon :icon="'gis:' + feature.icon" /></div>
-              <div class="feature-icon-bg"></div>
-            </div>
-            <h3 class="feature-title">{{ feature.title }}</h3>
-            <p class="feature-desc">{{ feature.description }}</p>
-            <router-link :to="feature.link" class="feature-link">
-              查看详情
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path d="M3 10h11V6.5L20.5 12 14 17.5V14H3z"/>
-              </svg>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== 创新点展示 ==================== -->
-    <section class="section innovations-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">项目创新点</h2>
-          <p class="section-subtitle">跨学科融合 · 技术创新 · 全链条路径</p>
-        </div>
-        
-        <div class="innovations-container">
-          <div class="innovation-card" v-for="(item, index) in innovations" :key="index">
-            <div class="innovation-number">{{ index + 1 }}</div>
-            <div class="innovation-content">
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.description }}</p>
-              <div class="innovation-tags">
-                <span v-for="tag in item.tags" :key="tag" class="mini-tag">{{ tag }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== 研究进度时间线 ==================== -->
-    <section class="section timeline-section texture-paper">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">研究进度</h2>
-          <p class="section-subtitle">四阶段推进计划</p>
-        </div>
-        
-        <div class="timeline-container">
-          <div class="timeline-track">
-            <div class="timeline-progress" :style="{ width: timelineProgress + '%' }"></div>
-          </div>
-          
-          <div class="timeline-items">
-            <div class="timeline-item" v-for="(item, index) in timeline" :key="index"
-                 :class="{ 'item-active': index <= currentPhase }">
-              <div class="timeline-marker">
-                <div class="marker-dot"></div>
-                <div class="marker-ring"></div>
-              </div>
-              <div class="timeline-card">
-                <div class="card-phase">第{{ item.phase }}阶段</div>
-                <div class="card-period">{{ item.period }}</div>
-                <h4 class="card-title">{{ item.title }}</h4>
-                <ul class="card-list">
-                  <li v-for="task in item.tasks" :key="task">{{ task }}</li>
-                </ul>
-                <div class="card-status" :class="'status-' + item.status">
-                  {{ item.statusText }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== GIS平台介绍 ==================== -->
-    <section class="section map-preview-section">
-      <div class="container">
-        <div class="map-preview-wrapper card-silk">
-          <div class="map-preview-info">
-            <h2>宁夏丝路非遗GIS地图</h2>
-            <p class="info-desc">
-              交互式地图汇聚宁夏境内 20 项代表性非物质文化遗产的空间分布与关联信息。
-              平台以地理坐标为索引，将非遗项目与萧关道、环灵道、长安西域道、灵州道四条丝路古道叠合呈现，
-              支持图层切换、分类筛选、时间轴联动与点位详情查看，
-              直观展现丝路非遗在宁夏大地上的传播路径、时空分布格局与历史演变脉络。
+    <!-- ==================== 非遗地理分布（真实统计） ==================== -->
+    <section class="section distribution-section">
+      <div class="container distribution-grid">
+        <div>
+          <div class="section-head" data-reveal>
+            <p class="eyebrow"><span>02</span>地理分布</p>
+            <h2>沿黄河而生，随丝路而传</h2>
+            <p class="section-desc">
+              {{ stats.total }} 项代表性非遗分布于宁夏 {{ stats.cities }} 个地市。银川、吴忠、固原三地分布最为集中，
+              中卫、石嘴山亦有代表性项目；项目沿黄河两岸与古道节点展开，构成一条可阅读的文化地理线索。
             </p>
+          </div>
 
-            <div class="info-stats">
-              <div class="info-stat">
-                <strong>20</strong>
-                <span>非遗项目</span>
-              </div>
-              <div class="info-stat">
-                <strong>5</strong>
-                <span>覆盖地市</span>
-              </div>
-              <div class="info-stat">
-                <strong>4</strong>
-                <span>丝路古道</span>
-              </div>
-              <div class="info-stat">
-                <strong>7</strong>
-                <span>遗产类别</span>
-              </div>
-            </div>
-
-            <div class="info-features">
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:poi" />
-                <div class="feature-text">
-                  <strong>非遗点位标注</strong>
-                  <span>按地理坐标准确定位</span>
-                </div>
-              </div>
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:route" />
-                <div class="feature-text">
-                  <strong>丝路古道线路</strong>
-                  <span>四条古道叠合呈现</span>
-                </div>
-              </div>
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:map-stat" />
-                <div class="feature-text">
-                  <strong>数据统计分析</strong>
-                  <span>多维度图表可视化</span>
-                </div>
-              </div>
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:zoom-in" />
-                <div class="feature-text">
-                  <strong>分类筛选检索</strong>
-                  <span>类别地区时期快速定位</span>
-                </div>
-              </div>
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:map-time" />
-                <div class="feature-text">
-                  <strong>时间轴联动</strong>
-                  <span>追溯历史传播脉络</span>
-                </div>
-              </div>
-              <div class="info-feature">
-                <Icon class="feature-icon-mini" icon="gis:map-book" />
-                <div class="feature-text">
-                  <strong>档案详情查看</strong>
-                  <span>一键直达数字档案</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-actions">
-              <router-link to="/map" class="btn btn-primary">
-                进入地图探索
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M3 10h11V6.5L20.5 12 14 17.5V14H3z"/>
-                </svg>
-              </router-link>
-              <router-link to="/archive" class="btn btn-outline">
-                浏览数字档案
-              </router-link>
+          <div class="city-bars" data-reveal-stagger>
+            <div v-for="city in cityStats" :key="city.name" class="city-row">
+              <span class="city-name">{{ city.name }}</span>
+              <span class="city-track">
+                <span class="city-fill" :style="{ width: city.percent + '%' }"></span>
+              </span>
+              <span class="city-count">{{ city.count }}</span>
             </div>
           </div>
+          <p class="data-note">按平台非遗数据库的申报地区统计，共 {{ stats.total }} 项。</p>
+        </div>
+
+        <div class="distribution-side" data-reveal data-reveal-delay="120">
+          <div class="side-block">
+            <h3>遗产类别</h3>
+            <ul class="cat-chips">
+              <li v-for="cat in categoryStats" :key="cat.name">
+                <span>{{ cat.name }}</span>
+                <b>{{ cat.count }}</b>
+              </li>
+            </ul>
+          </div>
+
+          <div class="side-block">
+            <h3>保护级别</h3>
+            <div v-for="level in levelStats" :key="level.name" class="level-row">
+              <span class="level-name">{{ level.name }}</span>
+              <span class="level-track">
+                <span class="level-fill" :class="level.key" :style="{ width: level.percent + '%' }"></span>
+              </span>
+              <span class="level-count">{{ level.count }}</span>
+            </div>
+          </div>
+
+          <router-link to="/archive" class="text-link">查看全部数字档案 <span aria-hidden="true">→</span></router-link>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 项目成果 ==================== -->
-    <section class="section results-section">
+    <!-- ==================== 宁夏特色非遗（真实图片） ==================== -->
+    <section class="section gallery-section">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">项目成果</h2>
-          <p class="section-subtitle">数字化保护 · 时空展示 · 传承传播</p>
-        </div>
-        
-        <div class="results-grid">
-          <div class="result-card" v-for="(result, index) in results" :key="index"
-               :class="'result-' + result.type">
-            <div class="result-image">
-              <div class="image-placeholder">
-                <Icon class="placeholder-icon" :icon="'gis:' + result.icon" />
-              </div>
-            </div>
-            <div class="result-content">
-              <span class="result-type-tag">{{ result.typeLabel }}</span>
-              <h3>{{ result.title }}</h3>
-              <p>{{ result.description }}</p>
-            </div>
+        <div class="section-head section-head--row" data-reveal>
+          <div>
+            <p class="eyebrow"><span>03</span>特色非遗</p>
+            <h2>从一方砚石，到一曲花儿</h2>
           </div>
+          <p class="section-desc section-desc--aside">
+            五项代表性项目，覆盖传统技艺、音乐、美术与戏剧，
+            它们在山河之间生成，也在今天被重新看见。
+          </p>
+        </div>
+
+        <div class="gallery-lead-grid" data-reveal="image">
+          <router-link :to="'/archive/' + lead.id" class="gallery-lead gallery-link">
+            <img :src="lead.coverImage" :alt="lead.name + ' · ' + lead.category" loading="eager" />
+          </router-link>
+
+          <div class="gallery-note">
+            <span class="gallery-index">01 / 05</span>
+            <h3>{{ lead.name }}</h3>
+            <p>{{ lead.intro }}</p>
+            <dl class="gallery-meta">
+              <div>
+                <dt>类别</dt>
+                <dd>{{ lead.category }}</dd>
+              </div>
+              <div>
+                <dt>级别</dt>
+                <dd>{{ lead.level }}</dd>
+              </div>
+              <div>
+                <dt>地区</dt>
+                <dd>{{ lead.city }} · {{ lead.county }}</dd>
+              </div>
+            </dl>
+            <router-link :to="'/archive/' + lead.id" class="text-link">进入数字档案 <span aria-hidden="true">→</span></router-link>
+          </div>
+        </div>
+
+        <div class="gallery-strip" data-reveal-stagger>
+          <router-link
+            v-for="item in galleryRest"
+            :key="item.id"
+            :to="'/archive/' + item.id"
+            class="gallery-item gallery-link"
+          >
+            <figure>
+              <img :src="item.coverImage" :alt="item.name + ' · ' + item.category" loading="lazy" />
+              <figcaption>
+                <span class="gallery-item__name">{{ item.name }}</span>
+                <span class="gallery-item__meta">{{ item.category }} · {{ item.city }}</span>
+              </figcaption>
+            </figure>
+          </router-link>
         </div>
       </div>
     </section>
 
-    <!-- ==================== CTA区域 ==================== -->
-    <section class="section cta-section">
-      <div class="cta-background">
-        <div class="cta-pattern"></div>
-      </div>
+    <!-- ==================== 丝路古道（真实路线） ==================== -->
+    <section class="section routes-section">
       <div class="container">
-        <div class="cta-content">
-          <h2>探索丝路非遗，传承文化记忆</h2>
-          <p>加入我们，共同守护宁夏丝路非遗的文化瑰宝</p>
-          <div class="cta-buttons">
-            <router-link to="/archive" class="btn btn-primary btn-large">
-              开始探索
-            </router-link>
-            <router-link to="/about" class="btn btn-ghost btn-large">
-              了解更多
-            </router-link>
+        <div class="section-head" data-reveal>
+          <p class="eyebrow"><span>04</span>文化路线</p>
+          <h2>{{ stats.routes }} 条古道，穿过宁夏</h2>
+          <p class="section-desc">
+            萧关道、环灵道、长安西域道与灵州道，在宁夏境内交会。
+            非遗点位沿这些通道分布，商旅、军旅与僧侣的往来，也把技艺、歌声与信仰留在了沿线。
+          </p>
+        </div>
+
+        <div class="route-grid" data-reveal-stagger>
+          <router-link
+            v-for="(route, index) in silkRoadRoutes"
+            :key="route.id"
+            :to="{ path: '/map', query: { route: route.name } }"
+            class="route-item"
+          >
+            <span class="route-index">{{ pad(index + 1) }}</span>
+            <h3>{{ route.name }}</h3>
+            <p>{{ routeBrief(route) }}</p>
+            <span class="route-link">在地图中查看 <span aria-hidden="true">→</span></span>
+          </router-link>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 平台功能 ==================== -->
+    <section class="section features-section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow"><span>05</span>平台功能</p>
+          <h2>{{ features.length }} 个入口，走进非遗现场</h2>
+        </div>
+
+        <div class="feature-grid" data-reveal-stagger>
+          <router-link
+            v-for="(feature, index) in features"
+            :key="feature.title"
+            :to="feature.link"
+            class="feature-row"
+            :title="feature.tip"
+          >
+            <span class="feature-no">{{ pad(index + 1) }}</span>
+            <span class="feature-icon"><Icon :icon="'gis:' + feature.icon" /></span>
+            <span class="feature-body">
+              <strong>{{ feature.title }}</strong>
+              <span>{{ feature.description }}</span>
+            </span>
+            <span class="feature-arrow" aria-hidden="true">→</span>
+          </router-link>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== GIS 地图说明 ==================== -->
+    <section class="section platform-section">
+      <div class="container platform-grid">
+        <div class="section-head section-head--light" data-reveal>
+          <p class="eyebrow"><span>06</span>GIS 地图</p>
+          <h2>以地图为索引的非遗档案</h2>
+          <p class="section-desc">
+            交互式地图汇聚宁夏境内 {{ stats.total }} 项代表性非遗的空间分布与关联信息。
+            平台以地理坐标为索引，将非遗项目与萧关道、环灵道、长安西域道、灵州道四条丝路古道叠合呈现，
+            支持图层切换、分类筛选、时间轴联动与点位详情查看。
+          </p>
+          <div class="platform-actions">
+            <router-link to="/map" class="btn btn-primary">进入地图探索</router-link>
+            <router-link to="/archive" class="btn btn-secondary">浏览数字档案</router-link>
           </div>
+          <p class="platform-more">
+            <span>更多入口</span>
+            <router-link to="/protection">保护路径</router-link>
+            <i aria-hidden="true">·</i>
+            <router-link to="/screen">三维大屏</router-link>
+            <i aria-hidden="true">·</i>
+            <router-link to="/archive/1">三维场景</router-link>
+          </p>
+        </div>
+
+        <div class="platform-facts" data-reveal-stagger>
+          <div v-for="fact in platformStats" :key="fact.label" class="fact-item">
+            <strong>{{ fact.value }}<em>{{ fact.unit }}</em></strong>
+            <span>{{ fact.label }}</span>
+          </div>
+          <p class="platform-routes">萧关道 · 环灵道 · 长安西域道 · 灵州道</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 项目成果（统一数据层） ==================== -->
+    <section class="section deliverables-section">
+      <div class="container deliverables-grid">
+        <div>
+          <div class="section-head" data-reveal>
+            <p class="eyebrow"><span>07</span>项目成果</p>
+            <h2>已交付的平台成果</h2>
+            <p class="section-desc">
+              首页仅展示可直接访问的软件平台成果；数据资源、三维场景与核验说明见项目概况页「项目成果」栏目。
+            </p>
+          </div>
+          <router-link to="/project#results" class="text-link" data-reveal>
+            查看全部成果 <span aria-hidden="true">→</span>
+          </router-link>
+        </div>
+
+        <div class="results-block" data-reveal data-reveal-delay="120">
+          <h3 class="results-title">软件平台</h3>
+          <ul>
+            <li v-for="item in homeDeliverables" :key="item.id">
+              <router-link :to="item.route" :title="item.description">
+                <span class="result-type">{{ categoryLabel(item.category) }}</span>
+                <span class="result-name">
+                  {{ item.name }}
+                  <em v-if="item.verificationStatus !== 'VERIFIED'" class="result-status">
+                    {{ statusLabel(item.verificationStatus) }}
+                  </em>
+                </span>
+                <span class="result-arrow" aria-hidden="true">→</span>
+              </router-link>
+            </li>
+          </ul>
+          <p v-for="item in conditionalNotes" :key="item.name" class="results-note">
+            <b>{{ item.name }}</b>：{{ item.note }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CTA ==================== -->
+    <section class="cta-section">
+      <div class="cta-pattern" aria-hidden="true"></div>
+      <div class="container cta-inner" data-reveal>
+        <h2>探索丝路非遗，传承文化记忆</h2>
+        <p>从一条古道开始，读懂宁夏非遗的地理与历史。</p>
+        <div class="cta-buttons">
+          <router-link to="/archive" class="btn btn-primary btn-lg">开始探索</router-link>
+          <router-link to="/about" class="btn btn-ghost btn-lg">了解更多</router-link>
         </div>
       </div>
     </section>
@@ -376,22 +348,85 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import HomeGeoMap from '../components/HomeGeoMap.vue'
+import { heritageData, silkRoadRoutes, categories } from '../data/heritageData'
+import { getProjectStats, projectDeliverables } from '@/data/project'
 
-// 统计数据
-const stats = ref([
-  { value: '20+', label: '已建档非遗项目', type: 'gold', percent: 80 },
-  { value: '5', label: '覆盖地市', type: 'gold', percent: 100 },
-  { value: '7', label: '遗产类别', type: 'green', percent: 60 },
-  { value: '15+', label: '传承人故事', type: 'accent', percent: 70 }
-])
+const pad = (n) => String(n).padStart(2, '0')
 
-// 核心功能
-const features = ref([
+// ---------- 平台统计：统一由数据层计算 ----------
+const stats = getProjectStats()
+
+const platformStats = [
+  { value: String(stats.total), unit: '项', label: '代表性非遗' },
+  { value: String(stats.cities), unit: '市', label: '覆盖地市' },
+  { value: String(stats.routes), unit: '条', label: '丝路古道' },
+  { value: String(stats.categories), unit: '类', label: '遗产类别' }
+]
+
+// ---------- 平台定位：工作路径 ----------
+const workflow = [
+  {
+    title: '资源普查与建档',
+    desc: '系统搜集宁夏境内丝路相关非遗资源，构建可检索、可关联的非遗地理数据库。'
+  },
+  {
+    title: '空间分析与可视化',
+    desc: '以 WebGIS 呈现非遗分布格局、传播脉络与历史演变，让空间关系成为阅读入口。'
+  },
+  {
+    title: '保护与传播',
+    desc: '探索“非遗保护 + 乡村振兴 + 文旅融合”的协同路径，让档案走向公众。'
+  }
+]
+
+// ---------- 地理分布 ----------
+const cityOrder = ['银川市', '石嘴山市', '吴忠市', '固原市', '中卫市']
+const cityRows = cityOrder.map((name) => ({ name, count: stats.byCity[name] || 0 }))
+const cityMax = Math.max(1, ...cityRows.map((item) => item.count))
+const cityStats = cityRows.map((item) => ({
+  ...item,
+  percent: Math.round((item.count / cityMax) * 100)
+}))
+
+const categoryStats = categories
+  .filter((name) => name !== '全部')
+  .map((name) => ({ name, count: heritageData.filter((item) => item.category === name).length }))
+  .filter((item) => item.count > 0)
+
+const LEVEL_KEY = { 国家级: 'national', 自治区级: 'regional', 市级: 'municipal' }
+const levelOrder = ['国家级', '自治区级', '市级']
+const levelRaw = levelOrder
+  .map((name) => ({
+    name,
+    key: LEVEL_KEY[name],
+    count: stats.byLevel[name] || 0
+  }))
+  .filter((item) => item.count > 0)
+const levelMax = Math.max(1, ...levelRaw.map((item) => item.count))
+const levelStats = levelRaw.map((item) => ({
+  ...item,
+  percent: Math.round((item.count / levelMax) * 100)
+}))
+
+// ---------- 特色非遗 ----------
+const lead = heritageData.find((item) => item.id === 1)
+const galleryRest = [2, 3, 5, 6]
+  .map((id) => heritageData.find((item) => item.id === id))
+  .filter(Boolean)
+
+// ---------- 丝路古道：取真实描述首句 ----------
+const routeBrief = (route) => {
+  const first = route.desc.split('。')[0]
+  return first ? first + '。' : route.desc
+}
+
+// ---------- 平台功能（保留原首页全部入口） ----------
+const features = [
   {
     icon: 'map',
-    title: 'GIS地图展示',
+    title: 'GIS 地图展示',
     description: '交互式地图展示非遗点位分布，支持多图层切换与空间分析',
     link: '/map'
   },
@@ -410,7 +445,7 @@ const features = ref([
   {
     icon: 'globe-shield',
     title: '保护与振兴策略',
-    description: '基于GIS分析提出分级保护与乡村振兴协同建议',
+    description: '基于 GIS 分析提出分级保护与乡村振兴协同建议',
     link: '/protection'
   },
   {
@@ -426,1276 +461,1252 @@ const features = ref([
     tip: '基于实景照片的高斯泼溅场景重建，支持飞行相机自由漫游；进入详情页后点击「载入三维场景」即可体验',
     link: '/archive/1'
   }
-])
+]
 
-// 创新点
-const innovations = ref([
-  {
-    title: '跨学科融合创新',
-    description: 'GIS技术与历史文化研究、非遗保护深度融合，形成数字人文新范式',
-    tags: ['GIS', '历史', '非遗']
-  },
-  {
-    title: '时空可视化技术',
-    description: '地图与时间轴联动，直观呈现非遗的空间分布与历史演变',
-    tags: ['可视化', '时空分析', 'WebGIS']
-  },
-  {
-    title: '全链条保护路径',
-    description: '构建"保护—展示—研究—传播"的完整保护传播链条',
-    tags: ['全链条', '保护', '传播']
-  }
-])
+// ---------- 首页成果摘要：统一数据层中的软件平台成果 ----------
+const homeDeliverables = projectDeliverables.filter(
+  (item) => item.category === 'SOFTWARE' && item.route
+)
 
-// 时间线
-const timeline = ref([
-  {
-    phase: '一',
-    period: '1-3个月',
-    title: '调研建档与数据筹备',
-    tasks: ['非遗资源调研', '数据采集整理', '数据库结构设计', '文献资料收集'],
-    status: 'completed',
-    statusText: '已完成'
-  },
-  {
-    phase: '二',
-    period: '4-6个月',
-    title: 'GIS平台与网页开发',
-    tasks: ['GIS数据库构建', 'WebGIS平台开发', '网页界面设计', '小程序开发'],
-    status: 'active',
-    statusText: '进行中'
-  },
-  {
-    phase: '三',
-    period: '7-9个月',
-    title: '内容研发与品牌推广',
-    tasks: ['品牌宣传推广', '合作单位对接', '内容审核优化', '应用案例整理'],
-    status: 'pending',
-    statusText: '待启动'
-  },
-  {
-    phase: '四',
-    period: '10-12个月',
-    title: '落地运营与模式优化',
-    tasks: ['平台运营推广', '合作渠道拓展', '运营模式优化', '成果总结推广'],
-    status: 'pending',
-    statusText: '待启动'
-  }
-])
+const conditionalNotes = homeDeliverables
+  .filter((item) => item.verificationStatus === 'CONDITIONAL' && item.verificationNote)
+  .map((item) => ({ name: item.name, note: item.verificationNote }))
 
-const currentPhase = ref(1)
-const timelineProgress = ref(41)
+const DELIVERABLE_LABELS = {
+  SOFTWARE: '平台',
+  DATA: '数据',
+  ASSET: '场景'
+}
+const categoryLabel = (category) => DELIVERABLE_LABELS[category] || category
 
-// 项目成果
-const results = ref([
-  {
-    icon: 'map-stat',
-    type: 'database',
-    typeLabel: '数据库',
-    title: '宁夏丝路非遗地理数据库',
-    description: '涵盖20+项非遗项目的完整数字档案'
-  },
-  {
-    icon: 'globe',
-    type: 'platform',
-    typeLabel: '平台',
-    title: 'GIS动态地图网页',
-    description: '支持交互式地图探索与数据分析'
-  },
-  {
-    icon: 'map-book',
-    type: 'report',
-    typeLabel: '报告',
-    title: '数字化保护白皮书',
-    description: '非遗保护策略与建议报告'
-  },
-  {
-    icon: 'full-screen',
-    type: 'screen',
-    typeLabel: '大屏',
-    title: '三维数据大屏',
-    description: '五市非遗格局与丝路古道沉浸式可视化'
-  },
-  {
-    icon: 'cube-3d',
-    type: 'scene',
-    typeLabel: '三维',
-    title: '文物三维场景展示',
-    description: '高斯泼溅场景重建，飞行相机自由漫游'
-  }
-])
+const STATUS_LABELS = {
+  VERIFIED: '已核验',
+  CONDITIONAL: '有条件核验',
+  NOT_VERIFIED: '未核验'
+}
+const statusLabel = (status) => STATUS_LABELS[status] || status
 </script>
 
 <style lang="scss" scoped>
 // ============================================
-// Hero区域 - 丝路文化主题
+// 首页 - 暖白博物馆式叙事版式
 // ============================================
 
-.hero-section {
-  position: relative;
-  min-height: 90vh;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
+.home-page {
+  overflow-x: clip;
 
-.hero-background {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-// 方案A 朱砂印章（Hero 右上角：朱砂红底白文 · 峄山碑篆体 · -6° 微旋 + 外圈金环）
-.hero-seal {
-  position: absolute;
-  top: 96px;
-  right: 6vw;
-  z-index: 2;
-  width: 64px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #C62828;                // 朱砂红
-  color: #FFF8E7;                     // 白文
-  border-radius: 10px;
-  font-family: var(--font-seal);
-  font-size: 38px;
-  line-height: 1;
-  transform: rotate(-6deg);
-  box-shadow: 2px 2px 0 rgba(139, 69, 19, 0.35);
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -12px;
-    border: 2px solid rgba(212, 160, 23, 0.55);
-    border-radius: 50%;
-  }
-
-  @media (max-width: 768px) {
-    top: 80px;
-    right: 16px;
-    width: 48px;
-    height: 48px;
-    font-size: 28px;
-    border-radius: 8px;
+  .section {
+    padding: clamp(64px, 7vw, 88px) 0;
   }
 }
 
-// 主渐变背景
-.hero-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    #5D3A1A 0%,
-    #8B4513 25%,
-    #A0522D 50%,
-    #6B4423 75%,
-    #3E2723 100%
-  );
-}
+// 区块标题（统一左对齐的编辑部式节奏）
+.section-head {
+  max-width: 660px;
 
-// 丝绸纹理图案
-.hero-pattern {
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A017' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.6;
-}
-
-// 丝绸线条
-.hero-silk-lines {
-  position: absolute;
-  inset: 0;
-  background: 
-    linear-gradient(45deg, transparent 48%, rgba(212, 160, 23, 0.1) 49%, rgba(212, 160, 23, 0.1) 51%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, rgba(212, 160, 23, 0.08) 49%, rgba(212, 160, 23, 0.08) 51%, transparent 52%);
-  background-size: 30px 30px;
-}
-
-// 沙丘纹理
-.hero-sand-dunes {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(255, 248, 230, 0.15) 0%, transparent 40%),
-    radial-gradient(ellipse at 70% 80%, rgba(255, 248, 230, 0.1) 0%, transparent 30%),
-    radial-gradient(ellipse at 50% 50%, rgba(212, 160, 23, 0.05) 0%, transparent 50%);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: var(--spacing-4xl) 0;
-}
-
-// 大号罗盘徽章
-.hero-emblem {
-  display: block;
-  width: clamp(110px, 16vw, 170px);
-  height: clamp(110px, 16vw, 170px);
-  margin: 0 auto var(--spacing-lg);
-  object-fit: contain;
-  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.4));
-}
-
-// 徽章
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(212, 160, 23, 0.2);
-  border: 1px solid rgba(212, 160, 23, 0.4);
-  border-radius: var(--radius-full);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  color: rgba(255, 255, 255, 0.95);
-  
-  .badge-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background: var(--color-secondary);
-    border-radius: 50%;
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-  }
-  
-  .badge-text {
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 1px;
-  }
-}
-
-// 主标题
-.hero-title {
-  margin-bottom: var(--spacing-lg);
-  
-  .title-main {
-    display: block;
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 700;
-    color: white;
-    letter-spacing: 4px;
-    text-shadow: 
-      0 2px 4px rgba(0, 0, 0, 0.3),
-      0 4px 8px rgba(0, 0, 0, 0.2),
-      0 8px 16px rgba(0, 0, 0, 0.1);
-    line-height: 1.2;
-  }
-  
-  .title-sub {
-    display: block;
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
-    color: rgba(212, 160, 23, 0.9);
-    letter-spacing: 3px;
-    margin-top: var(--spacing-md);
+  h2 {
+    margin: var(--space-3) 0 var(--space-4);
+    font-family: var(--font-title);
+    font-size: var(--text-h2);
     font-weight: 400;
+    line-height: 1.28;
+    letter-spacing: 0.02em;
+    color: var(--color-primary-dark);
   }
 }
 
-// 副标题
-.hero-subtitle {
-  font-size: clamp(1.1rem, 3vw, 1.5rem);
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: var(--spacing-2xl);
-  max-width: 800px;
-  line-height: 1.8;
-  
-  .highlight {
-    color: var(--color-secondary);
-    font-weight: 600;
-    position: relative;
-    
-    &::before, &::after {
-      color: var(--color-secondary);
-    }
-    &::before { content: '\201C'; }   // “
-    &::after { content: '\201D'; }    // ”
-  }
-}
-
-// 按钮组
-.hero-buttons {
-  display: flex;
-  gap: var(--spacing-lg);
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: var(--spacing-2xl);
-}
-
-.btn-large {
-  padding: var(--spacing-md) var(--spacing-2xl);
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.btn-icon {
-  flex-shrink: 0;
-}
-
-// 快捷导航
-.hero-nav {
-  display: flex;
-  gap: var(--spacing-xl);
-  justify-content: center;
-  flex-wrap: wrap;
-  
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-sm);
-    transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
-
-    &:hover {
-      color: white;
-      background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .nav-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--color-secondary);
-      border-radius: 50%;
-    }
-  }
-}
-
-// 波浪装饰
-.hero-wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 120px;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .wave-path {
-    transition: fill var(--duration-normal) var(--ease-out);
-  }
-}
-
-// 河流线条
-.river-flow {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  overflow: hidden;
-  
-  .river-svg {
-    width: 200%;
-    height: 100%;
-    animation: waveFlow 20s linear infinite;
-  }
-  
-  .river-path {
-    filter: drop-shadow(0 0 4px rgba(212, 160, 23, 0.3));
-  }
-}
-
-// ============================================
-// 项目简介区域
-// ============================================
-
-.intro-section {
-  background: var(--color-background);
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: var(--spacing-2xl);
-}
-
-.header-decoration {
+.eyebrow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  
-  .deco-line {
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
-  }
-  
-  .deco-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: var(--color-secondary);
-    color: white;
-    border-radius: 50%;
-    font-size: 18px;
-    font-weight: 600;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+
+  span {
+    font-family: var(--font-en);
+    color: var(--color-primary);
   }
 }
 
-.section-title {
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  margin-bottom: var(--spacing-md);
-  
-  &::after {
-    display: none;
-  }
-}
-
-.section-subtitle {
-  font-size: 1.1rem;
+.section-desc {
   color: var(--color-text-light);
-}
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
 
-.intro-card {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl);
-}
-
-.intro-paragraph {
-  max-width: 40em;           // 行长约 40 汉字，符合中文阅读舒适区
-  margin: 0 auto;
-  font-size: 1.15rem;
-  line-height: 2;
-  color: var(--color-text);
-  text-align: center;
-  
-  .highlight-text {
+  .em {
     color: var(--color-primary);
     font-weight: 600;
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--color-secondary), transparent);
+  }
+}
+
+.section-head--row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-8);
+  max-width: none;
+
+  > div {
+    max-width: 560px;
+  }
+}
+
+.section-desc--aside {
+  max-width: 400px;
+  font-size: var(--text-body-sm);
+  text-align: right;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-caption);
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-gold-refined-line);
+  padding-bottom: 2px;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    color: var(--color-interactive);
+    border-color: var(--color-interactive);
+  }
+}
+
+// ============================================
+// 首屏
+// ============================================
+.home-hero {
+  position: relative;
+  background:
+    radial-gradient(1100px 620px at 86% 12%, rgba(212, 160, 23, 0.12), transparent 62%),
+    radial-gradient(760px 520px at 4% 0%, rgba(139, 69, 19, 0.07), transparent 66%),
+    var(--color-paper);
+  border-bottom: 1px solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.home-hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  align-items: center;
+  gap: clamp(32px, 4.5vw, 72px);
+  min-height: calc(100vh - 72px);
+  padding-top: clamp(40px, 5vw, 64px);
+  padding-bottom: clamp(36px, 4vw, 56px);
+}
+
+.hero-title__line {
+  display: inline;
+}
+
+.hero-copy {
+  min-width: 0;
+  max-width: 660px;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+}
+
+.eyebrow-line {
+  width: 30px;
+  height: 1px;
+  background: var(--color-gold-refined);
+}
+
+.hero-title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-family: var(--font-title);
+  font-size: clamp(2.9rem, 5.2vw, 4.35rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0.035em;
+  color: var(--color-primary-dark);
+}
+
+.hero-en {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.hero-lead {
+  max-width: 33em;
+  margin-top: var(--space-6);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-medium);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) clamp(28px, 4vw, 56px);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-light);
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+  }
+}
+
+.hero-stat__value {
+  font-family: var(--font-en);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.hero-stat__unit {
+  font-size: var(--text-caption);
+  color: var(--color-primary);
+}
+
+.hero-stat__label {
+  display: block;
+  margin-left: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.hero-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+
+  &__label {
+    letter-spacing: var(--tracking-wide);
+  }
+
+  a {
+    color: var(--color-text-medium);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      color: var(--color-primary);
     }
   }
+
+  i {
+    font-style: normal;
+    opacity: 0.5;
+  }
+}
+
+.hero-visual {
+  position: relative;
+  min-width: 0;
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8% -6% -4%;
+    background: radial-gradient(closest-side, rgba(212, 160, 23, 0.13), transparent 72%);
+    pointer-events: none;
+  }
+
+  :deep(.geo-map) {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ============================================
+// 平台定位
+// ============================================
+.intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: clamp(32px, 5vw, 88px);
+  align-items: start;
 }
 
 .intro-tags {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-xl);
-}
-
-.tag-gold {
-  background: linear-gradient(135deg, rgba(212, 160, 23, 0.2), rgba(184, 134, 11, 0.15));
-  border: 1px solid rgba(212, 160, 23, 0.3);
-  color: var(--color-secondary-dark);
-}
-
-.tag-green {
-  background: linear-gradient(135deg, rgba(46, 139, 87, 0.15), rgba(34, 139, 34, 0.1));
-  border: 1px solid rgba(46, 139, 87, 0.3);
-  color: var(--color-accent);
-}
-
-// ============================================
-// 统计数据区域
-// ============================================
-
-.stats-section {
-  position: relative;
-  padding: var(--spacing-4xl) 0;
-  background: var(--gradient-primary);
-  overflow: hidden;
-}
-
-.stats-background {
-  position: absolute;
-  inset: 0;
-  
-  .stats-pattern {
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50L100 0L100 100Z' fill='%23D4A017' fill-opacity='0.03'/%3E%3C/svg%3E");
-  }
-}
-
-.stats-header {
-  text-align: center;
-  margin-bottom: var(--spacing-2xl);
-  position: relative;
-  z-index: 1;
-}
-
-.stats-title {
-  font-size: 2.5rem;
-  color: white;
-  margin-bottom: var(--spacing-sm);
-}
-
-.stats-subtitle {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-lg);
-  position: relative;
-  z-index: 1;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, max-content);
+  gap: 6px;
+  margin-top: var(--space-6);
+
+  .tag {
+    padding: 3px 10px;
+    font-size: var(--text-label);
   }
 }
 
-.stat-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  text-align: center;
-  transition:
-    background-color var(--duration-normal) var(--ease-out),
-    transform var(--duration-normal) var(--ease-out),
-    box-shadow var(--duration-normal) var(--ease-out);
+.workflow {
+  list-style: none;
+  border-top: 1px solid var(--color-border);
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  li {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  h3 {
+    font-family: var(--font-sub);
+    font-size: var(--text-h5);
+    font-weight: 600;
+    color: var(--color-primary-dark);
+  }
+
+  p {
+    margin-top: var(--space-2);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
   }
 }
 
-.stat-icon {
-  font-size: 2rem;
-  margin-bottom: var(--spacing-md);
-  opacity: 0.8;
+.workflow-no {
+  font-family: var(--font-en);
+  font-size: var(--text-caption);
+  color: var(--color-primary);
+  padding-top: 3px;
 }
-
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-secondary);
-  margin-bottom: var(--spacing-sm);
-}
-
-.stat-label {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.stat-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 4px;
-  background: var(--color-secondary);
-  border-radius: var(--radius-sm);
-  transition: width var(--duration-slow) var(--ease-out);
-}
-
-.stat-gold .stat-bar { background: var(--color-secondary); }
-.stat-green .stat-bar { background: #4CAF50; }
-.stat-accent .stat-bar { background: #2196F3; }
 
 // ============================================
-// 核心功能区域
+// 地理分布
 // ============================================
-
-.features-section {
+.distribution-section {
   background: var(--color-surface);
 }
 
-.features-grid {
+.distribution-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xl);
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  gap: clamp(32px, 5vw, 88px);
+  align-items: start;
+}
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+.city-bars {
+  margin-top: var(--space-8);
+}
+
+.city-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.city-name {
+  font-size: var(--text-body-sm);
+  color: var(--color-text-medium);
+}
+
+.city-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(139, 69, 19, 0.09);
+  overflow: hidden;
+}
+
+.city-fill {
+  display: block;
+  height: 100%;
+  min-width: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+.city-count {
+  font-family: var(--font-en);
+  font-size: var(--text-body-lg);
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.data-note {
+  margin-top: var(--space-4);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.distribution-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-top: var(--space-2);
+
+  .text-link {
+    align-self: flex-start;
   }
 }
 
-.feature-card {
-  position: relative;
-  background: linear-gradient(135deg, rgba(255, 250, 240, 0.95), rgba(245, 240, 230, 0.95));
+.side-block {
+  h3 {
+    padding-top: var(--space-3);
+    border-top: 2px solid var(--color-primary);
+    font-family: var(--font-sub);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-primary-dark);
+  }
+}
+
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-sm);
+    background: var(--color-paper);
+    font-size: var(--text-caption);
+    color: var(--color-text-medium);
+  }
+
+  b {
+    font-family: var(--font-en);
+    font-weight: 400;
+    color: var(--color-primary);
+  }
+}
+
+.level-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.level-name {
+  font-size: var(--text-caption);
+  color: var(--color-text-medium);
+}
+
+.level-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(139, 69, 19, 0.08);
+  overflow: hidden;
+}
+
+.level-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+
+  &.national {
+    background: var(--level-national);
+  }
+
+  &.regional {
+    background: var(--level-regional);
+  }
+
+  &.municipal {
+    background: var(--level-municipal);
+  }
+}
+
+.level-count {
+  font-family: var(--font-en);
+  font-size: var(--text-body-sm);
+  color: var(--color-text-medium);
+  text-align: right;
+}
+
+// ============================================
+// 特色非遗
+// ============================================
+.gallery-section {
+  background: var(--color-paper);
+}
+
+.gallery-lead-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(0, 1fr);
+  margin-top: var(--space-8);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-2xl);
-  text-align: center;
-  animation: fadeIn 0.6s var(--ease-out) forwards;
-  opacity: 0;
-  transition:
-    transform var(--duration-normal) var(--ease-out),
-    box-shadow var(--duration-normal) var(--ease-out),
-    border-color var(--duration-normal) var(--ease-out);
+  background: var(--color-paper);
+}
+
+.gallery-lead {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  &:hover img {
+    transform: scale(1.025);
+  }
+}
+
+.gallery-note {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: clamp(24px, 3vw, 40px);
+  border-left: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+
+  h3 {
+    font-family: var(--font-title);
+    font-size: var(--text-h3);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--color-primary-dark);
+  }
+
+  > p {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-text-light);
+  }
+
+  .text-link {
+    align-self: flex-start;
+    margin-top: var(--space-1);
+  }
+}
+
+.gallery-index {
+  font-family: var(--font-en);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+}
+
+.gallery-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+
+  dt {
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin-top: 2px;
+    font-size: var(--text-caption);
+    color: var(--color-text-medium);
+  }
+}
+
+.gallery-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.gallery-item {
+  display: block;
+  min-width: 0;
+  text-decoration: none;
+
+  figure {
+    margin: 0;
+  }
+
+  img {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: var(--radius-sm);
+    transition: transform var(--duration-slow) var(--ease-out), filter var(--duration-normal) var(--ease-out);
+  }
+
+  &:hover img {
+    transform: scale(1.025);
+    filter: brightness(1.03);
+  }
+
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: var(--space-3);
+  }
+
+  &__name {
+    font-family: var(--font-sub);
+    font-size: var(--text-body-sm);
+    color: var(--color-text);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  &__meta {
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+  }
+
+  &:hover &__name {
+    color: var(--color-primary);
+  }
+}
+
+// ============================================
+// 丝路古道
+// ============================================
+.routes-section {
+  background: var(--color-surface);
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+  margin-top: var(--space-8);
+}
+
+.route-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: border-color var(--duration-normal) var(--ease-out);
+
+  h3 {
+    margin: var(--space-2) 0 var(--space-3);
+    font-family: var(--font-title);
+    font-size: var(--text-h4);
+    font-weight: 400;
+    color: var(--color-primary-dark);
+    transition: color var(--duration-normal) var(--ease-out);
+  }
+
+  > p {
+    font-size: var(--text-caption);
+    line-height: 1.95;
+    color: var(--color-text-light);
+  }
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-secondary);
-    
-    .feature-icon-bg {
-      transform: scale(1.2);
-      opacity: 0.2;
-    }
-    
-    .feature-link {
-      opacity: 1;
-      transform: translateY(0);
+    border-top-color: var(--color-secondary);
+
+    h3 {
+      color: var(--color-primary);
     }
   }
 }
 
-.feature-icon-wrapper {
-  position: relative;
-  margin-bottom: var(--spacing-lg);
+.route-index {
+  font-family: var(--font-en);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+}
+
+.route-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: var(--space-4);
+  font-size: var(--text-caption);
+  color: var(--color-primary);
+  opacity: 0.85;
+}
+
+// ============================================
+// 平台功能
+// ============================================
+.features-section {
+  background: var(--color-paper);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(32px, 5vw, 88px);
+  margin-top: var(--space-8);
+}
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 26px 44px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--color-border-light);
+  text-decoration: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    border-bottom-color: var(--color-secondary);
+
+    .feature-arrow {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
+    .feature-icon {
+      color: var(--color-secondary-dark);
+    }
+  }
+}
+
+.feature-no {
+  font-family: var(--font-en);
+  font-size: var(--text-label);
+  color: var(--color-text-muted);
 }
 
 .feature-icon {
-  font-size: 3.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-.feature-icon-bg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle, var(--color-secondary), transparent);
-  border-radius: 50%;
-  opacity: 0.1;
-  transition: transform var(--duration-normal) var(--ease-out), opacity var(--duration-normal) var(--ease-out);
-}
-
-.feature-title {
-  font-size: 1.25rem;
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-md);
-}
-
-.feature-desc {
-  color: var(--color-text-light);
-  line-height: 1.8;
-  margin-bottom: var(--spacing-lg);
-}
-
-.feature-link {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  color: var(--color-secondary);
-  font-size: 14px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
-  
-  svg {
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-  
-  &:hover svg {
-    transform: translateX(4px);
-  }
-}
-
-// ============================================
-// 创新点区域
-// ============================================
-
-.innovations-section {
-  background: var(--color-background);
-}
-
-.innovations-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.innovation-card {
-  display: flex;
-  gap: var(--spacing-xl);
-  align-items: flex-start;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  transition: border-color var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
-
-  &:hover {
-    border-color: var(--color-secondary);
-    box-shadow: var(--shadow-md);
-    
-    .innovation-number {
-      background: var(--color-secondary);
-      transform: scale(1.1);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-.innovation-number {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  transition: background-color var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out);
-}
-
-.innovation-content {
-  h3 {
-    font-size: 1.3rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  p {
-    color: var(--color-text-light);
-    line-height: 1.8;
-    margin-bottom: var(--spacing-md);
-  }
-}
-
-.innovation-tags {
-  display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    justify-content: center;
-  }
-}
-
-.mini-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  background: rgba(212, 160, 23, 0.1);
-  color: var(--color-secondary-dark);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-}
-
-// ============================================
-// 时间线区域
-// ============================================
-
-.timeline-section {
-  background: var(--color-background);
-}
-
-.timeline-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: var(--spacing-xl) 0;
-}
-
-.timeline-track {
-  position: relative;
-  height: 8px;
-  background: var(--color-sand);
-  border-radius: var(--radius-full);
-  margin-bottom: var(--spacing-2xl);
-  
-  .timeline-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
-    border-radius: var(--radius-full);
-    transition: width var(--duration-slow) var(--ease-out);
-  }
-}
-
-.timeline-items {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-lg);
-  
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.timeline-item {
-  position: relative;
-  
-  .timeline-marker {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    margin: 0 auto var(--spacing-md);
-    
-    .marker-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 20px;
-      height: 20px;
-      background: var(--color-surface);
-      border: 3px solid var(--color-border);
-      border-radius: 50%;
-      transition:
-        background-color var(--duration-normal) var(--ease-out),
-        border-color var(--duration-normal) var(--ease-out),
-        box-shadow var(--duration-normal) var(--ease-out);
-    }
-
-    .marker-ring {
-      position: absolute;
-      inset: 0;
-      border: 2px solid transparent;
-      border-radius: 50%;
-      transition: border-color var(--duration-normal) var(--ease-out);
-    }
-  }
-  
-  &.item-active {
-    .marker-dot {
-      background: var(--color-secondary);
-      border-color: var(--color-secondary);
-      box-shadow: 0 0 12px rgba(212, 160, 23, 0.5);
-    }
-    
-    .marker-ring {
-      border-color: rgba(212, 160, 23, 0.3);
-    }
-  }
-}
-
-.timeline-card {
-  background: var(--color-surface);
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  
-  .card-phase {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    color: white;
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  .card-period {
-    color: var(--color-text-muted);
-    font-size: 14px;
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  .card-title {
-    font-size: 1.1rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-md);
-  }
-  
-  .card-list {
-    list-style: none;
-    margin-bottom: var(--spacing-md);
-    
-    li {
-      position: relative;
-      padding-left: var(--spacing-md);
-      color: var(--color-text-light);
-      font-size: 13px;
-      margin-bottom: 4px;
-      
-      &::before {
-        content: '•';
-        position: absolute;
-        left: 0;
-        color: var(--color-secondary);
-      }
-    }
-  }
-  
-  .card-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 500;
-  }
-  
-  .status-completed {
-    background: rgba(76, 175, 80, 0.15);
-    color: #4CAF50;
-  }
-  
-  .status-active {
-    background: rgba(212, 160, 23, 0.15);
-    color: var(--color-secondary-dark);
-  }
-  
-  .status-pending {
-    background: rgba(158, 158, 158, 0.15);
-    color: #9E9E9E;
-  }
+  border-radius: 50%;
+  color: var(--color-primary);
+  font-size: 19px;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
-// ============================================
-// 地图预览区域
-// ============================================
-
-.map-preview-section {
-  background: linear-gradient(135deg, var(--color-surface), var(--color-background));
-}
-
-.map-preview-wrapper {
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-
-.map-preview-info {
-  padding: var(--spacing-2xl);
+.feature-body {
   display: flex;
   flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 
-  h2 {
-    font-size: clamp(2rem, 4vw, 2.5rem);
+  strong {
+    font-family: var(--font-sub);
+    font-size: var(--text-body);
     font-weight: 600;
-    letter-spacing: 0.02em;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
+    color: var(--color-text);
   }
-  
-  .info-desc {
-    color: var(--color-text-light);
-    line-height: 2;
-    font-size: 1.05rem;
-    margin-bottom: var(--spacing-xl);
+
+  span {
+    font-size: var(--text-caption);
+    line-height: 1.7;
+    color: var(--color-text-muted);
   }
 }
 
-// 数据概览条
-.info-stats {
+.feature-arrow {
+  color: var(--color-primary);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+// ============================================
+// GIS 地图说明（深色锚点）
+// ============================================
+.platform-section {
+  background: var(--color-primary-dark);
+  color: var(--color-background);
+  overflow: hidden;
+}
+
+.platform-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl) 0;
-  margin-bottom: var(--spacing-xl);
-  border-top: 1px solid var(--color-border-light);
-  border-bottom: 1px solid var(--color-border-light);
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: clamp(32px, 5vw, 88px);
+  align-items: center;
+}
 
-  .info-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-
-    strong {
-      font-size: 2rem;
-      line-height: 1.1;
-      color: var(--color-secondary);
-      // 统计数字保持正文数字风格，不随 --font-title 变为泼墨体
-      font-family: var(--font-body);
-    }
+.section-head--light {
+  .eyebrow {
+    color: var(--color-secondary-light);
 
     span {
-      font-size: 0.9rem;
-      color: var(--color-text-light);
+      color: var(--color-secondary-light);
     }
   }
 
-  @media (max-width: 576px) {
-    grid-template-columns: repeat(2, 1fr);
+  h2 {
+    color: var(--color-background);
+  }
+
+  .section-desc {
+    color: rgba(255, 248, 231, 0.82);
   }
 }
 
-// 功能特性网格
-.info-features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
+.platform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
 
-  .info-feature {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-md);
-    background: var(--color-background);
-    border: 1px solid var(--color-border-light);
-    border-radius: var(--radius-lg);
-    transition: border-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+.platform-section .btn-secondary {
+  color: var(--color-background);
+  border-color: rgba(255, 248, 231, 0.5);
+
+  &:hover {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-gold-ink);
+  }
+}
+
+.platform-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: var(--text-caption);
+  color: rgba(255, 248, 231, 0.7);
+
+  a {
+    color: rgba(255, 248, 231, 0.9);
+    text-decoration: none;
 
     &:hover {
-      border-color: var(--color-secondary);
-      transform: translateY(-2px);
+      color: var(--color-secondary-light);
     }
+  }
 
-    .feature-icon-mini {
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
+  i {
+    font-style: normal;
+    opacity: 0.5;
+  }
+}
 
-    .feature-text {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
+.platform-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+}
 
-      strong {
-        font-size: 0.95rem;
+.fact-item {
+  padding: var(--space-5) 0;
+  border-top: 1px solid rgba(255, 248, 231, 0.18);
+
+  strong {
+    display: block;
+    font-family: var(--font-en);
+    font-size: clamp(2.2rem, 3.6vw, 3rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--color-secondary-light);
+  }
+
+  em {
+    font-style: normal;
+    font-size: var(--text-caption);
+    margin-left: 4px;
+  }
+
+  span {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: var(--text-caption);
+    color: rgba(255, 248, 231, 0.74);
+  }
+}
+
+.platform-routes {
+  grid-column: 1 / -1;
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 248, 231, 0.18);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  color: rgba(255, 248, 231, 0.72);
+}
+
+// ============================================
+// 项目成果（统一数据层）
+// ============================================
+.deliverables-section {
+  background: var(--color-paper);
+}
+
+.deliverables-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(32px, 5vw, 88px);
+  align-items: start;
+}
+
+.results-block {
+  padding-top: var(--space-2);
+}
+
+.results-title {
+  font-family: var(--font-sub);
+  font-size: var(--text-h5);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--color-primary);
+}
+
+.results-block ul {
+  list-style: none;
+  margin-top: var(--space-4);
+}
+
+.results-block li {
+  border-bottom: 1px solid var(--color-border-light);
+
+  a {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    text-decoration: none;
+
+    &:hover {
+      .result-name {
         color: var(--color-primary);
       }
 
-      span {
-        font-size: 0.8rem;
-        color: var(--color-text-light);
+      .result-arrow {
+        opacity: 1;
+        transform: translateX(3px);
       }
     }
   }
-
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 576px) {
-    grid-template-columns: 1fr;
-  }
 }
 
-// 操作按钮
-.info-actions {
-  display: flex;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
-  justify-content: center;
+.result-type {
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-primary);
 }
 
-.btn-outline {
-  border: 2px solid var(--color-secondary);
-  color: var(--color-secondary);
-
-  &:hover {
-    background: rgba(212, 160, 23, 0.1);
-    border-color: var(--color-secondary-dark);
-    color: var(--color-secondary-dark);
-    transform: translateY(-2px);
-  }
+.result-name {
+  font-size: var(--text-body-sm);
+  color: var(--color-text);
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
-// ============================================
-// 项目成果区域
-// ============================================
-
-.results-section {
-  background: var(--color-background);
+.result-arrow {
+  color: var(--color-primary);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xl);
-  
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+// 非完全核验成果的状态提示
+.result-status {
+  margin-left: var(--space-2);
+  font-style: normal;
+  font-size: var(--text-label);
+  color: var(--color-text-muted);
 }
 
-.result-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition:
-    transform var(--duration-normal) var(--ease-out),
-    box-shadow var(--duration-normal) var(--ease-out),
-    border-color var(--duration-normal) var(--ease-out);
+// 条件性成果的简短核验说明
+.results-note {
+  margin-top: var(--space-4);
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  color: var(--color-text-muted);
 
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--color-secondary);
-  }
-}
-
-.result-image {
-  height: 180px;
-  background: linear-gradient(135deg, var(--color-sand), var(--color-surface));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  .image-placeholder {
-    width: 80px;
-    height: 80px;
-    background: rgba(212, 160, 23, 0.15);
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    .placeholder-icon {
-      font-size: 2.5rem;
-      opacity: 0.6;
-    }
-  }
-}
-
-.result-content {
-  padding: var(--spacing-lg);
-  
-  .result-type-tag {
-    display: inline-block;
-    background: rgba(139, 69, 19, 0.1);
+  b {
     color: var(--color-primary);
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    margin-bottom: var(--spacing-md);
-  }
-  
-  h3 {
-    font-size: 1.1rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-  }
-  
-  p {
-    color: var(--color-text-light);
-    font-size: 14px;
-    line-height: 1.6;
+    font-weight: 600;
   }
 }
 
 // ============================================
-// CTA区域
+// CTA
 // ============================================
-
 .cta-section {
   position: relative;
-  padding: var(--spacing-4xl) 0;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  background: var(--color-primary);
   overflow: hidden;
 }
 
-.cta-background {
+.cta-pattern {
   position: absolute;
   inset: 0;
-  
-  .cta-pattern {
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A017' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
+  pointer-events: none;
+  background:
+    radial-gradient(640px 320px at 50% 0%, rgba(212, 160, 23, 0.28), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(255, 248, 231, 0.04) 0 1px, transparent 1px 12px);
+  opacity: 0.9;
 }
 
-.cta-content {
+.cta-inner {
   position: relative;
-  z-index: 1;
+  padding: clamp(56px, 7vw, 88px) var(--gutter);
   text-align: center;
-  
+
   h2 {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
-    color: white;
-    margin-bottom: var(--spacing-md);
+    font-family: var(--font-title);
+    font-size: var(--text-h2);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--color-background);
   }
-  
+
   p {
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: var(--spacing-2xl);
+    margin-top: var(--space-3);
+    font-size: var(--text-body-sm);
+    color: rgba(255, 248, 231, 0.76);
   }
 }
 
 .cta-buttons {
   display: flex;
-  gap: var(--spacing-lg);
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
 }
 
-.btn-ghost {
-  background: transparent;
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  
+.cta-section .btn-ghost {
+  color: var(--color-background);
+  border: 1px solid rgba(255, 248, 231, 0.5);
+
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: white;
+    background: rgba(255, 248, 231, 0.1);
+    color: var(--color-background);
   }
 }
 
 // ============================================
-// 动画定义
+// 响应式
 // ============================================
-
-@keyframes waveFlow {
-  0% {
-    transform: translateX(-50%);
+@media (max-width: 1100px) {
+  .home-hero__inner {
+    gap: var(--space-8);
   }
-  100% {
-    transform: translateX(0%);
+
+  .hero-title__line {
+    display: block;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .route-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--space-8);
   }
 }
 
-.animate-fade-in {
-  opacity: 0;
-  animation: fadeIn 0.6s var(--ease-out) forwards;
+@media (max-width: 900px) {
+  .home-hero__inner {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding-top: var(--space-12);
+    padding-bottom: var(--space-10, 48px);
+    gap: var(--space-8);
+  }
+
+  .hero-copy {
+    max-width: none;
+  }
+
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-visual :deep(.geo-map) {
+    max-width: 460px;
+  }
+
+  .intro-grid,
+  .distribution-grid,
+  .deliverables-grid,
+  .platform-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .section-head--row {
+    display: block;
+  }
+
+  .section-desc--aside {
+    margin-top: var(--space-4);
+    max-width: none;
+    text-align: left;
+  }
+
+  .gallery-lead-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gallery-note {
+    border-left: 0;
+    border-top: 1px solid var(--color-border-light);
+  }
+
+  .feature-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .platform-section {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+  }
 }
 
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+@media (max-width: 640px) {
+  .home-hero__inner {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+    gap: var(--space-6);
+  }
+
+  .hero-title {
+    font-size: 2.35rem;
+    line-height: 1.16;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-title__line {
+    display: block;
+  }
+
+  .hero-en {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-lead {
+    margin-top: var(--space-4);
+    font-size: var(--text-body-sm);
+    line-height: 1.85;
+  }
+
+  .hero-actions {
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+
+    .btn {
+      flex: 1 1 0;
+      gap: 6px;
+      padding: 12px var(--space-3);
+      font-size: var(--text-body-sm);
+      white-space: nowrap;
+    }
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+  }
+
+  .hero-quick {
+    margin-top: var(--space-4);
+  }
+
+  .intro-tags {
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  .hero-visual :deep(.geo-map) {
+    max-width: 370px;
+  }
+
+  .hero-stat__label {
+    display: block;
+    margin-left: 0;
+    margin-top: 2px;
+  }
+
+  .city-row {
+    grid-template-columns: 64px minmax(0, 1fr) 28px;
+    gap: var(--space-3);
+  }
+
+  .gallery-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-3);
+  }
+
+  .route-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-6);
+  }
+
+  .feature-row {
+    grid-template-columns: 22px 40px minmax(0, 1fr);
+    gap: var(--space-2);
+
+    .feature-arrow {
+      display: none;
+    }
+  }
+
+  .platform-facts {
+    gap: 0 var(--space-4);
+  }
+
+  .results-block li a {
+    grid-template-columns: 46px minmax(0, 1fr) 14px;
+  }
+
+  .cta-buttons {
+    .btn {
+      width: 100%;
+    }
+  }
+}
 </style>

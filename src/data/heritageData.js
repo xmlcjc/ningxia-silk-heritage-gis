@@ -98,6 +98,31 @@ export const heritageData = [
     craft: "制作时需经过选羊、褪皮、脱毛、浸泡、灌油、缝合、吹气等多道工序。羊皮囊必须缝合严密、耐水耐磨，既要保持足够浮力，也要适应河水冲刷。使用时，多个皮囊被固定在木架下方，筏工依靠撑篙、划桨和对水势的判断控制方向。",
     value: "羊皮筏子凝聚了河流环境中的生计智慧，也保留了筏工号子、航行经验和黄河沿岸生活记忆。随着现代交通发展，它的实用渡运功能减弱，但仍通过文化展示、旅游体验和技艺传习延续其文化价值。",
     process: "选羊→褪皮→脱毛→浸泡→灌油→缝合→吹气→绑扎",
+    figure: {
+      key: "raft",
+      label: "Fig · 羊皮筏子装配与浮力",
+      meta: "中卫 · 浑脱十四只",
+      params: ["载重 约 1 吨", "筏体自重 不过百斤", "浑脱 14 只", "木架 2.5 × 2 m"],
+      hint: "悬停看图，或点选零件——整筏会拆开",
+      parts: [
+        {
+          id: "frame",
+          label: "01 木架",
+          what: "两根长梁与两根端梁围成约 2.5 × 2 m 的框，木条厚 2cm、宽 8–10cm；中间七根横木把十四只皮囊逐一分隔，接缝处用柳条绑结。木架本身不产生浮力，全靠皮囊托起。"
+        },
+        {
+          id: "rope",
+          label: "02 麻绳",
+          what: "麻绳自横木顶面垂下，斜勒在每只皮囊收细的颈部，把皮囊系在木架之下；木架与横木之间另用柳条绑结。"
+        },
+        {
+          id: "skins",
+          label: "03 皮囊",
+          what: "浑脱十四只，按「五、四、五」三排系在木架下、颈部朝内，四角用较大的皮囊。皮囊数量决定浮力，整筏载重约一吨，而筏体自重不过百斤。"
+        }
+      ],
+      caption: "图中十四只吹胀的羊皮囊按「五、四、五」三排浮在黄河水面，木架由皮囊托起，麻绳斜勒在皮囊收细的颈部。羊皮筏子自重不过百斤，皮囊数量决定浮力，整筏载重约一吨。｜依据：人民网、光明网、华兴时报关于中卫羊皮筏子制作技艺的报道。"
+    },
     protectionStatus: "作为文旅项目得到传承",
     tags: ["传统技艺", "水运", "黄河文化"],
     coverImage: "/heritage/03/cover.jpg",
@@ -587,6 +612,26 @@ export const heritageData = [
       "/heritage/20/02.jpg",
       "/heritage/20/03.jpg",
       "/heritage/20/04.jpg"
+    ],
+    models: [
+      {
+        type: "gsplat",
+        kind: "artifact",
+        label: "李元昊",
+        url: "/models/liyuanhao.sog",
+        poster: "/heritage/20/cover.jpg",
+        autoframe: true,
+        credit: "作者本人三维扫描采集，可公开发布"
+      },
+      {
+        type: "gsplat",
+        kind: "artifact",
+        label: "郭守敬",
+        url: "/models/guoshoujing.sog",
+        poster: "/heritage/20/cover.jpg",
+        autoframe: true,
+        credit: "作者本人三维扫描采集，可公开发布"
+      }
     ]
   }
 ]

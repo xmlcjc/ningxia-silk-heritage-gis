@@ -50,18 +50,27 @@
                 ui: true
             });
 
-            // 仅保留飞行相机：首个渲染帧后切入飞行模式，并拦截后续任何模式切换
-            // （环绕相机 / 动画相机 / 行走模式，含按钮、快捷键与点击触发）
-            const pinFly = () => {
-                if (viewer.state.cameraMode !== 'fly') {
-                    viewer.state.cameraMode = 'fly';
-                }
-            };
-            viewer.events.on('cameraMode:changed', pinFly);
-            viewer.events.on('loaded:changed', (loaded) => {
-                if (loaded) pinFly();
-            });
-            if (viewer.state.loaded) pinFly();
+            // 环绕拍摄的物体模型没有预设拍摄视角，交由查看器按包围盒自动框选，
+            // 并保留环绕相机（物体展示以拖动环视为主，飞行相机不易操控）
+            if (sp.get('autoframe')) {
+                viewer.events.on('loaded:changed', (loaded) => {
+                    if (loaded) viewer.frameScene();
+                });
+                if (viewer.state.loaded) viewer.frameScene();
+            } else {
+                // 仅保留飞行相机：首个渲染帧后切入飞行模式，并拦截后续任何模式切换
+                // （环绕相机 / 动画相机 / 行走模式，含按钮、快捷键与点击触发）
+                const pinFly = () => {
+                    if (viewer.state.cameraMode !== 'fly') {
+                        viewer.state.cameraMode = 'fly';
+                    }
+                };
+                viewer.events.on('cameraMode:changed', pinFly);
+                viewer.events.on('loaded:changed', (loaded) => {
+                    if (loaded) pinFly();
+                });
+                if (viewer.state.loaded) pinFly();
+            }
 
             // 动画保持暂停（模型无动画轨道时同样兜底）
             viewer.state.animationPaused = true;

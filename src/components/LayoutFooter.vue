@@ -1,29 +1,25 @@
-﻿﻿﻿<template>
+<template>
   <footer class="layout-footer">
-    <!-- 顶部装饰波浪 -->
-    <div class="footer-wave">
-      <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
-        <path fill="#3D2B1F" d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z"/>
-      </svg>
-    </div>
-    
-    <!-- 主要内容区 -->
     <div class="footer-main">
       <div class="container">
-        <div class="footer-content">
-          <!-- 品牌区域 -->
+        <div class="footer-grid">
+          <!-- 品牌区 -->
           <div class="footer-brand">
-            <div class="brand-logo">
-              <img class="logo-icon" src="/logo-gold.svg" alt="宁夏丝路非遗地理志" />
-              <div class="logo-text">
-                <h3>宁夏丝路非遗地理志</h3>
-                <span class="logo-sub">Ningxia Silk Road Heritage GIS</span>
-              </div>
-            </div>
+            <router-link to="/" class="brand-link" aria-label="宁夏丝路非遗地理志 · 返回首页">
+              <span class="brand-mark" aria-hidden="true">
+                <img src="/logo-gold.svg" alt="" />
+              </span>
+              <span class="brand-copy">
+                <span class="brand-name">宁夏丝路非遗地理志</span>
+                <span class="brand-en">Ningxia Silk Road Heritage GIS</span>
+              </span>
+            </router-link>
+
             <p class="brand-desc">
               基于GIS与WebGIS的宁夏丝路非遗数字化保护、时空可视化与传播展示平台，
-              探索"非遗保护+乡村振兴+文旅融合"的协同发展路径。
+              探索“非遗保护+乡村振兴+文旅融合”的协同发展路径。
             </p>
+
             <div class="brand-tags">
               <span class="tag tag-gold">丝路文化</span>
               <span class="tag tag-gold">黄河文明</span>
@@ -31,355 +27,352 @@
               <span class="tag tag-green">GIS应用</span>
             </div>
           </div>
-          
-          <!-- 导航链接区 -->
-          <div class="footer-nav">
+
+          <!-- 项目入口 -->
+          <nav class="footer-nav" aria-label="页脚导航">
             <div class="nav-group">
-              <h4 class="nav-title">
-                <Icon class="title-icon" icon="gis:poi" />
-                快速导航
-              </h4>
+              <h2 class="nav-title">探索</h2>
               <ul class="nav-list">
-                <li>
-                  <router-link to="/">
-                    <span class="link-dot"></span>
-                    首页
-                  </router-link>
-                </li>
-                <li>
-                  <router-link to="/map">
-                    <span class="link-dot"></span>
-                    GIS地图
-                  </router-link>
-                </li>
-                <li>
-                  <router-link to="/archive">
-                    <span class="link-dot"></span>
-                    数字档案
-                  </router-link>
-                </li>
+                <li><router-link to="/">首页</router-link></li>
+                <li><router-link to="/map">GIS地图</router-link></li>
+                <li><router-link to="/screen">3D大屏</router-link></li>
+                <li><router-link to="/archive">数字档案</router-link></li>
               </ul>
             </div>
-            
+
             <div class="nav-group">
-              <h4 class="nav-title">
-                <Icon class="title-icon" icon="gis:map-book" />
-                研究内容
-              </h4>
+              <h2 class="nav-title">项目</h2>
               <ul class="nav-list">
-                <li>
-                  <router-link to="/project">
-                    <span class="link-dot"></span>
-                    项目概况
-                  </router-link>
-                </li>
-                <li>
-                  <router-link to="/protection">
-                    <span class="link-dot"></span>
-                    保护路径
-                  </router-link>
-                </li>
-                <li>
-                  <router-link to="/results">
-                    <span class="link-dot"></span>
-                    项目成果
-                  </router-link>
-                </li>
+                <li><router-link to="/project">项目概况</router-link></li>
+                <li><router-link to="/protection">保护路径</router-link></li>
+                <li><router-link to="/about">关于我们</router-link></li>
               </ul>
             </div>
-            
+
             <div class="nav-group">
-              <h4 class="nav-title">
-                <Icon class="title-icon" icon="gis:phone-map" />
-                联系我们
-              </h4>
-              <ul class="nav-list contact-list">
-                <li>
-                  <span class="contact-icon">
-                    <Icon icon="gis:poi" width="18" height="18" />
-                  </span>
-                  <span>宁夏银川市西夏区贺兰山西路539号文萃校区</span>
+              <h2 class="nav-title">联系</h2>
+              <ul v-if="contactVerified && hasContact" class="contact-list">
+                <li v-if="contact.address">
+                  <Icon class="contact-icon" icon="gis:poi" width="16" height="16" />
+                  <span>{{ contact.address }}</span>
                 </li>
-                <li>
-                  <span class="contact-icon">
-                    <Icon icon="gis:map-send" width="18" height="18" />
-                  </span>
-                  <span>3313342914@qq.com</span>
+                <li v-if="contact.email">
+                  <Icon class="contact-icon" icon="gis:map-send" width="16" height="16" />
+                  <a :href="'mailto:' + contact.email">{{ contact.email }}</a>
                 </li>
-                <li>
-                  <span class="contact-icon">
-                    <Icon icon="gis:phone-map" width="18" height="18" />
-                  </span>
-                  <span>13649570320</span>
+                <li v-if="contact.phone">
+                  <Icon class="contact-icon" icon="gis:phone-map" width="16" height="16" />
+                  <a :href="'tel:' + contact.phone">{{ contact.phone }}</a>
+                </li>
+                <li v-if="contact.officeHours">
+                  <Icon class="contact-icon" icon="gis:map-time" width="16" height="16" />
+                  <span>{{ contact.officeHours }}</span>
                 </li>
               </ul>
+              <p v-else class="contact-empty">
+                公开联系渠道暂未开放。
+                <router-link to="/about">了解项目说明</router-link>
+              </p>
             </div>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
 
-    <!-- 底部版权区 -->
+    <!-- 版权与数据来源：沿用项目现有真实信息 -->
     <div class="footer-bottom">
-      <div class="container">
-        <div class="bottom-content">
-          <div class="footer-links">
-            <a href="#" class="link-item">隐私政策</a>
-            <span class="link-divider">|</span>
-            <a href="#" class="link-item">使用条款</a>
-            <span class="link-divider">|</span>
-            <a href="#" class="link-item">网站地图</a>
-            <span class="link-divider">|</span>
-            <a href="#" class="link-item">参考资料</a>
-          </div>
-          
-          <div class="copyright">
-            <p class="copyright-text">© 2024 宁夏丝路非遗地理志 · 保留所有权利</p>
-            <p class="icon-credit">
-              地图图标
-              <a href="https://github.com/viglino/font-gis" target="_blank" rel="noopener">Font-GIS</a>
-              by Jean-Marc Viglino ·
-              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
-            </p>
-            <p class="project-note">
-              <Icon class="note-icon" icon="gis:map-book" />
-              大学生创新创业训练计划项目
-            </p>
-          </div>
+      <div class="container footer-bottom__inner">
+        <div class="footer-legal">
+          <p class="copyright">© 2024 宁夏丝路非遗地理志 · 保留所有权利</p>
+          <p class="source">
+            <span>数据来源：宁夏丝路非遗地理志项目档案</span>
+            <span class="source-divider" aria-hidden="true">·</span>
+            <span>底图：天地图 / 高德地图</span>
+          </p>
+          <p class="credit">
+            地图图标
+            <a href="https://github.com/viglino/font-gis" target="_blank" rel="noopener noreferrer">Font-GIS</a>
+            by Jean-Marc Viglino ·
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
+          </p>
+        </div>
+
+        <div class="footer-end">
+          <p class="project-note">
+            <Icon icon="gis:map-book" width="15" height="15" />
+            大学生创新创业训练计划项目
+          </p>
+          <button type="button" class="back-to-top" @click="backToTop">
+            返回顶部
+            <span aria-hidden="true">↑</span>
+          </button>
         </div>
       </div>
     </div>
-    
-    <!-- 装饰纹理 -->
-    <div class="footer-pattern"></div>
   </footer>
 </template>
 
 <script setup>
 import { Icon } from '@iconify/vue'
+import { contact } from '@/data/project'
+
+// 联系方式仅在字段存在且整体状态为已核验时展示
+const contactVerified = contact.verificationStatus === 'VERIFIED'
+const hasContact = Boolean(contact.address || contact.email || contact.phone || contact.officeHours)
+
+const backToTop = () => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
+}
 </script>
 
 <style lang="scss" scoped>
 // ============================================
-// 页脚主容器
+// 品牌型页脚
 // ============================================
 
 .layout-footer {
   position: relative;
-  background: linear-gradient(
-    180deg,
-    #3D2B1F 0%,
-    #4A3728 50%,
-    #3D2B1F 100%
-  );
-  overflow: hidden;
+  background: linear-gradient(180deg, #3d2b1f 0%, #33241a 100%);
+  border-top: 1px solid var(--color-gold-refined-line);
+  color: rgba(255, 255, 255, 0.78);
 }
 
-// 顶部波浪
-.footer-wave {
-  position: relative;
-  margin-top: -1px;
-  
-  svg {
-    display: block;
-    width: 100%;
-    height: 80px;
-  }
-}
-
-// 主要内容区
 .footer-main {
-  padding: var(--spacing-2xl) 0 var(--spacing-xl);
+  padding: var(--space-16) 0 var(--space-12);
 }
 
-// ============================================
-// 内容布局
-// ============================================
-
-.footer-content {
+.footer-grid {
   display: grid;
-  grid-template-columns: 1.5fr 2fr;
-  gap: var(--spacing-3xl);
-  margin-bottom: var(--spacing-2xl);
-  
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr);
+  gap: var(--space-16);
+
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
-    gap: var(--spacing-2xl);
+    gap: var(--space-12);
   }
 }
 
 // ============================================
-// 品牌区域
+// 品牌区
 // ============================================
 
-.footer-brand {
-  .brand-logo {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    
-    .logo-icon {
-      width: 4rem;
-      height: 4rem;
-      display: block;
-      object-fit: contain;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    }
-    
-    .logo-text {
-      h3 {
-        font-size: 1.4rem;
-        color: white;
-        margin: 0;
-        letter-spacing: 2px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      
-      .logo-sub {
-        display: block;
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.6);
-        letter-spacing: 1px;
-        margin-top: 4px;
-      }
-    }
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: 4px;
+  margin-left: -4px;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    background: rgba(212, 160, 23, 0.1);
   }
-  
-  .brand-desc {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.8;
-    margin-bottom: var(--spacing-lg);
-    font-size: 0.95rem;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
   }
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.45);
+
+  img {
+    display: block;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.brand-name {
+  font-family: var(--font-sub);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+.brand-en {
+  margin-top: 4px;
+  font-family: var(--font-en);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.brand-desc {
+  max-width: 460px;
+  margin-bottom: var(--space-6);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-relaxed);
 }
 
 .brand-tags {
   display: flex;
-  gap: var(--spacing-sm);
   flex-wrap: wrap;
-  
+  gap: var(--space-2);
+
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: 6px 14px;
-    border-radius: var(--radius-full);
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: transform 0.3s var(--ease-out);
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-caption);
+    line-height: 1.4;
+  }
 
-    &:hover {
-      transform: translateY(-2px);
-    }
-  }
-  
   .tag-gold {
-    background: linear-gradient(135deg, rgba(212, 160, 23, 0.25), rgba(184, 134, 11, 0.2));
-    border: 1px solid rgba(212, 160, 23, 0.4);
-    color: var(--color-secondary);
+    background: rgba(212, 160, 23, 0.14);
+    border: 1px solid rgba(212, 160, 23, 0.35);
+    color: #e8c66a;
   }
-  
+
   .tag-green {
-    background: linear-gradient(135deg, rgba(46, 139, 87, 0.2), rgba(34, 139, 34, 0.15));
+    background: rgba(46, 139, 87, 0.14);
     border: 1px solid rgba(46, 139, 87, 0.35);
-    color: #4CAF50;
+    color: #8fd3a8;
   }
 }
 
 // ============================================
-// 导航链接区
+// 页脚导航
 // ============================================
 
 .footer-nav {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-xl);
-  
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8) var(--space-6);
   }
-  
-  @media (max-width: 576px) {
+
+  @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
 }
 
-.nav-group {
-  .nav-title {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: var(--color-secondary);
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-lg);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid rgba(212, 160, 23, 0.2);
-    
-    .title-icon {
-      font-size: 1.2rem;
-    }
+.nav-title {
+  position: relative;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-gold-refined);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 24px;
+    height: 1px;
+    background: var(--color-gold-refined-line);
   }
 }
 
-.nav-list {
+.nav-list,
+.contact-list {
   list-style: none;
-  padding: 0;
   margin: 0;
-  
-  li {
-    margin-bottom: var(--spacing-sm);
+  padding: 0;
+
+  li + li {
+    margin-top: 2px;
   }
-  
+
   a {
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    min-height: 36px;
     color: rgba(255, 255, 255, 0.75);
+    font-size: var(--text-body-sm);
     text-decoration: none;
-    font-size: 0.95rem;
-    padding: 6px 0;
-    transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+    transition:
+      color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
 
-    .link-dot {
-      width: 6px;
-      height: 6px;
-      background: transparent;
-      border-radius: 50%;
-      transition: background-color 0.3s var(--ease-out);
-    }
-    
     &:hover {
       color: var(--color-secondary);
-      transform: translateX(4px);
-      
-      .link-dot {
-        background: var(--color-secondary);
-      }
+      transform: translateX(3px);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+      border-radius: var(--radius-sm);
     }
   }
 }
 
-// 联系信息
 .contact-list {
   li {
     display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.95rem;
+    align-items: flex-start;
+    gap: var(--space-2);
     padding: 6px 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-snug);
   }
-  
+
+  a {
+    // 联系方式是普通文本链接，不使用导航项的最小触控高度
+    min-height: 0;
+  }
+
   .contact-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: rgba(212, 160, 23, 0.15);
-    border-radius: var(--radius-sm);
-    color: var(--color-secondary);
+    flex: none;
+    margin-top: 2px;
+    color: var(--color-gold-refined);
+  }
+}
+
+.contact-empty {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-relaxed);
+
+  a {
+    display: inline-block;
+    margin-top: var(--space-2);
+    color: var(--color-gold-refined);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-secondary);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+      border-radius: var(--radius-sm);
+    }
   }
 }
 
@@ -388,114 +381,125 @@ import { Icon } from '@iconify/vue'
 // ============================================
 
 .footer-bottom {
-  background: rgba(0, 0, 0, 0.15);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: var(--spacing-lg) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.16);
+  padding: var(--space-6) 0;
 }
 
-.bottom-content {
+.footer-bottom__inner {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  
+  align-items: flex-end;
+  gap: var(--space-6);
+
   @media (max-width: 768px) {
     flex-direction: column;
+    align-items: center;
     text-align: center;
   }
 }
 
-.footer-links {
+.footer-legal {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  
-  .link-item {
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 8px 12px;
-    color: rgba(255, 255, 255, 0.6);
+  flex-direction: column;
+  gap: 4px;
+
+  p {
+    margin: 0;
+  }
+
+  .copyright {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: var(--text-body-sm);
+  }
+
+  .source,
+  .credit {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--text-caption);
+    line-height: var(--leading-snug);
+  }
+
+  .source-divider {
+    margin: 0 4px;
+  }
+
+  @media (max-width: 768px) {
+    .source {
+      span {
+        display: block;
+
+        &.source-divider {
+          display: none;
+        }
+      }
+    }
+  }
+
+  a {
+    color: rgba(212, 175, 55, 0.85);
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: color var(--duration-fast) var(--ease-out);
 
     &:hover {
       color: var(--color-secondary);
+      text-decoration: underline;
     }
 
     &:focus-visible {
       outline: 2px solid var(--color-secondary);
       outline-offset: 2px;
-      border-radius: var(--radius-sm);
     }
-  }
-  
-  .link-divider {
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.8rem;
   }
 }
 
-.copyright {
-  text-align: right;
-  
+.footer-end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
   @media (max-width: 768px) {
-    text-align: center;
-  }
-  
-  .copyright-text {
-    color: rgba(255, 255, 250, 0.6);
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-  }
-
-  .icon-credit {
-    margin: 0 0 4px;
-    color: rgba(255, 255, 250, 0.5);
-    font-size: 0.78rem;
-
-    a {
-      color: rgba(212, 175, 55, 0.85);
-      text-decoration: none;
-
-      &:hover {
-        color: var(--color-secondary);
-        text-decoration: underline;
-      }
-    }
-  }
-  
-  .project-note {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--color-secondary);
-    font-size: 0.85rem;
-    
-    .note-icon {
-      font-size: 1rem;
-    }
+    flex-direction: column;
+    gap: var(--space-3);
   }
 }
 
-// ============================================
-// 装饰纹理
-// ============================================
-
-.footer-pattern {
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A017' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
+.project-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--color-gold-refined);
+  font-size: var(--text-caption);
+  white-space: nowrap;
 }
 
-// 确保内容在纹理之上
-.footer-main,
-.footer-bottom {
-  position: relative;
-  z-index: 1;
+.back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 var(--space-4);
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-gold-refined);
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    background: rgba(201, 168, 76, 0.14);
+    border-color: var(--color-gold-refined);
+    color: #f0d68a;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
-  <div v-if="models.length" class="artifact-viewer">
+  <div v-if="models.length" class="artifact-viewer" :class="`is-${variant}`">
     <!-- 三维舞台 -->
     <div class="av-stage">
       <img
         v-if="!live && active.poster && !posterFailed"
         class="av-poster"
         :src="active.poster"
-        alt="场景预览"
+        :alt="`${noun}预览`"
         @error="posterFailed = true"
       >
 
@@ -15,9 +15,9 @@
         <span class="av-veil-icon"><Icon icon="gis:cube-3d" width="34" height="34" /></span>
         <button v-if="webglOk" class="av-launch" type="button" @click="launch">
           <Icon icon="gis:cube-3d" width="16" height="16" class="vam" />
-          载入三维场景
+          载入三维{{ noun }}
         </button>
-        <p v-else class="av-tip">当前浏览器不支持 WebGL，暂无法查看场景</p>
+        <p v-else class="av-tip">当前浏览器不支持 WebGL，暂无法查看{{ noun }}</p>
       </div>
 
       <!-- 载入后：SuperSplat 查看器 -->
@@ -25,14 +25,14 @@
         v-else
         class="av-frame"
         :src="frameSrc"
-        title="场景展示"
+        :title="`${noun}展示`"
         allow="fullscreen"
         @load="frameLoading = false"
       />
 
       <div v-if="live && frameLoading" class="av-loading">
         <span class="av-spinner" aria-hidden="true"></span>
-        <span>正在载入场景数据…</span>
+        <span>正在载入{{ noun }}数据…</span>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
     </div>
 
     <!-- 来源登记 -->
-    <p v-if="active.credit" class="av-credit">场景来源：{{ active.credit }}</p>
+    <p v-if="variant !== 'card' && active.credit" class="av-credit">场景来源：{{ active.credit }}</p>
   </div>
 </template>
 
@@ -62,13 +62,17 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 
 const props = defineProps({
-  // [{ type, url, poster, label, credit }]
-  models: { type: Array, default: () => [] }
+  // [{ type, kind, url, poster, label, credit, autoframe }]
+  models: { type: Array, default: () => [] },
+  // stage：场景展示大画布；card：文物展柜卡片，来源信息由外层卡片呈现
+  variant: { type: String, default: 'stage' }
 })
 
 const activeIndex = ref(0)
 const live = ref(false)
 const frameLoading = ref(false)
+// 文案随展示场景切换：场景展示 / 文物展示
+const noun = computed(() => (props.variant === 'card' ? '文物' : '场景'))
 const webglOk = ref(true)
 const reduceMotion = ref(false)
 const posterFailed = ref(false)
@@ -77,14 +81,18 @@ const active = computed(() => props.models[activeIndex.value] || {})
 
 // 查看器以文件名后缀判定模型格式，因此这里透传 .sog 地址
 // 初始相机用与模型同名的 .settings.json（构建期生成），复现原图拍摄视角，
-// 避免从穿帮角度展示「照片转 3DGS」的场景模型
+// 避免从穿帮角度展示「照片转 3DGS」的场景模型；
+// 环绕拍摄的物体模型（autoframe）不预设视角，改用查看器默认设置后再自动框选场景
 const frameSrc = computed(() => {
   const params = new URLSearchParams({
     content: active.value.url,
-    settings: active.value.url.replace(/\.sog$/i, '.settings.json'),
     lang: 'zh-CN'
   })
+  if (!active.value.autoframe) {
+    params.set('settings', active.value.url.replace(/\.sog$/i, '.settings.json'))
+  }
   if (active.value.poster) params.set('poster', active.value.poster)
+  if (active.value.autoframe) params.set('autoframe', '1')
   if (reduceMotion.value) params.set('noanim', '')
   // 使用自托管嵌入页：已配置仅保留飞行相机（隐藏环绕/行走与动画控件）
   return `/viewer-embed.html?${params.toString()}`
@@ -128,6 +136,22 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+}
+
+/* 卡片模式：文物展柜排布，圆角与间距交给外层卡片 */
+.artifact-viewer.is-card {
+  gap: 0;
+}
+
+.artifact-viewer.is-card .av-stage {
+  aspect-ratio: 4 / 3;
+  min-height: 200px;
+  border-radius: 0;
+}
+
+.artifact-viewer.is-card .av-launch {
+  padding: 10px 20px;
+  font-size: 13px;
 }
 
 .av-stage {

@@ -2,7 +2,7 @@
   <div class="notfound-page">
     <div class="nf-bg-pattern"></div>
 
-    <div class="nf-content">
+    <div class="nf-content" data-reveal-stagger>
       <div class="nf-404">
         <span class="digit">4</span>
         <Icon class="compass" icon="gis:compass-rose" width="72" height="72" />

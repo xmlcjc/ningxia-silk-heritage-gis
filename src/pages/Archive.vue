@@ -1,218 +1,214 @@
 <template>
   <div class="archive-page">
-    <!-- 页面头部 -->
-    <div class="page-hero">
-      <div class="hero-bg">
-        <div class="hero-pattern"></div>
-        <div class="hero-gradient"></div>
-      </div>
-      <div class="container">
-        <div class="hero-content">
-          <div class="hero-badge">
-            <Icon class="badge-icon" icon="gis:folder-pois" />
-            <span class="badge-text">非遗数字档案库</span>
+    <!-- ==================== 页头：档案编目 ==================== -->
+    <header class="archive-head">
+      <div class="container" data-reveal-stagger>
+        <p class="arch-eyebrow"><span class="arch-eyebrow__no">02</span>数字档案 · HERITAGE ARCHIVE</p>
+        <h1 class="arch-title">宁夏丝路非物质文化遗产</h1>
+        <p class="arch-lead">
+          按遗产类别、所在地市与历史时期编目，收录宁夏境内与丝绸之路相关的代表性非遗项目。
+          每一项档案都保留它的技艺脉络、文化记忆与地图位置。
+        </p>
+        <dl class="arch-stats">
+          <div class="arch-stat">
+            <dt>收录项目</dt>
+            <dd><strong>{{ heritageData.length }}</strong><span>项</span></dd>
           </div>
-          <h1 class="hero-title">宁夏丝路非物质文化遗产</h1>
-          <p class="hero-subtitle">全面收录 · 数字化保护 · 永久保存</p>
-          <div class="stats-inline">
-            <div class="stat-item">
-              <span class="stat-number">{{ heritageData.length }}</span>
-              <span class="stat-label">非遗项目</span>
-            </div>
-            <div class="stat-divider">|</div>
-            <div class="stat-item">
-              <span class="stat-number">{{ categories.length - 1 }}</span>
-              <span class="stat-label">遗产类别</span>
-            </div>
-            <div class="stat-divider">|</div>
-            <div class="stat-item">
-              <span class="stat-number">{{ cities.length - 1 }}</span>
-              <span class="stat-label">覆盖地市</span>
-            </div>
+          <div class="arch-stat">
+            <dt>遗产类别</dt>
+            <dd><strong>{{ categories.length - 1 }}</strong><span>类</span></dd>
           </div>
-        </div>
+          <div class="arch-stat">
+            <dt>覆盖地市</dt>
+            <dd><strong>{{ cities.length - 1 }}</strong><span>市</span></dd>
+          </div>
+        </dl>
       </div>
-      <div class="hero-wave">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
-          <path fill="#FFF8E7" d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z"/>
-        </svg>
-      </div>
-    </div>
+    </header>
 
-    <!-- 主内容区 -->
-    <div class="main-content">
+    <main class="archive-main">
       <div class="container">
-        <!-- 工具栏 -->
-        <div class="archive-toolbar card-silk">
-          <div class="toolbar-left">
-            <div class="search-box-wrapper">
-              <el-input 
-                v-model="searchKeyword" 
-                placeholder="搜索非遗项目名称、描述..." 
-                clearable
-                class="search-input"
-              >
-                <template #prefix>
-                  <Icon class="search-icon" icon="gis:zoom-in" />
-                </template>
-              </el-input>
-              <span class="search-hint">输入关键词快速定位</span>
-            </div>
+        <!-- ==================== 分类入口 ==================== -->
+        <div class="cat-rail" role="tablist" aria-label="按遗产类别筛选" data-reveal data-reveal-delay="80">
+          <button
+            v-for="tab in categoryTabs"
+            :key="tab.name"
+            type="button"
+            role="tab"
+            class="cat-tab"
+            :class="{ 'is-active': filterCategory === tab.value }"
+            :aria-selected="filterCategory === tab.value"
+            @click="setCategory(tab.value)"
+          >
+            {{ tab.name }}
+            <span class="cat-tab__count">{{ tab.count }}</span>
+          </button>
+        </div>
+
+        <!-- ==================== 检索工具 ==================== -->
+        <div class="archive-tools" data-reveal data-reveal-delay="140">
+          <div class="tools-search">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索项目名称或简介"
+              clearable
+              class="search-input"
+              aria-label="搜索非遗项目"
+            >
+              <template #prefix>
+                <Icon class="search-icon" icon="gis:zoom-in" width="17" height="17" />
+              </template>
+            </el-input>
           </div>
-          
-          <div class="toolbar-right">
-            <div class="filters-group">
-              <el-select 
-                v-model="filterCategory" 
-                placeholder="遗产类别" 
-                clearable
-                class="filter-select"
-              >
-                <el-option v-for="cat in categories.slice(1)" :key="cat" :label="cat" :value="cat" />
-              </el-select>
-              
-              <el-select 
-                v-model="filterCity" 
-                placeholder="地区" 
-                clearable
-                class="filter-select"
-              >
-                <el-option v-for="city in cities.slice(1)" :key="city" :label="city" :value="city" />
-              </el-select>
-              
-              <el-select 
-                v-model="filterPeriod" 
-                placeholder="时期" 
-                clearable
-                class="filter-select"
-              >
-                <el-option v-for="period in periods.slice(1)" :key="period" :label="period" :value="period" />
-              </el-select>
-              
-              <el-select 
-                v-model="sortBy" 
-                placeholder="排序方式"
-                class="filter-select"
-              >
-                <el-option label="最新收录" value="new" />
-                <el-option label="保护级别" value="level" />
-                <el-option label="按地区" value="city" />
-              </el-select>
-            </div>
-            
-            <button class="btn-reset" @click="resetFilters">
-              <Icon icon="gis:rotate" width="14" height="14" /> 重置
+
+          <div class="tools-filters">
+            <el-select v-model="filterCity" placeholder="所在地市" clearable class="filter-select" aria-label="按地市筛选">
+              <el-option v-for="city in cities.slice(1)" :key="city" :label="city" :value="city" />
+            </el-select>
+
+            <el-select v-model="filterPeriod" placeholder="历史时期" clearable class="filter-select" aria-label="按时期筛选">
+              <el-option v-for="period in periods.slice(1)" :key="period" :label="period" :value="period" />
+            </el-select>
+
+            <el-select v-model="sortBy" placeholder="排序方式" class="filter-select" aria-label="排序方式">
+              <el-option label="最新收录" value="new" />
+              <el-option label="保护级别" value="level" />
+              <el-option label="按地区" value="city" />
+            </el-select>
+
+            <button type="button" class="tools-reset" :disabled="!hasConditions" @click="resetFilters">
+              <Icon icon="gis:rotate" width="14" height="14" />
+              清空条件
             </button>
           </div>
         </div>
 
-        <!-- 结果统计 -->
-        <div class="results-header">
-          <div class="results-info">
-            <h3 class="results-title">
-              找到 <span class="highlight">{{ filteredData.length }}</span> 项非遗项目
-            </h3>
-            <p class="results-desc">涵盖传统技艺、民间文学、传统音乐等多个领域</p>
-          </div>
+        <!-- ==================== 结果统计与已选条件 ==================== -->
+        <div class="result-bar">
+          <p class="result-count">
+            共 <strong>{{ filteredData.length }}</strong> 项
+            <span class="result-scope">· {{ scopeLabel }}</span>
+          </p>
+
+          <ul v-if="activeConditions.length" class="result-chips" aria-label="已选筛选条件">
+            <li v-for="cond in activeConditions" :key="cond.key">
+              <button type="button" class="chip" @click="cond.clear">
+                {{ cond.label }}
+                <span class="chip__x" aria-hidden="true">×</span>
+                <span class="sr-only">移除该条件</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="chip chip--clear" @click="resetFilters">全部清空</button>
+            </li>
+          </ul>
+          <p v-else class="result-hint">可按类别、地市与时期组合检索</p>
         </div>
 
-        <!-- 档案结果 -->
-        <div class="archive-grid">
-          <div
-            class="heritage-card"
+        <!-- ==================== 档案列表 ==================== -->
+        <div v-if="paginatedData.length" class="heritage-grid" data-reveal-stagger>
+          <router-link
             v-for="item in paginatedData"
             :key="item.id"
-            @click="goToDetail(item.id)"
+            :to="`/archive/${item.id}`"
+            class="h-card"
+            :aria-label="`查看 ${item.name} 项目档案`"
           >
-              <div class="card-image-wrapper">
-                <div class="image-placeholder">
-                  <span class="placeholder-char">{{ item.name.charAt(0) }}</span>
-                </div>
-                <img class="card-image" :src="item.thumbImage" :alt="item.name"
-                     loading="lazy" @error="onImgError">
-                <div class="card-badge" :class="'level-' + (item.level?.includes('国家级') ? 'national' : item.level?.includes('自治区级') ? 'regional' : 'municipal')">
-                  {{ item.level }}
-                </div>
-                <div class="card-overlay">
-                  <span class="overlay-btn">查看详情 →</span>
-                </div>
-              </div>
-              
-              <div class="card-body">
-                <div class="card-tags">
-                  <span class="tag tag-category">{{ item.category }}</span>
-                  <span class="tag tag-location"><Icon icon="gis:poi" width="12" height="12" /> {{ item.city }}</span>
-                </div>
-                
-                <h3 class="card-title">{{ item.name }}</h3>
-                <p class="card-excerpt">{{ item.intro.substring(0, 80) }}...</p>
-                
-                <div class="card-meta">
-                  <span class="meta-item">
-                    <Icon class="meta-icon" icon="gis:map-time" />
-                    {{ item.period }}
-                  </span>
-                  <span class="meta-item">
-                    <Icon class="meta-icon" icon="gis:map-bookmark" />
-                    {{ item.level }}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <span class="h-card__media">
+              <HeritageImage
+                :src="item.thumbImage || item.coverImage"
+                :alt="item.name"
+                :fallback-char="item.name.charAt(0)"
+              />
+              <span class="h-card__level" :class="`is-${levelKey(item.level)}`">
+                <span class="h-card__level-dot" aria-hidden="true"></span>
+                {{ item.level }}
+              </span>
+            </span>
+
+            <span class="h-card__body">
+              <span class="h-card__top">
+                <span class="h-card__cat">{{ item.category }}</span>
+                <span class="h-card__period">{{ item.period }}</span>
+              </span>
+
+              <span class="h-card__title">{{ item.name }}</span>
+              <span class="h-card__excerpt">{{ item.intro }}</span>
+
+              <span class="h-card__foot">
+                <span class="h-card__loc">
+                  <Icon icon="gis:poi" width="13" height="13" />
+                  {{ item.city }} · {{ item.county }}
+                </span>
+                <span class="h-card__more">阅读档案 <i aria-hidden="true">→</i></span>
+              </span>
+            </span>
+          </router-link>
         </div>
 
-        <!-- 分页 -->
-        <div class="pagination-section" v-if="totalPages > 1">
+        <!-- ==================== 空结果 ==================== -->
+        <div v-else class="empty-state">
+          <span class="empty-state__mark" aria-hidden="true">空</span>
+          <h2>没有符合当前条件的项目</h2>
+          <p>{{ emptyHint }}</p>
+          <button type="button" class="btn btn-primary" @click="resetFilters">清除所有筛选</button>
+        </div>
+
+        <!-- ==================== 分页 ==================== -->
+        <div v-if="totalPages > 1" class="pagination-section" data-reveal>
           <el-pagination
             v-model:current-page="currentPage"
             :page-size="pageSize"
             :total="filteredData.length"
-            layout="prev, pager, next, jumper, total"
+            layout="prev, pager, next"
             class="custom-pagination"
           />
-          <div class="pagination-info">
-            共 {{ filteredData.length }} 项 · 第 {{ currentPage }} / {{ totalPages }} 页
-          </div>
-        </div>
-
-        <!-- 空状态 -->
-        <div v-if="filteredData.length === 0" class="empty-state">
-          <div class="empty-icon"><Icon icon="gis:zoom-in" width="48" height="48" /></div>
-          <h3>未找到相关非遗项目</h3>
-          <p>尝试调整筛选条件或修改搜索关键词</p>
-          <button class="btn-clear" @click="resetFilters">清除所有筛选</button>
+          <p class="pagination-info">第 {{ currentPage }} / {{ totalPages }} 页 · 每页 {{ pageSize }} 项</p>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { ElInput, ElSelect, ElOption, ElPagination } from 'element-plus'
 import 'element-plus/es/components/input/style/css'
 import 'element-plus/es/components/select/style/css'
 import 'element-plus/es/components/option/style/css'
 import 'element-plus/es/components/pagination/style/css'
+import HeritageImage from '../components/HeritageImage.vue'
 import { heritageData, categories, cities, periods } from '../data/heritageData'
 
+const route = useRoute()
 const router = useRouter()
-const searchKeyword = ref('')
-const filterCategory = ref('')
-const filterCity = ref('')
-const filterPeriod = ref('')
-const sortBy = ref('new')
-const pageSize = ref(12)
-const currentPage = ref(1)
 
-// 筛选和排序
+const pick = (value, list) => (list.includes(value) ? value : '')
+
+const searchKeyword = ref(String(route.query.q || ''))
+const filterCategory = ref(pick(String(route.query.category || ''), categories.slice(1)))
+const filterCity = ref(pick(String(route.query.city || ''), cities.slice(1)))
+const filterPeriod = ref(pick(String(route.query.period || ''), periods.slice(1)))
+const sortBy = ref(['new', 'level', 'city'].includes(route.query.sort) ? route.query.sort : 'new')
+const currentPage = ref(Math.max(1, parseInt(route.query.page, 10) || 1))
+const pageSize = 12
+
+// 分类入口：沿用真实类别与数量，不新增未经确认的类别
+const categoryTabs = computed(() => [
+  { name: '全部', value: '', count: heritageData.length },
+  ...categories.slice(1).map((name) => ({
+    name,
+    value: name,
+    count: heritageData.filter((item) => item.category === name).length
+  }))
+])
+
 const filteredData = computed(() => {
-  let data = heritageData.filter(item => {
-    const matchKeyword = !searchKeyword.value || 
-      item.name.includes(searchKeyword.value) || 
-      item.intro.includes(searchKeyword.value)
+  const keyword = searchKeyword.value.trim()
+  let data = heritageData.filter((item) => {
+    const matchKeyword = !keyword || item.name.includes(keyword) || item.intro.includes(keyword)
     const matchCategory = !filterCategory.value || item.category === filterCategory.value
     const matchCity = !filterCity.value || item.city === filterCity.value
     const matchPeriod = !filterPeriod.value || item.period === filterPeriod.value
@@ -220,23 +216,71 @@ const filteredData = computed(() => {
   })
 
   // 保护级别排序：国家级 → 自治区级 → 市级（基于真实 level 字段，同级保持数据原顺序）
-  const levelRank = (lv) => lv?.includes('国家级') ? 0 : lv?.includes('自治区级') ? 1 : 2
+  const levelRank = (level) => (level?.includes('国家级') ? 0 : level?.includes('自治区级') ? 1 : 2)
 
   if (sortBy.value === 'city') {
-    data = data.sort((a, b) => a.city.localeCompare(b.city))
+    data = [...data].sort((a, b) => a.city.localeCompare(b.city))
   } else if (sortBy.value === 'level') {
-    data = data.sort((a, b) => levelRank(a.level) - levelRank(b.level))
+    data = [...data].sort((a, b) => levelRank(a.level) - levelRank(b.level))
   }
 
   return data
 })
 
-// 分页
-const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize.value))
+const totalPages = computed(() => Math.ceil(filteredData.value.length / pageSize))
 const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  return filteredData.value.slice(start, start + pageSize.value)
+  const start = (currentPage.value - 1) * pageSize
+  return filteredData.value.slice(start, start + pageSize)
 })
+
+const sortLabel = computed(
+  () => ({ new: '最新收录', level: '保护级别', city: '地区' }[sortBy.value] || '最新收录')
+)
+
+const scopeLabel = computed(() => {
+  if (!hasConditions.value) return '全部档案'
+  return `${[filterCategory.value, filterCity.value, filterPeriod.value, searchKeyword.value.trim() && `关键词「${searchKeyword.value.trim()}」`]
+    .filter(Boolean)
+    .join(' · ')} · 按${sortLabel.value}排序`
+})
+
+const hasConditions = computed(
+  () => !!(filterCategory.value || filterCity.value || filterPeriod.value || searchKeyword.value.trim())
+)
+
+const activeConditions = computed(() => {
+  const list = []
+  if (searchKeyword.value.trim()) {
+    list.push({ key: 'q', label: `关键词：${searchKeyword.value.trim()}`, clear: () => (searchKeyword.value = '') })
+  }
+  if (filterCategory.value) {
+    list.push({ key: 'category', label: filterCategory.value, clear: () => (filterCategory.value = '') })
+  }
+  if (filterCity.value) {
+    list.push({ key: 'city', label: filterCity.value, clear: () => (filterCity.value = '') })
+  }
+  if (filterPeriod.value) {
+    list.push({ key: 'period', label: filterPeriod.value, clear: () => (filterPeriod.value = '') })
+  }
+  return list
+})
+
+const emptyHint = computed(() => {
+  const parts = [filterCategory.value, filterCity.value, filterPeriod.value, searchKeyword.value.trim()]
+    .filter(Boolean)
+    .join(' · ')
+  return parts ? `没有同时满足「${parts}」的项目，可以尝试减少筛选条件。` : '可以尝试调整搜索关键词。'
+})
+
+const levelKey = (level) => {
+  if (level?.includes('国家级')) return 'national'
+  if (level?.includes('自治区级')) return 'regional'
+  return 'municipal'
+}
+
+const setCategory = (value) => {
+  filterCategory.value = value
+}
 
 const resetFilters = () => {
   searchKeyword.value = ''
@@ -246,533 +290,753 @@ const resetFilters = () => {
   currentPage.value = 1
 }
 
-const goToDetail = (id) => {
-  router.push(`/archive/${id}`)
+// 筛选条件写入 URL，保证分类/搜索可被分享与返回；空值不进入查询串
+const queryOf = () => {
+  const query = {}
+  const keyword = searchKeyword.value.trim()
+  if (keyword) query.q = keyword
+  if (filterCategory.value) query.category = filterCategory.value
+  if (filterCity.value) query.city = filterCity.value
+  if (filterPeriod.value) query.period = filterPeriod.value
+  if (sortBy.value !== 'new') query.sort = sortBy.value
+  if (currentPage.value > 1) query.page = String(currentPage.value)
+  return query
 }
 
-const onImgError = (e) => {
-  e.target.classList.add('is-failed')
+const syncQuery = () => {
+  const next = queryOf()
+  const current = route.query
+  const same = ['q', 'category', 'city', 'period', 'sort', 'page'].every(
+    (key) => String(current[key] || '') === String(next[key] || '')
+  )
+  if (!same) router.replace({ query: next })
 }
+
+let applyingRoute = false
+
+watch([searchKeyword, filterCategory, filterCity, filterPeriod], () => {
+  if (applyingRoute) return
+  currentPage.value = 1
+  syncQuery()
+})
+
+watch(sortBy, () => {
+  if (applyingRoute) return
+  syncQuery()
+})
+
+watch(currentPage, () => {
+  if (applyingRoute) return
+  syncQuery()
+})
+
+// 支持从首页分类入口、全站搜索等位置带条件进入，也支持浏览器前进后退
+watch(
+  () => route.query,
+  (query) => {
+    applyingRoute = true
+    searchKeyword.value = String(query.q || '')
+    filterCategory.value = pick(String(query.category || ''), categories.slice(1))
+    filterCity.value = pick(String(query.city || ''), cities.slice(1))
+    filterPeriod.value = pick(String(query.period || ''), periods.slice(1))
+    sortBy.value = ['new', 'level', 'city'].includes(query.sort) ? query.sort : 'new'
+    currentPage.value = Math.max(1, parseInt(query.page, 10) || 1)
+    nextTick(() => {
+      applyingRoute = false
+    })
+  }
+)
+
+// 结果变少时回到有效页码
+watch(totalPages, (pages) => {
+  if (currentPage.value > Math.max(1, pages)) {
+    currentPage.value = Math.max(1, pages)
+  }
+})
 </script>
 
 <style lang="scss" scoped>
-// ============================================
-// 页面英雄区
-// ============================================
-
 .archive-page {
   min-height: 100vh;
-}
-
-.page-hero {
-  position: relative;
-  padding: var(--spacing-3xl) 0 var(--spacing-xl);
-  overflow: hidden;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  
-  .hero-pattern {
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D4A017' fill-opacity='0.05'%3E%3Cpath d='M20 0L40 20L20 40L0 20Z'/%3E%3C/g%3E%3C/svg%3E");
-  }
-  
-  .hero-gradient {
-    position: absolute;
-    inset: 0;
-    background: var(--gradient-primary);
-  }
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  background: rgba(212, 160, 23, 0.2);
-  border: 1px solid rgba(212, 160, 23, 0.4);
-  border-radius: var(--radius-full);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  color: white;
-  
-  .badge-icon {
-    width: 24px;
-    height: 24px;
-    background: var(--color-secondary);
-    border-radius: 50%;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-.hero-title {
-  font-size: clamp(2rem, 5vw, 3rem);
-  color: white;
-  letter-spacing: 3px;
-  margin-bottom: var(--spacing-md);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.hero-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: var(--spacing-xl);
-}
-
-.stats-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-lg);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-full);
-  padding: var(--spacing-md) var(--spacing-xl);
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  .stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--color-secondary);
-  }
-  
-  .stat-label {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
-  }
-}
-
-.stat-divider {
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 1.5rem;
-  
-  @media (max-width: 768px) {
-    transform: rotate(90deg);
-  }
-}
-
-.hero-wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  
-  svg {
-    display: block;
-    width: 100%;
-    height: 60px;
-  }
-}
-
-// ============================================
-// 主内容区
-// ============================================
-
-.main-content {
   background: var(--color-background);
-  padding: var(--spacing-2xl) 0 var(--spacing-3xl);
 }
 
 // ============================================
-// 工具栏
+// 页头
 // ============================================
+.archive-head {
+  padding: var(--space-16) 0 var(--space-12);
+  background:
+    radial-gradient(880px 420px at 88% 0%, rgba(212, 160, 23, 0.1), transparent 62%),
+    var(--color-paper);
+  border-bottom: 1px solid var(--color-border-light);
 
-.archive-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-lg);
-  
-  @media (max-width: 992px) {
-    flex-direction: column;
-    align-items: stretch;
+  @media (max-width: 768px) {
+    padding: var(--space-12) 0 var(--space-8);
   }
 }
 
-.toolbar-left {
-  flex: 1;
+.arch-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+
+  &__no {
+    font-family: var(--font-en);
+    font-size: var(--text-caption);
+    letter-spacing: 0.1em;
+    color: var(--color-gold-refined);
+    padding-bottom: 1px;
+    border-bottom: 1px solid var(--color-gold-refined-line);
+  }
 }
 
-.search-box-wrapper {
-  position: relative;
-  
-  .search-input :deep(.el-input__wrapper) {
+.arch-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-weight: 400;
+  line-height: var(--leading-tight);
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+
+  // 手机端收小字号，避免“宁夏丝路非物质文化遗产”出现单字孤行
+  @media (max-width: 640px) {
+    font-size: 1.8rem;
+  }
+}
+
+.arch-lead {
+  max-width: 62ch;
+  margin: 0;
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-light);
+}
+
+.arch-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin: var(--space-8) 0 0;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-light);
+
+  @media (max-width: 768px) {
+    gap: var(--space-6);
+  }
+}
+
+.arch-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-1);
+
+  dt {
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    color: var(--color-text);
+
+    strong {
+      font-family: var(--font-en);
+      font-size: 1.9rem;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    span {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+  }
+}
+
+// ============================================
+// 主体
+// ============================================
+.archive-main {
+  padding: var(--space-8) 0 var(--space-20);
+
+  @media (max-width: 768px) {
+    padding: var(--space-6) 0 var(--space-16);
+  }
+}
+
+// 分类入口
+.cat-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-1);
+
+  @media (max-width: 768px) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 2px;
+    }
+  }
+}
+
+.cat-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--color-text-medium);
+  cursor: pointer;
+  transition:
+    background-color 0.25s var(--ease-out, ease),
+    border-color 0.25s var(--ease-out, ease),
+    color 0.25s var(--ease-out, ease);
+
+  &:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-primary);
+  }
+
+  &.is-active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-paper);
+  }
+
+  &__count {
+    font-family: var(--font-en);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+    opacity: 0.9;
+  }
+
+  &.is-active &__count {
+    color: rgba(253, 251, 247, 0.72);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// 检索工具
+.archive-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+}
+
+.tools-search {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.search-input :deep(.el-input__wrapper) {
+  padding: 4px var(--space-4);
+  border-radius: var(--radius-control);
+  box-shadow: 0 0 0 1px var(--color-border-light) inset;
+  background: var(--color-paper);
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--color-border-strong) inset;
+  }
+
+  &.is-focus {
+    box-shadow: 0 0 0 1px var(--color-secondary) inset, var(--focus-ring);
+  }
+}
+
+.search-icon {
+  color: var(--color-text-muted);
+}
+
+.tools-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-select {
+  width: 132px;
+
+  :deep(.el-input__wrapper) {
+    padding: 4px var(--space-3);
+    border-radius: var(--radius-control);
     box-shadow: 0 0 0 1px var(--color-border-light) inset;
-    border-radius: var(--radius-full);
-    padding: 6px 20px;
-    
+    background: var(--color-paper);
+
     &:hover {
+      box-shadow: 0 0 0 1px var(--color-border-strong) inset;
+    }
+
+    &.is-focus {
       box-shadow: 0 0 0 1px var(--color-secondary) inset;
     }
   }
-  
-  .search-icon {
-    font-size: 18px;
-  }
 }
 
-.search-hint {
-  display: block;
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-top: 4px;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
-  flex-wrap: wrap;
-  
-  @media (max-width: 992px) {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-.filters-group {
-  display: flex;
-  gap: var(--spacing-sm);
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-}
-
-.filter-select :deep(.el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--color-border-light) inset;
-  border-radius: var(--radius-full);
-}
-
-.btn-reset {
+.tools-reset {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
   background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  color: var(--color-text);
-  font-size: 14px;
-  cursor: pointer;
-  transition: border-color 0.3s var(--ease-out), color 0.3s var(--ease-out);
-
-  &:hover {
-    border-color: var(--color-secondary);
-    color: var(--color-secondary);
-  }
-}
-
-// ============================================
-// 结果区域
-// ============================================
-
-.results-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-lg);
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-}
-
-.results-info {
-  .results-title {
-    font-size: 1.1rem;
-    color: var(--color-text);
-    margin: 0 0 4px 0;
-    
-    .highlight {
-      color: var(--color-secondary);
-      font-weight: 600;
-    }
-  }
-  
-  .results-desc {
-    font-size: 0.9rem;
-    color: var(--color-text-light);
-    margin: 0;
-  }
-}
-
-// ============================================
-// 档案网格视图
-// ============================================
-
-.archive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-xl);
-}
-
-.heritage-card {
-  background: var(--color-surface);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
+  border-radius: var(--radius-control);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--color-text-medium);
   cursor: pointer;
-  transition:
-    transform 0.3s var(--ease-out),
-    box-shadow 0.3s var(--ease-out),
-    border-color 0.3s var(--ease-out);
+  transition: border-color 0.25s var(--ease-out, ease), color 0.25s var(--ease-out, ease);
 
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
+  &:hover:not(:disabled) {
     border-color: var(--color-secondary);
-    
-    .card-overlay {
-      opacity: 1;
-    }
-  }
-}
-
-.card-image-wrapper {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: linear-gradient(135deg, #E8DCC8, #D4C4AD);
-  
-  .image-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .card-image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s var(--ease-out);
-  }
-
-  .card-image.is-failed {
-    display: none;
-  }
-
-  &:hover .card-image {
-    transform: scale(1.06);
-  }
-
-  .placeholder-char {
-    font-size: 4rem;
-    font-weight: 700;
-    color: rgba(139, 69, 19, 0.3);
-  }
-  
-  .card-badge {
-    position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    font-weight: 600;
-    color: white;
-    backdrop-filter: blur(4px);
-    
-    &.level-national {
-      background: rgba(212, 160, 23, 0.9);
-    }
-    
-    &.level-regional {
-      background: rgba(46, 139, 87, 0.9);
-    }
-    
-    &.level-municipal {
-      background: rgba(62, 110, 140, 0.9);
-    }
-  }
-  
-  .card-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(139, 69, 19, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s var(--ease-out);
-    
-    .overlay-btn {
-      display: inline-block;
-      padding: 12px 24px;
-      background: var(--color-secondary);
-      color: var(--color-gold-ink);
-      border-radius: var(--radius-full);
-      font-size: 14px;
-      font-weight: 600;
-      transform: translateY(10px);
-      transition: transform 0.3s var(--ease-out);
-    }
-    
-    &:hover .overlay-btn {
-      transform: translateY(0);
-    }
-  }
-}
-
-.card-body {
-  padding: var(--spacing-lg);
-}
-
-.card-tags {
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-}
-
-.tag {
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  
-  &.tag-category {
-    background: rgba(212, 160, 23, 0.15);
-    color: var(--color-secondary-dark);
-  }
-  
-  &.tag-location {
-    background: rgba(139, 69, 19, 0.1);
     color: var(--color-primary);
   }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
-.card-title {
-  font-size: 1.1rem;
-  color: var(--color-primary);
-  margin: 0 0 var(--spacing-sm) 0;
-  line-height: 1.4;
-}
-
-.card-excerpt {
-  font-size: 0.9rem;
-  color: var(--color-text-light);
-  line-height: 1.6;
-  margin: 0 0 var(--spacing-md) 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-meta {
+// 结果统计
+.result-bar {
   display: flex;
-  gap: var(--spacing-lg);
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border-light);
-  
-  .meta-item {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-6);
+}
+
+.result-count {
+  margin: 0;
+  font-size: var(--text-body-sm);
+  color: var(--color-text-medium);
+
+  strong {
+    font-family: var(--font-en);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--color-primary);
+    padding: 0 2px;
+  }
+}
+
+.result-scope {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+}
+
+.result-hint {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.result-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px var(--space-3);
+  background: var(--color-primary-soft);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--color-primary);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+
+  &__x {
+    font-size: 0.9em;
+    line-height: 1;
+    color: var(--color-text-muted);
+  }
+
+  &--clear {
+    background: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text-medium);
+
+    &:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+  }
+}
+
+// ============================================
+// 档案卡片
+// ============================================
+.heritage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-8) var(--card-gap);
+
+  @media (max-width: 640px) {
+    gap: var(--space-6);
+  }
+}
+
+.h-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  text-decoration: none;
+  transition:
+    transform 0.3s var(--ease-out, ease),
+    border-color 0.3s var(--ease-out, ease),
+    box-shadow 0.3s var(--ease-out, ease);
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-gold-refined-line);
+    box-shadow: var(--shadow-sm);
+
+    .h-card__title {
+      color: var(--color-primary);
+    }
+
+    :deep(.h-image img) {
+      transform: scale(1.045);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+
+  &__media {
+    position: relative;
+    display: block;
+    background: var(--color-surface);
+  }
+
+  &__level {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: rgba(253, 251, 247, 0.93);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+    color: var(--color-text-medium);
+    backdrop-filter: blur(4px);
+
+    &-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--level-municipal);
+    }
+
+    &.is-national {
+      color: var(--level-national-ink);
+
+      .h-card__level-dot {
+        background: var(--level-national);
+      }
+    }
+
+    &.is-regional {
+      color: var(--level-regional-ink);
+
+      .h-card__level-dot {
+        background: var(--level-regional);
+      }
+    }
+
+    &.is-municipal {
+      color: var(--level-municipal-ink);
+
+      .h-card__level-dot {
+        background: var(--level-municipal);
+      }
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--space-4) var(--space-4) var(--space-4);
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  &__cat {
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-secondary-soft);
+    font-size: var(--text-label);
+    color: var(--color-warning-ink);
+    letter-spacing: 0.04em;
+  }
+
+  &__period {
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+  }
+
+  &__title {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-sub);
+    font-size: 1.32rem;
+    line-height: 1.45;
+    color: var(--color-text);
+    transition: color 0.25s var(--ease-out, ease);
+  }
+
+  &__excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: var(--space-4);
+    font-size: var(--text-body-sm);
+    line-height: 1.8;
+    color: var(--color-text-light);
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border-light);
+    font-size: var(--text-label);
+    color: var(--color-text-muted);
+  }
+
+  &__loc {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
-    color: var(--color-text-muted);
-    
-    .meta-icon {
-      font-size: 14px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__more {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-primary);
+
+    i {
+      font-style: normal;
+      transition: transform 0.25s var(--ease-out, ease);
     }
+  }
+
+  &:hover &__more i {
+    transform: translateX(3px);
   }
 }
 
 // ============================================
-// 分页区域
+// 空结果
 // ============================================
+.empty-state {
+  padding: var(--space-20) var(--space-6);
+  text-align: center;
+  background: var(--color-paper);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-card);
 
+  &__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--color-gold-refined-line);
+    border-radius: 50%;
+    font-family: var(--font-title);
+    font-size: 1.4rem;
+    color: var(--color-gold-refined);
+  }
+
+  h2 {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-sub);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--color-text);
+  }
+
+  p {
+    max-width: 46ch;
+    margin: 0 auto var(--space-6);
+    font-size: var(--text-body-sm);
+    line-height: 1.8;
+    color: var(--color-text-light);
+  }
+}
+
+// ============================================
+// 分页
+// ============================================
 .pagination-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-2xl);
+  gap: var(--space-2);
+  margin-top: var(--space-12);
 }
 
 .custom-pagination :deep(.el-pagination) {
-  display: flex;
-  gap: var(--spacing-sm);
-  
-  button {
+  --el-pagination-button-bg-color: transparent;
+  --el-pagination-hover-color: var(--color-primary);
+  gap: var(--space-1);
+
+  button,
+  .el-pager li {
+    font-family: var(--font-en);
     border-radius: var(--radius-sm);
+    color: var(--color-text-medium);
+  }
+
+  .el-pager li.is-active {
+    background: var(--color-primary);
+    color: var(--color-paper);
   }
 }
 
 .pagination-info {
-  font-size: 13px;
+  margin: 0;
+  font-size: var(--text-caption);
   color: var(--color-text-muted);
 }
 
-// ============================================
-// 空状态
-// ============================================
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-3xl) 0;
-  
-  .empty-icon {
-    font-size: 4rem;
-    margin-bottom: var(--spacing-lg);
+// ============================================
+// 响应式
+// ============================================
+@media (max-width: 900px) {
+  .archive-tools {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  h3 {
-    font-size: 1.5rem;
-    color: var(--color-text);
-    margin-bottom: var(--spacing-sm);
+
+  .tools-search {
+    flex: none;
   }
-  
-  p {
-    color: var(--color-text-light);
-    margin-bottom: var(--spacing-lg);
+
+  .tools-filters {
+    justify-content: space-between;
+  }
+
+  .filter-select {
+    flex: 1 1 120px;
+    width: auto;
   }
 }
 
-.btn-clear {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-secondary);
-  color: var(--color-gold-ink);
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+@media (max-width: 640px) {
+  .tools-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+  .filter-select {
+    width: 100%;
+  }
+
+  .tools-reset {
+    justify-content: center;
+  }
+
+  .result-bar {
+    align-items: flex-start;
+  }
+
+  .result-hint {
+    display: none;
+  }
+
+  .heritage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .h-card__body {
+    padding: var(--space-4);
   }
 }
 </style>

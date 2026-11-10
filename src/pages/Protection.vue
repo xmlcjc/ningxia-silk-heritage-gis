@@ -1,7 +1,7 @@
 <template>
   <div class="protection-page">
     <div class="page-header">
-      <div class="container">
+      <div class="container" data-reveal-stagger>
         <h1>保护路径与乡村振兴</h1>
         <p>探索非遗保护与乡村振兴协同发展的新路径</p>
       </div>
@@ -9,10 +9,10 @@
 
     <section class="section">
       <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-reveal>
           <h2>现状分析</h2>
         </div>
-        <div class="problems-grid">
+        <div class="problems-grid" data-reveal-stagger>
           <div class="problem-card card">
             <div class="problem-icon"><Icon icon="gis:flag" width="30" height="30" /></div>
             <h3>传承断层</h3>
@@ -39,10 +39,10 @@
 
     <section class="section" style="background: var(--color-surface);">
       <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-reveal>
           <h2>GIS支持下的保护建议</h2>
         </div>
-        <div class="strategies-grid">
+        <div class="strategies-grid" data-reveal-stagger>
           <div class="strategy-card card">
             <div class="strategy-number">01</div>
             <h3>分级保护</h3>
@@ -69,10 +69,10 @@
 
     <section class="section">
       <div class="container">
-        <div class="section-title">
+        <div class="section-title" data-reveal>
           <h2>非遗与乡村振兴结合</h2>
         </div>
-        <div class="combine-grid">
+        <div class="combine-grid" data-reveal-stagger>
           <div class="combine-card card">
             <div class="combine-icon"><Icon icon="gis:map-route" width="30" height="30" /></div>
             <h3>非遗+旅游</h3>
@@ -99,10 +99,10 @@
 
     <section class="section" style="background: var(--gradient-primary);">
       <div class="container">
-        <div class="section-title" style="color: var(--color-white);">
+        <div class="section-title" style="color: var(--color-white);" data-reveal>
           <h2 style="color: var(--color-white);">协同发展路径</h2>
         </div>
-        <div class="path-flow">
+        <div class="path-flow" data-reveal-stagger>
           <div class="path-step">
             <div class="path-icon"><Icon icon="gis:map-stat" width="28" height="28" /></div>
             <h3>资源普查</h3>
@@ -139,14 +139,15 @@ import { Icon } from '@iconify/vue'
 <style scoped>
 .page-header {
   background: var(--gradient-primary);
-  padding: var(--spacing-2xl) 0;
+  padding: var(--spacing-3xl) 0 var(--spacing-xl);
   text-align: center;
   color: var(--color-white);
 }
 
 .page-header h1 {
   color: var(--color-white);
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: 3px;
   margin-bottom: var(--spacing-md);
 }
 

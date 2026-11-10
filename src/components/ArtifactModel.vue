@@ -1,8 +1,8 @@
 <template>
   <div ref="host" class="artifact-model">
-    <div v-if="status === 'loading'" class="model-state">加载器物模型…</div>
+    <div v-if="status === 'loading'" class="model-state">加载三维模型…</div>
     <div v-else-if="status === 'error'" class="model-state model-state--err">
-      模型加载失败
+      暂无法加载三维模型
     </div>
   </div>
 </template>
@@ -26,9 +26,12 @@ let renderer, scene, camera, loader, raf
 let spinGroup = null, mixer = null
 let disposed = false
 let lastT = 0
+let loadTimer = 0
 
 // 包围盒尺寸 → 相机半径（各向异性模型取最大维度，保证完整入镜）
 const FRAME_PAD = 1.45
+// 加载超时兜底：网络异常/资源缺失时不能停在“加载中”无限等待
+const LOAD_TIMEOUT = 10000
 
 function init() {
   if (!host.value) return
@@ -61,10 +64,16 @@ function init() {
     // 本项目器物模型（Poly Haven CC0）均为未压缩 glTF，无需 Draco 解码器，保持零外链
     loader = new GLTFLoader()
 
+    // 超时兜底：超过 LOAD_TIMEOUT 仍未回调则切到错误态，避免无限加载
+    loadTimer = window.setTimeout(() => {
+      if (!disposed && status.value === 'loading') status.value = 'error'
+    }, LOAD_TIMEOUT)
+
     loader.load(
       props.src,
       (gltf) => {
         if (disposed) return
+        clearTimeout(loadTimer)
         mixer = gltf.mixer || null
         const clip = gltf.animations?.[0]
         if (clip && mixer) mixer.clipAction(clip).play()
@@ -98,7 +107,10 @@ function init() {
         animate(0)
       },
       undefined,
-      () => { if (!disposed) status.value = 'error' }
+      () => {
+        clearTimeout(loadTimer)
+        if (!disposed) status.value = 'error'
+      }
     )
   })
 }
@@ -115,6 +127,7 @@ function animate(t) {
 
 function dispose() {
   disposed = true
+  clearTimeout(loadTimer)
   cancelAnimationFrame(raf)
   if (renderer) {
     renderer.dispose()

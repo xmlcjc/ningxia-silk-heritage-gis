@@ -1,190 +1,309 @@
 <template>
-  <div class="detail-page" v-if="heritage">
-    <div class="page-header">
+  <div v-if="heritage" class="detail-page">
+    <!-- ==================== 档案页头 ==================== -->
+    <header class="detail-head">
       <div class="container">
-        <div class="breadcrumb-nav">
+        <nav class="crumb" aria-label="面包屑">
           <router-link to="/">首页</router-link>
-          <span>/</span>
+          <span class="crumb__sep" aria-hidden="true">/</span>
           <router-link to="/archive">数字档案</router-link>
-          <span>/</span>
-          <span class="current">{{ heritage.name }}</span>
-        </div>
-      </div>
-    </div>
+          <span class="crumb__sep" aria-hidden="true">/</span>
+          <span class="crumb__current" aria-current="page">{{ heritage.name }}</span>
+        </nav>
 
-    <section class="section">
-      <div class="container">
-        <div class="detail-layout">
-          <div class="detail-main">
-            <!-- 主视觉 -->
-            <figure class="detail-hero">
-              <img :src="heritage.coverImage" :alt="heritage.name" class="hero-image" loading="eager">
-              <figcaption class="hero-caption">{{ heritage.name }} · {{ heritage.county }}</figcaption>
-            </figure>
+        <div class="detail-head__grid" data-reveal-stagger>
+          <div class="head-copy">
+            <p class="detail-eyebrow">
+              <span class="detail-eyebrow__cat">{{ heritage.category }}</span>
+              <span aria-hidden="true">·</span>
+              <span>{{ heritage.level }}</span>
+              <span aria-hidden="true">·</span>
+              <span>{{ heritage.period }}</span>
+            </p>
 
-            <!-- 标题信息 -->
-            <div class="detail-header card">
-              <div class="header-tags">
-                <el-tag type="warning">{{ heritage.category }}</el-tag>
-                <el-tag type="success">{{ heritage.city }}</el-tag>
-                <el-tag type="info">{{ heritage.level }}</el-tag>
-                <el-tag type="danger">{{ heritage.period }}</el-tag>
-              </div>
-              <h1>{{ heritage.name }}</h1>
-              <p class="header-lead">{{ heritage.intro }}</p>
-              <div class="header-meta">
-                <span><el-icon><Location /></el-icon> {{ heritage.county }}</span>
-                <span><el-icon><User /></el-icon> 传承人：{{ heritage.inheritor }}</span>
-                <span><el-icon><Position /></el-icon> {{ heritage.lng }}, {{ heritage.lat }}</span>
-              </div>
-            </div>
+            <h1 class="detail-title">{{ heritage.name }}</h1>
 
-            <!-- 项目概述 -->
-            <div class="detail-section card">
-              <h2 class="section-title-inner">项目概述</h2>
-              <p class="prose-dropcap">{{ heritage.overview }}</p>
-            </div>
+            <p class="detail-meta">
+              <span class="detail-meta__item">
+                <Icon icon="gis:poi" width="14" height="14" />
+                {{ heritage.city }} · {{ heritage.county }}
+              </span>
+              <span v-if="heritage.inheritor" class="detail-meta__item">
+                <Icon icon="gis:map-user" width="14" height="14" />
+                传承人 {{ heritage.inheritor }}
+              </span>
+              <span class="detail-meta__item">
+                <Icon icon="gis:map-route" width="14" height="14" />
+                {{ heritage.routeRelation }}
+              </span>
+            </p>
 
-            <!-- 技艺/表演特色 -->
-            <div class="detail-section card">
-              <h2 class="section-title-inner">技艺特色</h2>
-              <p class="prose">{{ heritage.craft }}</p>
-              <div class="process-flow" v-if="hasSteps">
-                <template v-for="(step, index) in processSteps" :key="index">
-                  <div class="process-step">
-                    <div class="step-number">{{ index + 1 }}</div>
-                    <div class="step-content">{{ step }}</div>
-                  </div>
-                  <span v-if="index < processSteps.length - 1" class="step-arrow">›</span>
-                </template>
-              </div>
-              <p v-else class="process-note">{{ heritage.process }}</p>
-            </div>
+            <p class="detail-lead">{{ heritage.intro }}</p>
 
-            <!-- 文化价值与传承 -->
-            <div class="detail-section card">
-              <h2 class="section-title-inner">文化价值与传承</h2>
-              <p class="prose">{{ heritage.value }}</p>
-              <div class="status-row">
-                <el-tag type="success" effect="light">保护状态良好</el-tag>
-                <span class="status-text">{{ heritage.protectionStatus }}</span>
-              </div>
-            </div>
-
-            <!-- 丝路关联 -->
-            <div class="detail-section card">
-              <h2 class="section-title-inner">丝路关联</h2>
-              <div class="route-relation">
-                <el-alert
-                  :title="`关联丝路线路：${heritage.routeRelation}`"
-                  type="warning"
-                  :closable="false"
-                  show-icon
-                />
-                <p class="route-note">
-                  该非遗项目位于{{ heritage.routeRelation }}沿线，是丝绸之路文化交流与传播的重要见证，
-                  体现了东西方文化在宁夏地区的交融与发展。
-                </p>
-              </div>
-            </div>
-
-            <!-- 场景展示 -->
-            <div v-if="heritage.models && heritage.models.length" class="detail-section card">
-              <h2 class="section-title-inner">场景展示</h2>
-              <p class="model-hint">可拖动环视、滚轮缩放，浏览实景扫描场景</p>
-              <ArtifactViewer :models="heritage.models" />
-            </div>
-
-            <!-- 图集 -->
-            <div class="detail-section card">
-              <h2 class="section-title-inner">图集展示</h2>
-              <div class="gallery-grid" :class="{ 'is-paired': galleryPaired }">
-                <button
-                  v-for="(img, index) in heritage.gallery"
-                  :key="index"
-                  class="gallery-item"
-                  :class="{ 'is-feature': index === 0 }"
-                  @click="openLightbox(index)"
-                  :aria-label="`查看图片 ${index + 1}`"
-                >
-                  <img :src="img" :alt="`${heritage.name} 图 ${index + 1}`" loading="lazy">
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="detail-sidebar">
-            <div class="sidebar-card card">
-              <h3>地图定位</h3>
-              <div class="map-location">
-                <div class="location-placeholder">
-                  <el-icon size="60" color="#8B4513"><MapLocation /></el-icon>
-                  <p>{{ heritage.city }} {{ heritage.county }}</p>
-                </div>
-              </div>
-              <router-link
-                :to="{ path: '/map', query: { id: heritage.id, lng: heritage.lng, lat: heritage.lat, zoom: 12 } }"
-                class="btn btn-primary sidebar-link"
-              >
-                在地图中查看
+            <div class="head-actions">
+              <router-link :to="mapLink" class="btn btn-primary">
+                <Icon icon="gis:poi" width="17" height="17" />
+                在地图中定位
+              </router-link>
+              <router-link to="/archive" class="btn btn-secondary">
+                返回档案列表
               </router-link>
             </div>
+          </div>
 
-            <div class="sidebar-card card">
-              <h3>快速导航</h3>
-              <div class="quick-nav">
-                <a href="#" @click.prevent="scrollToTop">返回顶部</a>
-                <router-link to="/map">探索地图</router-link>
-                <router-link to="/archive">返回列表</router-link>
-              </div>
+          <figure class="head-figure">
+            <button
+              type="button"
+              class="head-figure__btn"
+              :aria-label="`查看 ${heritage.name} 大图`"
+              @click="openLightbox(0)"
+            >
+              <HeritageImage
+                :src="heritage.coverImage"
+                :alt="heritage.name"
+                ratio="4 / 3"
+                eager
+                :fallback-char="heritage.name.charAt(0)"
+              />
+              <span class="head-figure__zoom">查看大图</span>
+            </button>
+            <figcaption>{{ heritage.name }} · {{ heritage.county }}</figcaption>
+          </figure>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 正文 ==================== -->
+    <section class="detail-body">
+      <div class="container detail-grid">
+        <article class="detail-article">
+          <section id="overview" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">01</span>项目概述</h2>
+            <p class="prose prose--first">{{ heritage.overview }}</p>
+          </section>
+
+          <section id="craft" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">02</span>技艺特色</h2>
+            <p class="prose">{{ heritage.craft }}</p>
+
+            <div v-if="hasSteps" class="process-flow" aria-label="工艺流程">
+              <template v-for="(step, index) in processSteps" :key="index">
+                <span class="process-step">
+                  <span class="process-step__no">{{ index + 1 }}</span>
+                  <span class="process-step__text">{{ step }}</span>
+                </span>
+                <span v-if="index < processSteps.length - 1" class="process-arrow" aria-hidden="true">›</span>
+              </template>
+            </div>
+            <p v-else class="process-note">{{ heritage.process }}</p>
+
+            <HeritageFigure v-if="heritage.figure" :figure="heritage.figure" />
+          </section>
+
+          <section id="value" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">03</span>文化价值与传承</h2>
+            <p class="prose">{{ heritage.value }}</p>
+            <p class="protection-line">
+              <span class="protection-line__label">保护现状</span>
+              {{ heritage.protectionStatus }}
+            </p>
+          </section>
+
+          <section id="route" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">04</span>丝路关联</h2>
+            <p class="route-fact">
+              <span class="route-fact__label">关联古道</span>
+              <strong>{{ heritage.routeRelation }}</strong>
+            </p>
+            <p class="prose">
+              该非遗项目位于{{ heritage.routeRelation }}沿线，是丝绸之路文化交流与传播的重要见证，
+              体现了东西方文化在宁夏地区的交融与发展。
+            </p>
+            <router-link
+              :to="{ path: '/map', query: { route: heritage.routeRelation } }"
+              class="route-link"
+            >
+              在地图中查看这条古道 <i aria-hidden="true">→</i>
+            </router-link>
+          </section>
+
+          <section v-if="sceneModels.length" id="scene" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">{{ sectionNo('scene') }}</span>场景展示</h2>
+            <p class="model-hint">可拖动环视、滚轮缩放，浏览实景扫描场景</p>
+            <ArtifactViewer :models="sceneModels" />
+          </section>
+
+          <section v-if="artifactModels.length" id="artifact" class="d-section" data-reveal>
+            <h2 class="d-title"><span class="d-title__no">{{ sectionNo('artifact') }}</span>文物展示</h2>
+            <p class="model-hint">馆藏文物三维扫描，点击载入后可拖动旋转、滚轮缩放，查看器物细节</p>
+            <div class="artifact-grid">
+              <article v-for="item in artifactModels" :key="item.url" class="artifact-card">
+                <ArtifactViewer :models="[item]" variant="card" />
+                <div class="artifact-meta">
+                  <h3 class="artifact-name">{{ item.label }}</h3>
+                  <span v-if="item.credit" class="artifact-credit">{{ item.credit }}</span>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section v-if="heritage.gallery.length" id="gallery" class="d-section" data-reveal>
+            <div class="d-head-row">
+              <h2 class="d-title"><span class="d-title__no">{{ sectionNo('gallery') }}</span>图集</h2>
+              <span class="d-head-hint">点击图片查看大图 · 共 {{ heritage.gallery.length }} 张</span>
             </div>
 
-            <div class="sidebar-card card">
-              <h3>相关项目</h3>
-              <div class="related-list">
-                <div class="related-item" v-for="item in relatedHeritage" :key="item.id" @click="goToDetail(item.id)">
-                  <img :src="item.thumbImage || item.coverImage" :alt="item.name" loading="lazy">
-                  <div class="related-info">
-                    <h4>{{ item.name }}</h4>
-                    <span>{{ item.category }}</span>
-                  </div>
-                </div>
+            <div class="gallery-grid" data-reveal-stagger>
+              <button
+                v-for="(img, index) in heritage.gallery"
+                :key="index"
+                type="button"
+                class="gallery-item"
+                :class="{ 'is-feature': index === 0 }"
+                :aria-label="`查看 ${heritage.name} 图 ${index + 1}`"
+                @click="openLightbox(index)"
+              >
+                <HeritageImage
+                  :src="img"
+                  :alt="`${heritage.name} 图 ${index + 1}`"
+                  :ratio="index === 0 ? '16 / 9' : '4 / 3'"
+                  :fallback-char="heritage.name.charAt(0)"
+                />
+                <span class="gallery-item__index">{{ index + 1 }} / {{ heritage.gallery.length }}</span>
+              </button>
+            </div>
+          </section>
+        </article>
+
+        <!-- ==================== 侧栏 ==================== -->
+        <aside class="detail-side" data-reveal data-reveal-delay="120">
+          <div class="side-card">
+            <h2 class="side-title">空间位置</h2>
+            <dl class="place-list">
+              <div class="place-row">
+                <dt>所在地市</dt>
+                <dd>{{ heritage.city }}</dd>
               </div>
+              <div class="place-row">
+                <dt>区县</dt>
+                <dd>{{ heritage.county }}</dd>
+              </div>
+              <div class="place-row">
+                <dt>经纬度</dt>
+                <dd class="place-row__coord">{{ heritage.lng }}°E, {{ heritage.lat }}°N</dd>
+              </div>
+              <div class="place-row">
+                <dt>关联古道</dt>
+                <dd>{{ heritage.routeRelation }}</dd>
+              </div>
+              <div class="place-row">
+                <dt>保护级别</dt>
+                <dd>{{ heritage.level }}</dd>
+              </div>
+            </dl>
+            <router-link :to="mapLink" class="btn btn-primary side-btn">
+              <Icon icon="gis:map" width="16" height="16" />
+              在地图中查看
+            </router-link>
+          </div>
+
+          <nav class="side-card" aria-label="本页目录">
+            <h2 class="side-title">本页目录</h2>
+            <ul class="toc">
+              <li v-for="item in sections" :key="item.id">
+                <a :href="`#${item.id}`" @click.prevent="jumpTo(item.id)">{{ item.label }}</a>
+              </li>
+            </ul>
+          </nav>
+
+          <div v-if="relatedHeritage.length" class="side-card">
+            <h2 class="side-title">相关项目</h2>
+            <div class="related-list">
+              <router-link
+                v-for="item in relatedHeritage"
+                :key="item.id"
+                :to="`/archive/${item.id}`"
+                class="related-item"
+              >
+                <span class="related-thumb">
+                  <HeritageImage
+                    :src="item.thumbImage || item.coverImage"
+                    :alt="item.name"
+                    ratio=""
+                    :adaptive="false"
+                    :fallback-char="item.name.charAt(0)"
+                  />
+                </span>
+                <span class="related-info">
+                  <span class="related-name">{{ item.name }}</span>
+                  <span class="related-meta">{{ item.category }} · {{ item.city }}</span>
+                </span>
+              </router-link>
             </div>
           </div>
-        </div>
+        </aside>
+      </div>
 
-        <div class="detail-nav">
-          <button class="nav-btn" :disabled="!prevHeritage" @click="goToDetail(prevHeritage?.id)">
-            <el-icon><ArrowLeft /></el-icon>
-            <div class="nav-text">
-              <span class="nav-label">上一项</span>
-              <span class="nav-title">{{ prevHeritage?.name || '没有了' }}</span>
-            </div>
-          </button>
-          <button class="nav-btn" :disabled="!nextHeritage" @click="goToDetail(nextHeritage?.id)">
-            <div class="nav-text">
-              <span class="nav-label">下一项</span>
-              <span class="nav-title">{{ nextHeritage?.name || '没有了' }}</span>
-            </div>
-            <el-icon><ArrowRight /></el-icon>
-          </button>
-        </div>
+      <!-- ==================== 上一项 / 下一项 ==================== -->
+      <div class="container detail-nav">
+        <button
+          type="button"
+          class="nav-btn"
+          :disabled="!prevHeritage"
+          @click="prevHeritage && goToDetail(prevHeritage.id)"
+        >
+          <Icon icon="gis:help-larrow" width="18" height="18" />
+          <span class="nav-text">
+            <span class="nav-label">上一项</span>
+            <span class="nav-title">{{ prevHeritage?.name || '已是第一项' }}</span>
+          </span>
+        </button>
+        <button
+          type="button"
+          class="nav-btn nav-btn--next"
+          :disabled="!nextHeritage"
+          @click="nextHeritage && goToDetail(nextHeritage.id)"
+        >
+          <span class="nav-text">
+            <span class="nav-label">下一项</span>
+            <span class="nav-title">{{ nextHeritage?.name || '已是最后一项' }}</span>
+          </span>
+          <Icon icon="gis:help-rarrow" width="18" height="18" />
+        </button>
       </div>
     </section>
 
-    <!-- 图片灯箱 -->
+    <!-- ==================== 图片灯箱 ==================== -->
     <transition name="lightbox-fade">
-      <div v-if="lightboxIndex !== null" class="lightbox" role="dialog" aria-modal="true" aria-label="图片查看器"
-           tabindex="-1" ref="lightboxEl"
-           @click.self="closeLightbox" @keydown="onLightboxKeydown">
-        <button class="lightbox-close" @click="closeLightbox" aria-label="关闭">×</button>
-        <button class="lightbox-nav prev" @click="shiftImage(-1)" aria-label="上一张">‹</button>
-        <figure class="lightbox-figure" @click.self="closeLightbox">
-          <img :src="heritage.gallery[lightboxIndex]" :alt="`${heritage.name} 大图`">
-          <figcaption>{{ lightboxIndex + 1 }} / {{ heritage.gallery.length }} · {{ heritage.name }}</figcaption>
+      <div
+        v-if="lightboxIndex !== null"
+        ref="lightboxEl"
+        class="lightbox"
+        role="dialog"
+        aria-modal="true"
+        aria-label="图片查看器"
+        tabindex="-1"
+        @click.self="closeLightbox"
+        @keydown="onLightboxKeydown"
+      >
+        <button type="button" class="lightbox-close" aria-label="关闭" @click="closeLightbox">×</button>
+        <button type="button" class="lightbox-nav prev" aria-label="上一张" @click="shiftImage(-1)">‹</button>
+        <figure class="lightbox-figure">
+          <img
+            v-if="!lightboxFailed"
+            :src="heritage.gallery[lightboxIndex]"
+            :alt="`${heritage.name} 大图 ${lightboxIndex + 1}`"
+            @error="lightboxFailed = true"
+          />
+          <div v-else class="lightbox-failed" role="status">
+            <span class="lightbox-failed__char">{{ heritage.name.charAt(0) }}</span>
+            <span>大图加载失败，请稍后重试</span>
+          </div>
+          <figcaption>
+            {{ lightboxIndex + 1 }} / {{ heritage.gallery.length }} · {{ heritage.name }} · {{ heritage.county }}
+          </figcaption>
         </figure>
-        <button class="lightbox-nav next" @click="shiftImage(1)" aria-label="下一张">›</button>
+        <button type="button" class="lightbox-nav next" aria-label="下一张" @click="shiftImage(1)">›</button>
       </div>
     </transition>
   </div>
@@ -193,40 +312,74 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Location, User, Position, MapLocation, ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
-import { ElTag, ElIcon, ElAlert } from 'element-plus'
-import 'element-plus/es/components/tag/style/css'
-import 'element-plus/es/components/icon/style/css'
-import 'element-plus/es/components/alert/style/css'
+import { Icon } from '@iconify/vue'
+import HeritageImage from '../components/HeritageImage.vue'
 import { heritageData } from '../data/heritageData'
 
 // 三维查看器按需加载，避免查看器逻辑进入首屏主包
 const ArtifactViewer = defineAsyncComponent(() => import('../components/ArtifactViewer.vue'))
+// 工艺示意图同样按需加载：图是内联 SVG，体积不小，且只有部分条目配了图
+const HeritageFigure = defineAsyncComponent(() => import('../components/HeritageFigure.vue'))
 
 const route = useRoute()
 const router = useRouter()
+
 const heritage = ref(null)
 const processSteps = ref([])
 const lightboxIndex = ref(null)
+const lightboxFailed = ref(false)
 const lightboxEl = ref(null)
+let lastFocused = null
 
 const hasSteps = computed(() => processSteps.value.length > 1)
-// 偶数张图集时，大图之外的图片成对排列（末图落单时横向铺满）
-const galleryPaired = computed(() => heritage.value?.gallery.length % 2 === 0)
 
-const currentIndex = computed(() => {
-  return heritageData.findIndex(h => h.id === heritage.value?.id)
+const modelList = computed(() => heritage.value?.models || [])
+// 文物模型进「文物展示」展柜卡片，其余扫描场景走「场景展示」大画布
+const artifactModels = computed(() => modelList.value.filter((m) => m.kind === 'artifact'))
+const sceneModels = computed(() => modelList.value.filter((m) => m.kind !== 'artifact'))
+
+const mapLink = computed(() =>
+  heritage.value
+    ? {
+        path: '/map',
+        query: {
+          id: heritage.value.id,
+          lng: heritage.value.lng,
+          lat: heritage.value.lat,
+          zoom: 12
+        }
+      }
+    : '/map'
+)
+
+const sections = computed(() => {
+  if (!heritage.value) return []
+  const list = [
+    { id: 'overview', label: '项目概述' },
+    { id: 'craft', label: '技艺特色' },
+    { id: 'value', label: '文化价值与传承' },
+    { id: 'route', label: '丝路关联' }
+  ]
+  if (sceneModels.value.length) list.push({ id: 'scene', label: '场景展示' })
+  if (artifactModels.value.length) list.push({ id: 'artifact', label: '文物展示' })
+  if (heritage.value.gallery.length) list.push({ id: 'gallery', label: '图集' })
+  return list
 })
 
+const sectionNo = (id) => {
+  const index = sections.value.findIndex((item) => item.id === id)
+  return index >= 0 ? String(index + 1).padStart(2, '0') : ''
+}
+
+const currentIndex = computed(() => heritageData.findIndex((h) => h.id === heritage.value?.id))
+
 const prevHeritage = computed(() => {
-  if (currentIndex.value > 0) {
-    return heritageData[currentIndex.value - 1]
-  }
+  if (currentIndex.value > 0) return heritageData[currentIndex.value - 1]
   return null
 })
 
 const nextHeritage = computed(() => {
-  if (currentIndex.value < heritageData.length - 1) {
+  if (currentIndex.value >= 0 && currentIndex.value < heritageData.length - 1) {
     return heritageData[currentIndex.value + 1]
   }
   return null
@@ -235,59 +388,78 @@ const nextHeritage = computed(() => {
 const relatedHeritage = computed(() => {
   if (!heritage.value) return []
   return heritageData
-    .filter(h => h.id !== heritage.value.id && (h.category === heritage.value.category || h.city === heritage.value.city))
+    .filter(
+      (h) =>
+        h.id !== heritage.value.id &&
+        (h.category === heritage.value.category || h.city === heritage.value.city)
+    )
     .slice(0, 4)
 })
 
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+const goToDetail = (id) => {
+  if (id) router.push(`/archive/${id}`)
 }
 
-const goToDetail = (id) => {
-  if (id) {
-    router.push(`/archive/${id}`)
-  }
+const jumpTo = (id) => {
+  const target = document.getElementById(id)
+  if (!target) return
+  const offset = window.innerWidth <= 768 ? 76 : 88
+  const top = target.getBoundingClientRect().top + window.scrollY - offset
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
 }
 
 const openLightbox = (index) => {
+  if (!heritage.value?.gallery.length) return
+  lightboxFailed.value = false
   lightboxIndex.value = index
+  lastFocused = document.activeElement
   document.body.style.overflow = 'hidden'
   nextTick(() => lightboxEl.value?.focus())
 }
 
 const closeLightbox = () => {
   lightboxIndex.value = null
+  lightboxFailed.value = false
   document.body.style.overflow = ''
+  if (lastFocused instanceof HTMLElement) lastFocused.focus()
 }
 
 const shiftImage = (delta) => {
   const len = heritage.value.gallery.length
+  lightboxFailed.value = false
   lightboxIndex.value = (lightboxIndex.value + delta + len) % len
 }
 
-const onLightboxKeydown = (e) => {
-  if (e.key === 'Escape') closeLightbox()
-  else if (e.key === 'ArrowLeft') shiftImage(-1)
-  else if (e.key === 'ArrowRight') shiftImage(1)
+const onLightboxKeydown = (event) => {
+  if (event.key === 'Escape') closeLightbox()
+  else if (event.key === 'ArrowLeft') shiftImage(-1)
+  else if (event.key === 'ArrowRight') shiftImage(1)
 }
 
 const loadHeritage = (id) => {
-  heritage.value = heritageData.find(h => h.id === id)
+  heritage.value = heritageData.find((h) => h.id === id) || null
   if (heritage.value && heritage.value.process.includes('→')) {
     processSteps.value = heritage.value.process.split('→')
   } else if (heritage.value) {
     processSteps.value = [heritage.value.process]
+  } else {
+    processSteps.value = []
   }
 }
 
-watch(() => route.params.id, (newId) => {
-  loadHeritage(parseInt(newId))
-  nextTick(scrollToTop)
-})
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (lightboxIndex.value !== null) closeLightbox()
+    loadHeritage(parseInt(newId, 10))
+    nextTick(() => window.scrollTo({ top: 0 }))
+  }
+)
 
 onMounted(() => {
-  loadHeritage(parseInt(route.params.id))
-  nextTick(scrollToTop)
+  loadHeritage(parseInt(route.params.id, 10))
+  nextTick(() => window.scrollTo({ top: 0 }))
 })
 
 onBeforeUnmount(() => {
@@ -295,484 +467,808 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
-.page-header {
+<style lang="scss" scoped>
+.detail-page {
+  min-height: 100vh;
   background: var(--color-background);
-  padding: var(--spacing-md) 0;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.breadcrumb-nav {
-  color: var(--color-text-light);
-  font-size: 0.9rem;
+// ============================================
+// 页头
+// ============================================
+.detail-head {
+  padding: var(--space-8) 0 var(--space-12);
+  background:
+    radial-gradient(760px 380px at 92% 0%, rgba(212, 160, 23, 0.1), transparent 64%),
+    var(--color-paper);
+  border-bottom: 1px solid var(--color-border-light);
+
+  @media (max-width: 768px) {
+    padding: var(--space-6) 0 var(--space-8);
+  }
 }
 
-.breadcrumb-nav a {
-  color: var(--color-primary);
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+
+  a {
+    color: var(--color-text-medium);
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  &__sep {
+    color: var(--color-border-strong);
+  }
+
+  &__current {
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: var(--space-6);
+  }
 }
 
-.breadcrumb-nav .current {
+.detail-head__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--space-12);
+  align-items: center;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.detail-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+
+  &__cat {
+    padding: 3px 10px;
+    border: 1px solid var(--color-gold-refined-line);
+    border-radius: var(--radius-sm);
+    color: var(--color-primary);
+  }
+}
+
+.detail-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-title);
+  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-weight: 400;
+  line-height: var(--leading-tight);
   color: var(--color-text);
 }
 
-.detail-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: var(--spacing-xl);
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
 }
 
-.detail-main {
+.detail-lead {
+  margin: 0 0 var(--space-6);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-gold-refined-line);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-light);
+
+  @media (max-width: 640px) {
+    font-size: var(--text-body);
+  }
+}
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.head-figure {
+  margin: 0;
+
+  &__btn {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--color-surface);
+    cursor: zoom-in;
+
+    &:hover :deep(.h-image img) {
+      transform: scale(1.03);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__zoom {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    z-index: 2;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(46, 26, 15, 0.66);
+    color: #fff;
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+  }
+
+  figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+}
+
+// ============================================
+// 正文布局
+// ============================================
+.detail-body {
+  padding: var(--space-12) 0 var(--space-20);
+
+  @media (max-width: 768px) {
+    padding: var(--space-8) 0 var(--space-16);
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 312px;
+  gap: var(--space-12);
+  align-items: start;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+}
+
+.detail-article {
   min-width: 0;
 }
 
-/* ---- 主视觉 ---- */
-.detail-hero {
-  margin: 0 0 var(--spacing-lg);
+.d-section {
+  padding-bottom: var(--space-8);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-border-light);
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
 }
 
-.hero-image {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: var(--radius-lg);
-  display: block;
-}
-
-.hero-caption {
-  margin-top: var(--spacing-xs);
-  text-align: right;
-  font-size: 0.82rem;
-  color: var(--color-text-light);
-  letter-spacing: 0.08em;
-}
-
-/* ---- 标题卡 ---- */
-.detail-header {
-  margin-bottom: var(--spacing-lg);
-}
-
-.header-tags {
-  margin-bottom: var(--spacing-md);
-}
-
-.header-tags .el-tag {
-  margin-right: var(--spacing-xs);
-}
-
-.detail-header h1 {
-  font-size: clamp(1.6rem, 3.5vw, 2rem);
-  margin-bottom: var(--spacing-sm);
-}
-
-.header-lead {
-  color: var(--color-text-light);
-  font-size: 1rem;
-  line-height: 1.7;
-  margin: 0 0 var(--spacing-md);
-  padding-left: var(--spacing-md);
-  border-left: 3px solid var(--color-secondary);
-}
-
-.header-meta {
+.d-title {
   display: flex;
-  gap: var(--spacing-lg);
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-sub);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-text);
+
+  &__no {
+    font-family: var(--font-en);
+    font-size: var(--text-caption);
+    letter-spacing: 0.1em;
+    color: var(--color-gold-refined);
+  }
+
+  @media (max-width: 640px) {
+    font-size: 1.3rem;
+  }
+}
+
+.d-head-row {
+  display: flex;
   flex-wrap: wrap;
-  color: var(--color-text-light);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
-.header-meta span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ---- 内容卡 ---- */
-.detail-section {
-  margin-bottom: var(--spacing-lg);
-}
-
-.section-title-inner {
-  font-size: 1.3rem;
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 2px solid var(--color-primary);
-  display: inline-block;
-}
-
-.model-hint {
-  margin: 0 0 var(--spacing-md);
-  font-size: 13px;
+.d-head-hint {
+  font-size: var(--text-label);
   color: var(--color-text-muted);
 }
 
-.prose,
-.prose-dropcap {
-  line-height: 2;
+.prose {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
   color: var(--color-text);
-  font-size: 0.98rem;
   text-align: justify;
+
+  &--first::first-letter {
+    float: left;
+    padding: 0.06em 0.14em 0 0;
+    font-family: var(--font-title);
+    font-size: 3em;
+    line-height: 0.9;
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 768px) {
+    text-align: left;
+  }
 }
 
-.prose-dropcap::first-letter {
-  float: left;
-  font-size: 3.1em;
-  line-height: 0.9;
-  padding: 0.08em 0.14em 0 0;
-  color: var(--color-primary);
-  font-weight: 700;
-}
-
-/* ---- 流程节点 ---- */
+// 工艺流程
 .process-flow {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
   flex-wrap: wrap;
-  margin-top: var(--spacing-md);
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
 }
 
 .process-step {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
   background: var(--color-background);
-  padding: var(--spacing-xs) var(--spacing-md) var(--spacing-xs) var(--spacing-xs);
-  border-radius: var(--radius-full, 999px);
+  border-radius: var(--radius-pill);
+
+  &__no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-paper);
+    font-family: var(--font-en);
+    font-size: 0.72rem;
+  }
+
+  &__text {
+    font-size: var(--text-caption);
+    color: var(--color-text);
+  }
 }
 
-.step-number {
-  width: 26px;
-  height: 26px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: var(--color-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.8rem;
-  flex: none;
-}
-
-.step-content {
-  color: var(--color-text);
-  font-size: 0.9rem;
-}
-
-.step-arrow {
-  color: var(--color-secondary);
-  font-size: 1.2rem;
+.process-arrow {
+  color: var(--color-gold-refined);
   line-height: 1;
 }
 
 .process-note {
-  margin: var(--spacing-md) 0 0;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-background);
-  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-paper);
+  border-left: 2px solid var(--color-gold-refined-line);
+  font-size: var(--text-body-sm);
+  line-height: 1.8;
   color: var(--color-text-light);
-  font-size: 0.9rem;
 }
 
-/* ---- 保护状态 ---- */
-.status-row {
+.protection-line {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
   flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-control);
+  font-size: var(--text-body-sm);
+  color: var(--color-text);
+
+  &__label {
+    flex: none;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-success-soft);
+    color: var(--color-success-ink);
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+  }
 }
 
-.status-text {
-  color: var(--color-text-light);
-  font-size: 0.9rem;
+.route-fact {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body);
+
+  &__label {
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--color-warning-soft);
+    color: var(--color-warning-ink);
+    font-size: var(--text-label);
+  }
+
+  strong {
+    font-family: var(--font-sub);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--color-primary);
+  }
 }
 
-/* ---- 丝路 ---- */
-.route-note {
-  margin: var(--spacing-md) 0 0;
-  color: var(--color-text-light);
-  line-height: 1.9;
+.route-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: var(--text-body-sm);
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-gold-refined-line);
+  padding-bottom: 2px;
+
+  i {
+    font-style: normal;
+    transition: transform 0.25s var(--ease-out, ease);
+  }
+
+  &:hover i {
+    transform: translateX(3px);
+  }
 }
 
-/* ---- 图集 ---- */
+.model-hint {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+// 文物展柜
+.artifact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.artifact-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.artifact-meta {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.artifact-name {
+  margin: 0 0 4px;
+  font-size: var(--text-body);
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.artifact-credit {
+  font-size: var(--text-label);
+  color: var(--color-text-muted);
+}
+
+// 图集
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .gallery-item {
-  padding: 0;
-  border: none;
-  background: var(--color-background);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  cursor: pointer;
-  aspect-ratio: 4 / 3;
-}
-
-.gallery-item.is-feature {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 8.5;
-}
-
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: relative;
   display: block;
-  transition: transform 0.45s var(--ease-out, ease);
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--color-paper);
+  cursor: zoom-in;
+
+  &.is-feature {
+    grid-column: 1 / -1;
+  }
+
+  :deep(.h-image img) {
+    transition: transform 0.5s var(--ease-out, ease), opacity 0.4s var(--ease-out, ease);
+  }
+
+  &:hover :deep(.h-image img) {
+    transform: scale(1.04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+
+  &__index {
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-2);
+    z-index: 2;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: rgba(46, 26, 15, 0.6);
+    color: #fff;
+    font-family: var(--font-en);
+    font-size: var(--text-label);
+    letter-spacing: 0.04em;
+  }
 }
 
-.gallery-item:hover img,
-.gallery-item:focus-visible img {
-  transform: scale(1.05);
-}
-
-.gallery-item:focus-visible {
-  outline: 2px solid var(--color-secondary);
-  outline-offset: 2px;
-}
-
-/* 偶数张：首图之后剩余奇数张，末图落单时横向铺满 */
-.gallery-grid.is-paired .gallery-item:last-child {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 8.5;
-}
-
-/* ---- 侧栏 ---- */
-.detail-sidebar {
+// ============================================
+// 侧栏
+// ============================================
+.detail-side {
   position: sticky;
-  top: 100px;
-  height: fit-content;
-}
-
-.sidebar-card {
-  margin-bottom: var(--spacing-lg);
-}
-
-.sidebar-card h3 {
-  margin-bottom: var(--spacing-md);
-  font-size: 1.1rem;
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.sidebar-link {
-  width: 100%;
-  margin-top: var(--spacing-md);
-  text-align: center;
-}
-
-.map-location {
-  height: 180px;
-  background: linear-gradient(135deg, #E8DFD0 0%, #D4C4AD 100%);
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.location-placeholder {
-  text-align: center;
-}
-
-.location-placeholder p {
-  margin-top: var(--spacing-sm);
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.quick-nav {
+  top: 88px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--space-6);
+
+  @media (max-width: 992px) {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.quick-nav a {
-  padding: var(--spacing-sm);
+.side-card {
+  padding: var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+}
+
+.side-title {
+  margin: 0 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-light);
+  font-family: var(--font-sub);
+  font-size: 1.05rem;
+  font-weight: 400;
   color: var(--color-text);
-  border-radius: var(--radius-lg);
-  transition: background-color 0.3s var(--ease-out, ease);
 }
 
-.quick-nav a:hover {
-  background: var(--color-background);
-  color: var(--color-primary);
+.place-list {
+  margin: 0;
+}
+
+.place-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+  border-bottom: 1px dashed var(--color-border-light);
+  font-size: var(--text-caption);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    color: var(--color-text);
+  }
+
+  &__coord {
+    font-family: var(--font-en);
+    font-size: var(--text-label);
+    letter-spacing: 0.02em;
+  }
+}
+
+.side-btn {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.toc {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    margin-top: 2px;
+  }
+
+  a {
+    display: block;
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-medium);
+
+    &:hover {
+      background: var(--color-primary-soft);
+      color: var(--color-primary);
+    }
+  }
 }
 
 .related-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--space-3);
 }
 
 .related-item {
   display: flex;
-  gap: var(--spacing-sm);
-  cursor: pointer;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-lg);
-  transition: background-color 0.3s var(--ease-out, ease);
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+
+  &:hover .related-name {
+    color: var(--color-primary);
+  }
 }
 
-.related-item:hover {
-  background: var(--color-background);
-}
+.related-thumb {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
 
-.related-item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: var(--radius-lg);
+  :deep(.h-image) {
+    height: 100%;
+  }
 }
 
 .related-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
-.related-info h4 {
-  font-size: 0.95rem;
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.related-name {
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  transition: color 0.25s var(--ease-out, ease);
 }
 
-.related-info span {
-  font-size: 0.85rem;
-  color: var(--color-text-light);
+.related-meta {
+  font-size: var(--text-label);
+  color: var(--color-text-muted);
 }
 
-/* ---- 上下导航 ---- */
+// ============================================
+// 上下导航
+// ============================================
 .detail-nav {
-  margin-top: var(--spacing-xl);
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--space-4);
+  margin-top: var(--space-12);
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
 }
 
 .nav-btn {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
   cursor: pointer;
-  transition: border-color 0.3s var(--ease-out, ease), box-shadow 0.3s var(--ease-out, ease);
-}
+  text-align: left;
+  transition: border-color 0.25s var(--ease-out, ease), box-shadow 0.25s var(--ease-out, ease);
 
-.nav-btn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-}
+  &:hover:not(:disabled) {
+    border-color: var(--color-gold-refined-line);
+    box-shadow: var(--shadow-xs);
+  }
 
-.nav-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--next {
+    justify-content: flex-end;
+    text-align: right;
+  }
 }
 
 .nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   flex: 1;
-  text-align: left;
+  min-width: 0;
 }
 
 .nav-label {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--color-text-light);
+  font-size: var(--text-label);
+  color: var(--color-text-muted);
 }
 
 .nav-title {
-  display: block;
-  font-size: 1rem;
+  font-family: var(--font-sub);
+  font-size: var(--text-body);
   color: var(--color-text);
-  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* ---- 灯箱 ---- */
+// ============================================
+// 灯箱
+// ============================================
 .lightbox {
   position: fixed;
   inset: 0;
   z-index: 3000;
-  background: rgba(30, 20, 10, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: rgba(30, 20, 10, 0.93);
 }
 
 .lightbox-figure {
   margin: 0;
-  max-width: min(86vw, 1200px);
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: min(88vw, 1280px);
+
+  img {
+    display: block;
+    max-width: 100%;
+    max-height: 82vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  figcaption {
+    margin-top: var(--space-3);
+    font-size: var(--text-caption);
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.78);
+  }
 }
 
-.lightbox-figure img {
-  max-width: 100%;
-  max-height: 82vh;
-  object-fit: contain;
-  border-radius: 6px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
-}
+.lightbox-failed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: min(70vw, 640px);
+  height: min(50vh, 360px);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-card);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--text-body-sm);
 
-.lightbox-figure figcaption {
-  margin-top: var(--spacing-sm);
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  &__char {
+    font-family: var(--font-title);
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.35);
+  }
 }
 
 .lightbox-close,
 .lightbox-nav {
   position: absolute;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: 50%;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
   transition: background-color 0.25s var(--ease-out, ease);
-}
 
-.lightbox-close:hover,
-.lightbox-nav:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
+  &:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
 
-.lightbox-close:focus-visible,
-.lightbox-nav:focus-visible {
-  outline: 2px solid var(--color-secondary);
-  outline-offset: 2px;
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
 }
 
 .lightbox-close {
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  width: 44px;
-  height: 44px;
-  font-size: 1.5rem;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 42px;
+  height: 42px;
+  font-size: 1.4rem;
 }
 
 .lightbox-nav {
-  width: 52px;
-  height: 52px;
-  font-size: 2rem;
   top: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.8rem;
   transform: translateY(-50%);
-}
 
-.lightbox-nav.prev { left: var(--spacing-lg); }
-.lightbox-nav.next { right: var(--spacing-lg); }
+  &.prev {
+    left: var(--space-4);
+  }
+
+  &.next {
+    right: var(--space-4);
+  }
+}
 
 .lightbox-fade-enter-active,
 .lightbox-fade-leave-active {
@@ -784,45 +1280,7 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-/* ---- 响应式 ---- */
-@media (max-width: 992px) {
-  .detail-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-sidebar {
-    position: static;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-image {
-    height: 240px;
-  }
-
-  .gallery-item.is-feature,
-  .gallery-grid.is-paired .gallery-item:last-child {
-    aspect-ratio: 16 / 10;
-  }
-
-  .detail-nav {
-    flex-direction: column;
-  }
-
-  .lightbox-nav {
-    width: 42px;
-    height: 42px;
-    font-size: 1.5rem;
-  }
-
-  .prose,
-  .prose-dropcap {
-    text-align: left;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .gallery-item img,
   .lightbox-fade-enter-active,
   .lightbox-fade-leave-active {
     transition: none;

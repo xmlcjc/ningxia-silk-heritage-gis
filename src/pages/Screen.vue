@@ -116,6 +116,22 @@
           </transition-group>
         </div>
 
+        <!-- 观赏视角切换器：独立于筛选栏，避免与非遗类别筛选混用 -->
+        <nav class="viewpoint-switcher" aria-label="观赏视角">
+          <span class="vs-caption">观赏视角</span>
+          <button
+            v-for="vp in viewpoints"
+            :key="vp.id"
+            class="vs-item"
+            :class="{ 'is-active': activeViewpoint === vp.id }"
+            :aria-pressed="activeViewpoint === vp.id"
+            @click="applyViewpoint(vp.id)"
+          >
+            <i class="vs-index">{{ vp.index }}</i>
+            <span class="vs-name">{{ vp.name }}</span>
+          </button>
+        </nav>
+
         <transition name="card">
           <div v-if="selected" class="poi-card">
             <button class="poi-close" @click="selected = null" aria-label="关闭">×</button>
@@ -133,9 +149,15 @@
             <div v-if="pipSrc" class="poi-scene">
               <iframe class="poi-scene-frame" :src="pipSrc" title="实景三维场景" allow="fullscreen" />
             </div>
-            <div v-else-if="artifactFor(selected.category)" class="poi-artifact">
-              <ArtifactModel :src="artifactFor(selected.category).src" />
-              <span class="poi-artifact-label">{{ artifactFor(selected.category).label }} · 参照器物</span>
+            <div v-else-if="artifact" class="poi-artifact">
+              <ArtifactModel :src="artifact.src" />
+              <span class="poi-artifact-label">
+                {{ artifact.label }} · {{ artifact.relation === 'reference' ? '工艺参照模型，非该项目实物' : '对应器物' }}
+              </span>
+            </div>
+            <div v-else class="poi-artifact poi-artifact-empty">
+              <span class="poi-artifact-empty-title">暂无对应三维模型</span>
+              <span class="poi-artifact-empty-note">该项目尚未有可靠的三维数字化模型</span>
             </div>
 
             <router-link class="poi-link" :to="`/archive/${selected.id}`">
@@ -144,7 +166,7 @@
           </div>
         </transition>
 
-        <div class="stage-legend">
+        <div class="stage-legend" :class="{ 'is-hidden': isNarrow && selected }">
           <span><i class="lg-dot gold"></i>国家级</span>
           <span><i class="lg-dot green"></i>自治区级</span>
           <span><i class="lg-dot bluegray"></i>市级</span>
@@ -200,6 +222,7 @@ import { artifactFor } from '@/data/artifactModels'
 import satUrl from '@/assets/textures/nx_sat.webp'
 import dispUrl from '@/assets/textures/nx_disp.jpg'
 import normalUrl from '@/assets/textures/nx_normal.jpg'
+import hillshadeUrl from '@/assets/textures/nx_hillshade.png'
 import {
   heritageData,
   categories,
@@ -231,10 +254,18 @@ const pipSrc = computed(() => {
   })
   return `/viewer-embed.html?${params.toString()}`
 })
+// 器物模型：仅接受与条目有明确语义对应的模型；无对应时不展示（见 artifactModels.js）
+const artifact = computed(() => (selected.value ? artifactFor(selected.value) : null))
+// 窄屏判定：与 CSS 断点 1024px 对齐，用于浮层互斥（POI 详情卡 ↔ 抽屉面板/图例）
+const isNarrow = ref(typeof window !== 'undefined' && window.innerWidth <= 1024)
 // 窄屏数据面板开关：单键循环 0 收起 → 1 左栏总览 → 2 右栏图表/名录；
 // 避免两块 280px 面板在 <1024px 窄屏同时展开相互遮挡导致内容被裁切
 const mobilePanel = ref(0)
-const cycleMobilePanel = () => { mobilePanel.value = (mobilePanel.value + 1) % 3 }
+const cycleMobilePanel = () => {
+  // 窄屏互斥：打开抽屉面板前先关闭 POI 详情卡，避免两块浮层争抢同一显示区域
+  if (isNarrow.value && selected.value) selected.value = null
+  mobilePanel.value = (mobilePanel.value + 1) % 3
+}
 const clockText = ref('')
 // 悬停地级市时的信息卡
 const hoverCardName = ref('')
@@ -327,6 +358,43 @@ const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 // 流光采样复用的临时向量
 const _runnerTmp = new THREE.Vector3()
+// 标注 Sprite 世界坐标复用向量（用于按相机距离做淡出）
+const _labelWorldTmp = new THREE.Vector3()
+// 邻省省名屏幕边缘安全区微调：把投影到视口外的文字拉回可见范围
+const _labelNdcTmp = new THREE.Vector3()
+const _camRightTmp = new THREE.Vector3()
+const _camUpTmp = new THREE.Vector3()
+const NEIGHBOR_SAFE_NDC = 0.94
+// 市名/古道标牌的距离淡出阈值（世界单位）：
+// 默认视角约 160、聚焦地市约 81~105，均完整显示；小于 68 开始淡出，贴到 38 以内完全隐藏，
+// 避免极限放大时 12.5 世界单位宽的 Sprite 随透视放大铺满视口
+const LABEL_FADE_NEAR = 38
+const LABEL_FADE_FAR = 68
+function labelFadeByDistance(dist) {
+  return Math.min(1, Math.max(0, (dist - LABEL_FADE_NEAR) / (LABEL_FADE_FAR - LABEL_FADE_NEAR)))
+}
+// 邻省省名基础不透明度（沿用原视觉值）
+const NEIGHBOR_LABEL_BASE_OPACITY = 0.82
+// 注视点相对地表的稳定抬升量（世界单位）
+const TARGET_GROUND_CLEARANCE = 1.5
+// 平移边界：以地形实际包围盒为基准，额外保留少量观察缓冲
+const PAN_LIMIT_BUFFER = 6
+// 当前选中的预设视角；手动拖动/缩放或聚焦地市后置空，避免切换器显示与实际镜头不符
+const activeViewpoint = ref('all')
+// 竖屏窄屏构图：保持观察距离不变，抬高俯角，让地形在纵向画面中占比更高
+// （仅改变相机取景，不改变地形数据、地理坐标或空间比例）
+const PORTRAIT_PITCH = (57 * Math.PI) / 180
+let portraitFraming = false
+let lastCameraAspect = 1
+const viewPitchRatio = () => (portraitFraming ? Math.tan(PORTRAIT_PITCH) : 0.98)
+const defaultCameraPose = () => {
+  if (!portraitFraming) return { pos: new THREE.Vector3(0, 114, -114), target: new THREE.Vector3(0, 2, 0) }
+  const d = 160
+  return {
+    pos: new THREE.Vector3(0, 2 + d * Math.sin(PORTRAIT_PITCH), -d * Math.cos(PORTRAIT_PITCH)),
+    target: new THREE.Vector3(0, 2, 0)
+  }
+}
 const hitMeshes = []
 const pulseRings = []
 const glowHeads = []
@@ -350,23 +418,41 @@ let dotSpriteTex = null
 // 周边省级行政区参照层（甘肃/内蒙古/陕西）：默认显示，可一键隐藏做对比
 const showNeighbors = ref(true)
 const neighborObjects = []
+// 省名 Sprite 与材质：与市名/古道共用同一套距离淡出，避免极限放大时铺满视口
+const neighborLabelSprites = []
 const neighborDisposables = []
+// DEM 采样器（世界坐标版）与地形实际包围盒：供注视点高程化、平移边界复用
+let groundSamplerWorld = null
+let terrainBounds = null
 // 地形分层设色：默认关闭（地形仅显示暗色卫星影像），开启后按海拔高程叠加彩色色层
 const showTerrain = ref(false)
 let terrainTintMat = null
+let terrainTintMesh = null
 let reduceMotion = false
 let pointerDownAt = null
 let onClickHandler = null
 let onMoveHandler = null
 let onDownHandler = null
 let onLeaveHandler = null
+let onWheelHandler = null
 let animationId = 0
 let resizeHandler = null
+let containerResizeObserver = null
+let resizeFrame = 0
+let lastContainerW = 0
+let lastContainerH = 0
 
 const CENTROID = [106.169866, 37.291332]
 const SCALE = 22
-const CITY_BASE_COLOR = new THREE.Color('#6fc6e8')
+// 中心纬度余弦：经度方向每度对应的地表距离约为纬度方向的 cos(lat) 倍，
+// 因此 cos 因子必须作用在经度轴。此前它被乘在纬度轴上，导致世界 X/Z 尺度比
+// 偏离真实地表约 1/cos² ≈ 1.58 倍（整幅地图东西向被拉伸）。
+const COS_CENTROID = Math.cos((CENTROID[1] * Math.PI) / 180)
+// 五市基础色：低饱和琥珀（原科技蓝 #6fc6e8），悬停/选中时提亮为鎏金
+const CITY_BASE_COLOR = new THREE.Color('#b08a4a')
 const CITY_GOLD_COLOR = new THREE.Color('#ffc857')
+// /screen 专属古道配色：统一为琥珀色系，不修改 heritageData 中跨页面共用的 route.color
+const ROUTE_AMBER = ['#d9a05b', '#c98f4a', '#e0b36a', '#b97c3c', '#d2a56b']
 // 边界流光：单点脉冲（悬停时仅沿边界跑一个亮点）
 const RUNNER_TRAIL = 1
 
@@ -379,11 +465,31 @@ const NEIGHBOR_ANCHORS = {
   甘肃省: [103.863, 35.521]
 }
 const project = ([lng, lat]) => {
+  // 等距圆柱（中心纬度为标准纬线）：经度轴乘 cos，纬度轴线性。
+  // 这样 1 个世界单位在东西与南北方向对应同一地表距离，长宽比与真实地形一致。
   // x 取反：three.js 相机在南侧向北看时东西会镜像，翻转投影保证左西右东
-  const x = -(lng - CENTROID[0]) * SCALE
-  const y = (lat - CENTROID[1]) * SCALE * Math.cos((CENTROID[1] * Math.PI) / 180)
+  const x = -(lng - CENTROID[0]) * SCALE * COS_CENTROID
+  const y = (lat - CENTROID[1]) * SCALE
   return [x, y]
 }
+
+// 四个预设观赏视角：锚点全部以地理坐标保存，世界坐标在 project() 之后由同一函数换算，
+// 避免投影修正后残留旧投影下的硬编码坐标。
+// - 贺兰山：贺兰砚 POI(106.27,38.45) ↔ 石嘴山市中心(106.376,39.013) 中点
+//   项目没有山体矢量数据，此为临时 POI 锚点，不代表测绘意义上的贺兰山中心
+// - 黄河流域：黄河河道青铜峡段 yellowRiver.coordinates[25] (105.93,37.817)
+// - 丝路文化：全部古道点（含 segments 分支）地理质心 ≈ (105.553952, 37.027369)
+// L 为水平前距，相机沿用既有构型 target + (0, 0.98L, −L)，俯角约 44.5°
+const VIEWPOINT_DEFS = [
+  { id: 'all', index: '01', name: '宁夏全域', anchor: null, baseY: 2, L: 0 },
+  { id: 'helan', index: '02', name: '贺兰山', anchor: [106.323, 38.7315], baseY: 0.8, L: 55 },
+  { id: 'river', index: '03', name: '黄河流域', anchor: [105.93, 37.817], baseY: 0.8, L: 75 },
+  { id: 'silk', index: '04', name: '丝路文化', anchor: [105.679883, 37.027312], baseY: 1.2, L: 90 }
+]
+const viewpoints = VIEWPOINT_DEFS.map((vp) => {
+  const [x, z] = vp.anchor ? project(vp.anchor) : [0, 0]
+  return { ...vp, x, z }
+})
 
 // ---- 周边省级行政区参照层的裁剪（Sutherland–Hodgman，凸多边形裁切）----
 // 只保留贴近宁夏的一段，避免内蒙/甘肃向外延伸数千公里把大屏撑满
@@ -396,11 +502,12 @@ const stripClosing = (ring) => {
   return ring
 }
 // 以宁夏中心为圆心的凸多边形（近似圆盘），避免出现生硬的矩形裁切边
-const makeClipDisc = (cx, cy, radiusLng, cosLat, seg = 64) => {
+// 半径按经纬两个方向分别给出：世界空间圆的 X/Z 半径需要分别除以 SCALE·cos 与 SCALE
+const makeClipDisc = (cx, cy, radiusLng, radiusLat, seg = 64) => {
   const poly = []
   for (let i = 0; i < seg; i++) {
     const a = (i / seg) * Math.PI * 2
-    poly.push([cx + radiusLng * Math.cos(a), cy + (radiusLng / cosLat) * Math.sin(a)])
+    poly.push([cx + radiusLng * Math.cos(a), cy + radiusLat * Math.sin(a)])
   }
   return poly
 }
@@ -476,12 +583,18 @@ onMounted(() => {
 
   scene = new THREE.Scene()
   scene.background = new THREE.Color('#1d1510')
-  scene.fog = new THREE.Fog('#1d1510', 240, 480)
+  // 雾效与最大观察距离（400）协调：原 240/480 在拉远时会把地形吞掉约 2/3，
+  // 后移到 300/620，最远处仍保留地形轮廓，默认距离 160 不受影响。
+  scene.fog = new THREE.Fog('#1d1510', 300, 620)
 
   camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
   // 相机置于南侧向北 45° 俯视 → 画面上北下南、左西右东
-  camera.position.set(0, 114, -114)
-  camera.lookAt(0, 2, 0)
+  // 竖屏窄屏改用更陡的俯角，保持观察距离不变；桌面端构图不变
+  portraitFraming = window.innerWidth <= 900 && width / height < 0.9
+  lastCameraAspect = width / height
+  const initialPose = defaultCameraPose()
+  camera.position.copy(initialPose.pos)
+  camera.lookAt(initialPose.target)
 
   renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setSize(width, height)
@@ -580,13 +693,18 @@ onMounted(() => {
   // 说明：周边省份整体尺度远超宁夏（内蒙东西跨度约 29°），
   // 因此裁成"以宁夏为中心、半径 ≈80 个世界单位"的圆盘，只留环绕宁夏的一段；
   // 填充面再按到中心的距离做径向淡出，宁夏如"浮"在区域之中，直观表明其地理位置。
-  const cosLat = Math.cos((CENTROID[1] * Math.PI) / 180)
   const [rCx, rCy] = project([(minLng + maxLng) / 2, (minLat + maxLat) / 2])
   // 中心在 shape 空间的坐标（shape 的 y 为 project-y 的相反数）
   const scx = rCx
   const scy = -rCy
   const discR = 80 // 世界单位
-  const clipPoly = makeClipDisc((minLng + maxLng) / 2, (minLat + maxLat) / 2, discR / SCALE, cosLat, 64)
+  const clipPoly = makeClipDisc(
+    (minLng + maxLng) / 2,
+    (minLat + maxLat) / 2,
+    discR / (SCALE * COS_CENTROID),
+    discR / SCALE,
+    64
+  )
   const fadeStart = discR * 0.5
   const fadeEnd = discR * 0.97
   // r 为到宁夏中心的距离（shape 空间），返回 1→0 的平滑淡出系数
@@ -595,14 +713,16 @@ onMounted(() => {
     return 1 - t * t * (3 - 2 * t)
   }
   const neighborFillMat = new THREE.MeshBasicMaterial({
-    color: new THREE.Color('#4a83a8'),
+    // 邻省填充：暖褐，压暗后退，不再使用科技蓝
+    color: new THREE.Color('#3a2b1d'),
     vertexColors: true,
     transparent: true,
     opacity: 0.9,
     depthWrite: false
   })
   const neighborEdgeMat = new THREE.LineBasicMaterial({
-    color: new THREE.Color('#8ccbea'),
+    // 邻省省界：低饱和暖灰（省级边界层级）
+    color: new THREE.Color('#a98e5e'),
     vertexColors: true,
     transparent: true,
     opacity: 0.75
@@ -689,42 +809,93 @@ onMounted(() => {
     const labelMat = new THREE.SpriteMaterial({
       map: labelTex,
       transparent: true,
-      opacity: 0.82,
+      opacity: NEIGHBOR_LABEL_BASE_OPACITY,
       depthWrite: false,
       depthTest: false
     })
     const label = new THREE.Sprite(labelMat)
     const [lx, lz] = project(anchor)
     label.position.set(lx, 1.4, lz)
-    label.scale.set(11, 11 * (140 / 512), 1)
+    // 竖屏缩小省名，减少贴边裁切；base 与 baseScale 供边缘安全区微调时复位使用
+    const baseScale = 11
+    const labelScale = baseScale * (portraitFraming ? 0.78 : 1)
+    label.scale.set(labelScale, labelScale * (140 / 512), 1)
     label.renderOrder = 19
     scene.add(label)
 
     neighborObjects.push(plate, label)
+    neighborLabelSprites.push({ mat: labelMat, sprite: label, base: label.position.clone(), baseScale })
     neighborDisposables.push(labelTex, labelMat)
   }
 
   // ---- 地形平面 ----
   const [sx0, sy0] = project([minLng, minLat])
   const [sx1, sy1] = project([maxLng, maxLat])
+  // 地形实际世界包围盒：平移边界与注视点采样都以它为准，不用硬编码坐标
+  terrainBounds = {
+    minX: Math.min(sx0, sx1),
+    maxX: Math.max(sx0, sx1),
+    minZ: Math.min(sy0, sy1),
+    maxZ: Math.max(sy0, sy1)
+  }
   const worldW = sx1 - sx0
   const worldH = sy1 - sy0
   const centerX = (sx0 + sx1) / 2
   const centerZ = (sy0 + sy1) / 2
 
-  terrainGeometry = new THREE.PlaneGeometry(worldW, worldH, 256, 396)
+  // project() 对经度取负（保证左西右东），worldW 为负；PlaneGeometry 负宽度会翻转
+  // 三角面绕序，rotateX 后正面朝下被 FrontSide 剔除。几何体宽度取绝对值修正绕序；
+  // worldW 仍保留带符号值，供分层设色着色器的切向量约定使用。
+  const planeW = Math.abs(worldW)
+  terrainGeometry = new THREE.PlaneGeometry(planeW, worldH, 256, 396)
   terrainGeometry.rotateX(-Math.PI / 2)
 
+  // UV 仍保持 u=0 在西、u=1 在东（与卫星/高程纹理裁剪方向一致）；
+  // 宽度取正后 u 方向反转，这里同步翻转 u，使世界坐标→UV 映射与修复前一致。
   const uvAttr = terrainGeometry.attributes.uv
-  for (let i = 0; i < uvAttr.count; i++) uvAttr.setY(i, 1 - uvAttr.getY(i))
+  for (let i = 0; i < uvAttr.count; i++) {
+    uvAttr.setX(i, 1 - uvAttr.getX(i))
+    uvAttr.setY(i, 1 - uvAttr.getY(i))
+  }
 
   terrainMaterial = new THREE.MeshStandardMaterial({
     roughness: 0.92,
     metalness: 0.06,
     displacementScale: 4,
     displacementBias: 0,
-    alphaTest: 0.35
+    alphaTest: 0.35,
+    // 法线贴图 G 通道与真实南北向高程梯度反相（离线相关 -0.978）。
+    // three r186 的 normal_fragment_maps 中 `mapN.xy *= normalScale`，
+    // 故将 y 取负即在渲染管线内翻转 G，无需重编码正式纹理 nx_normal.jpg。
+    // 1.6 为实测选定强度：1.8/2.0 的局部对比度只提升 0.4%/1.3%（肉眼不可辨），
+    // 却在贺兰山暗部出现明显颗粒噪点，故选 1.6 保持自然。
+    normalScale: new THREE.Vector2(1.6, -1.6)
   })
+
+  // 离线晕渲（nx_hillshade.png）：DEM 派生的宏观山脊/沟谷光照，按乘法调制漫反射基色。
+  // 位移只改顶点、不重算法线，几何法线与法线贴图都只能提供细节层次，
+  // 宏观晕渲必须靠这张离线纹理，运行时零额外计算（仅 +1 次片元采样）。
+  const hillshadeUniforms = {
+    uHillshade: { value: null },
+    uHillshadeStrength: { value: 0 }
+  }
+  terrainMaterial.onBeforeCompile = (shader) => {
+    shader.uniforms.uHillshade = hillshadeUniforms.uHillshade
+    shader.uniforms.uHillshadeStrength = hillshadeUniforms.uHillshadeStrength
+    shader.fragmentShader = `
+      uniform sampler2D uHillshade;
+      uniform float uHillshadeStrength;
+    ` + shader.fragmentShader.replace(
+      '#include <map_fragment>',
+      `#include <map_fragment>
+       #ifdef USE_MAP
+         if (uHillshadeStrength > 0.0) {
+           float hs = texture2D(uHillshade, vMapUv).r;
+           diffuseColor.rgb *= mix(1.0, hs, uHillshadeStrength);
+         }
+       #endif`
+    )
+  }
 
   const loader = new THREE.TextureLoader()
   const loadTex = (url, srgb = false) =>
@@ -737,11 +908,16 @@ onMounted(() => {
       })
     })
 
-  Promise.all([loadTex(satUrl, true), loadTex(dispUrl), loadTex(normalUrl)]).then(
-    ([satTex, dispTex, normTex]) => {
+  Promise.all([loadTex(satUrl, true), loadTex(dispUrl), loadTex(normalUrl), loadTex(hillshadeUrl)]).then(
+    ([satTex, dispTex, normTex, hsTex]) => {
       terrainMaterial.map = satTex
       terrainMaterial.displacementMap = dispTex
       terrainMaterial.normalMap = normTex
+      // 晕渲加载完成后再启用，避免首帧采样空纹理
+      // 灰度晕渲按单通道上传：显存约为 RGBA 的 1/4（1228×1898 含 mipmap 约 3.1MB）
+      hsTex.format = THREE.RedFormat
+      hillshadeUniforms.uHillshade.value = hsTex
+      hillshadeUniforms.uHillshadeStrength.value = 1
       terrainMaterial.needsUpdate = true
 
       // ---- 地形分层设色叠加层（复用同一地形几何，沿同一DEM位移）----
@@ -753,7 +929,8 @@ onMounted(() => {
         depthWrite: false,
         // 与 terrainMesh 共享同一几何和位移，共面会被深度测试挡住
         depthTest: false,
-        blending: THREE.AdditiveBlending,
+        // 普通混合：色带以固定不透明度叠加，保留卫星纹理细节，且不会把亮区推成白色
+        blending: THREE.NormalBlending,
         uniforms: {
           uDisp: { value: dispTex },
           uMask: { value: satTex },
@@ -789,7 +966,9 @@ onMounted(() => {
             vNormal = normalize((modelMatrix * vec4(n, 0.0)).xyz);
 
             vec3 p = position;
-            p.y += h * uDispScale + 0.15;
+            // 0.02 仅为数值余量：tint 已 depthTest:false，无需 0.15 的抬升，
+            // 原 0.15 在斜视时会让叠色边缘相对地形错位约 1px（浮边）
+            p.y += h * uDispScale + 0.02;
             vec4 wp = modelMatrix * vec4(p, 1.0);
             vWorld = wp.xyz;
             gl_Position = projectionMatrix * viewMatrix * wp;
@@ -805,17 +984,17 @@ onMounted(() => {
           varying vec3 vWorld;
           varying vec3 vNormal;
 
-          // 分层设色色带：低海拔平原绿 → 浅黄绿 → 土黄 → 赭褐 → 雪线白
-          vec3 ramp(float t) {
-            vec3 c1 = vec3(0.34, 0.58, 0.34);
-            vec3 c2 = vec3(0.64, 0.70, 0.37);
-            vec3 c3 = vec3(0.78, 0.63, 0.36);
-            vec3 c4 = vec3(0.52, 0.33, 0.21);
-            vec3 c5 = vec3(0.87, 0.85, 0.81);
-            if (t < 0.30) return mix(c1, c2, t / 0.30);
-            if (t < 0.52) return mix(c2, c3, (t - 0.30) / 0.22);
-            if (t < 0.74) return mix(c3, c4, (t - 0.52) / 0.22);
-            return mix(c4, c5, smoothstep(0.74, 1.0, t));
+          // 分层设色色带：按宁夏真实高程分布（p25≈1306m / p75≈1796m / p99≈2483m）划分，
+          // 暖灰（平原）→ 砂黄（台地黄土）→ 赭石（山地）→ 暖白（高峰），不使用绿色与纯白
+          vec3 ramp(float elev) {
+            vec3 c1 = vec3(0.549, 0.482, 0.388); // #8C7B63 暖灰
+            vec3 c2 = vec3(0.761, 0.659, 0.471); // #C2A878 砂黄
+            vec3 c3 = vec3(0.545, 0.271, 0.075); // #8B4513 赭石
+            vec3 c4 = vec3(1.000, 0.973, 0.906); // #FFF8E7 暖白
+            if (elev < 1200.0) return mix(c1, c2, smoothstep(1050.0, 1200.0, elev));
+            if (elev < 1700.0) return mix(c2, c3, smoothstep(1200.0, 1700.0, elev));
+            if (elev < 2500.0) return mix(c3, c4, smoothstep(1700.0, 2500.0, elev));
+            return c4;
           }
 
           void main() {
@@ -823,18 +1002,26 @@ onMounted(() => {
             float m = texture2D(uMask, vUv).a;
             if (m < 0.001) discard;
             float raw = clamp((texture2D(uDisp, vUv).x - uVMin) / (uVMax - uVMin), 0.0, 1.0);
-            raw = pow(raw, 0.72);
+            // 高程还原：构建脚本以 952–3493 m 归一化 nx_disp.jpg
+            float elev = 952.0 + raw * 2541.0;
 
             vec3 ld = normalize(vec3(0.45, 0.82, 0.30));
-            float lit = 0.52 + 0.48 * max(dot(normalize(vNormal), ld), 0.0);
+            // 基础地形已由离线晕渲提供宏观明暗，这里只保留极轻的方向调制（0.88–1.0），
+            // 避免同一套光照被叠加两次把暗部压死
+            float lit = 0.88 + 0.12 * max(dot(normalize(vNormal), ld), 0.0);
 
-            gl_FragColor = vec4(ramp(raw) * lit * 2.4, uOpacity);
+            // 普通混合：alpha 控制强度并参与淡入淡出，色带不会截断成白色
+            float k = clamp(uOpacity * smoothstep(0.0, 0.4, m), 0.0, 1.0);
+            gl_FragColor = vec4(ramp(elev) * lit, k);
           }
         `
       })
       const tintMesh = new THREE.Mesh(terrainGeometry, terrainTintMat)
       tintMesh.position.set(centerX, 0, centerZ)
       tintMesh.renderOrder = 1
+      // 默认关闭分层设色：从首帧起就不参与绘制，避免"透明但仍在全程绘制"
+      tintMesh.visible = false
+      terrainTintMesh = tintMesh
       scene.add(tintMesh)
     }
   )
@@ -843,11 +1030,14 @@ onMounted(() => {
   terrainMesh.position.set(centerX, 0, centerZ)
   scene.add(terrainMesh)
 
-  scene.add(new THREE.HemisphereLight(0xdfe9ff, 0x4a3b28, 0.85))
+  // 半球天空色由冷蓝 #dfe9ff 改为暖灰 #d8cbb4，避免给地形叠加科技蓝偏色
+  scene.add(new THREE.HemisphereLight(0xd8cbb4, 0x4a3b28, 0.7))
+  // 主光保留西北方向（世界坐标 X=西、Z=北），是北半球制图的常规受光方向
   const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.7)
   dirLight.position.set(60, 100, 40)
   scene.add(dirLight)
-  const fillLight = new THREE.DirectionalLight(0x9fc4ff, 0.35)
+  // 东南补光降为极低强度（0.35 → 0.12）并去掉高饱和青蓝，避免抵消主光形成的山体明暗
+  const fillLight = new THREE.DirectionalLight(0x9fb8c8, 0.12)
   fillLight.position.set(-70, 40, -30)
   scene.add(fillLight)
 
@@ -968,8 +1158,26 @@ onMounted(() => {
   controls.dampingFactor = 0.08
   controls.minDistance = 30
   controls.maxDistance = 400
-  controls.maxPolarAngle = Math.PI / 2 - 0.03
+  // 限制近水平视角：原 π/2−0.03 ≈ 87.3° 会让相机贴到地表甚至进入山体
+  controls.maxPolarAngle = Math.PI / 2 - 0.18
   controls.target.set(0, 2, 0)
+
+  // 平移边界：保留平移能力，但把注视点约束在地形包围盒 + 少量缓冲内。
+  // 越界时连同相机一起回移相同的世界位移，避免“只挪注视点”造成的视角扭转。
+  const clampTargetToTerrain = () => {
+    if (!terrainBounds || cameraTween) return
+    const t = controls.target
+    const nx = Math.min(terrainBounds.maxX + PAN_LIMIT_BUFFER, Math.max(terrainBounds.minX - PAN_LIMIT_BUFFER, t.x))
+    const nz = Math.min(terrainBounds.maxZ + PAN_LIMIT_BUFFER, Math.max(terrainBounds.minZ - PAN_LIMIT_BUFFER, t.z))
+    const dx = nx - t.x
+    const dz = nz - t.z
+    if (dx === 0 && dz === 0) return
+    t.x = nx
+    t.z = nz
+    camera.position.x += dx
+    camera.position.z += dz
+  }
+  controls.addEventListener('change', clampTargetToTerrain)
 
   // ---- 边缘流光 ----
   let mainRing = []
@@ -999,7 +1207,8 @@ onMounted(() => {
 
   flyMaterial = new THREE.PointsMaterial({
     transparent: true,
-    color: new THREE.Color('#eaf6ff'),
+    // 古道流光：暖白偏金，替代原冷白 #eaf6ff
+    color: new THREE.Color('#ffe9c2'),
     size: 0.9,
     depthWrite: false
   })
@@ -1045,10 +1254,13 @@ onMounted(() => {
         const ctx = c.getContext('2d', { willReadFrequently: true })
         ctx.drawImage(img, 0, 0)
         resolve((lng, lat) => {
+          // 与地形网格采样保持一致：几何 UV 的 v 分量与纬度线性对应（v=0 南极、v=1 北极），
+          // 纹理 flipY=true 使 v=1 取图像第 0 行；而高程纹理第 0 行是北侧，
+          // 故图像行号应为 (1 - t) * (H - 1)，此前的 t * H 会把南北取反。
           const u = (lng - minLng) / (maxLng - minLng)
-          const yy = ((lat - minLat) / (maxLat - minLat)) * img.height
-          const px = Math.min(img.width - 1, Math.max(0, Math.round(u * img.width)))
-          const py = Math.min(img.height - 1, Math.max(0, Math.round(yy)))
+          const t = (lat - minLat) / (maxLat - minLat)
+          const px = Math.min(img.width - 1, Math.max(0, Math.round(u * (img.width - 1))))
+          const py = Math.min(img.height - 1, Math.max(0, Math.round((1 - t) * (img.height - 1))))
           return ctx.getImageData(px, py, 1, 1).data[0] / 255
         })
       }
@@ -1057,11 +1269,13 @@ onMounted(() => {
 
   const DISP_SCALE = 4
   loadDispSampler().then((sampleGround) => {
+    // 供相机注视点高程化复用：与地形位移完全同一套采样与换算，数据未就绪时为 null
+    groundSamplerWorld = (lng, lat) => sampleGround(lng, lat) * DISP_SCALE
     arcMaterial = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#5ecbff') } },
+      uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#d9a05b') } },
       vertexShader: `
         attribute float frac;
         varying float vFrac;
@@ -1090,8 +1304,10 @@ onMounted(() => {
     heritageData.forEach((item) => {
       const [wx, wz] = project([item.lng, item.lat])
       const groundY = sampleGround(item.lng, item.lat) * DISP_SCALE
-      const isNational = item.level === '国家级'
-      const color = new THREE.Color(isNational ? '#ffc857' : '#54d8ff')
+      // POI 颜色层级：国家级=鎏金，自治区级=砂黄，市级=暖灰（与图例一致）
+      const color = new THREE.Color(
+        item.level === '国家级' ? '#ffc857' : item.level === '自治区级' ? '#c2a878' : '#8c7b63'
+      )
 
       const group = new THREE.Group()
 
@@ -1151,7 +1367,6 @@ onMounted(() => {
 
     // ---- 市域层（填充面 + 发光边界 + 流光点 + 市名） ----
     dotSpriteTex = makeDotTexture()
-    const cos0 = Math.cos((CENTROID[1] * Math.PI) / 180)
 
     citiesGeo.cities.forEach((cityDef, ci) => {
       const group = new THREE.Group()
@@ -1190,8 +1405,8 @@ onMounted(() => {
       for (let i = 0; i < fp.count; i++) {
         const x = fp.getX(i)
         const wz = -fp.getY(i)
-        const lng = -x / SCALE + CENTROID[0]
-        const lat = wz / (SCALE * cos0) + CENTROID[1]
+        const lng = -x / (SCALE * COS_CENTROID) + CENTROID[0]
+        const lat = wz / SCALE + CENTROID[1]
         fp.setY(i, sampleGround(lng, lat) * DISP_SCALE + 0.18)
         fp.setZ(i, wz)
       }
@@ -1315,6 +1530,7 @@ onMounted(() => {
         lineMat,
         labelTex,
         labelMat,
+        label,
         runnerGeo,
         runnerMat,
         ringPts: mainRingPts,
@@ -1330,6 +1546,8 @@ onMounted(() => {
     // ---- 丝路古道（贴地流光管线 + 名称标牌） ----
     silkRoadRoutes.forEach((route, ri) => {
       const lines = route.segments ?? [route.coordinates]
+      // /screen 古道统一琥珀色系（数据层 route.color 供其他页面使用，此处不改）
+      const routeColor = ROUTE_AMBER[ri % ROUTE_AMBER.length]
       const tubes = []
 
       lines.forEach((coords) => {
@@ -1342,7 +1560,7 @@ onMounted(() => {
           curve, Math.max(80, pts.length * 5), 0.13, 8, false
         )
         const tubeMat = new THREE.MeshBasicMaterial({
-          color: new THREE.Color(route.color),
+          color: new THREE.Color(routeColor),
           transparent: true,
           opacity: 0,
           blending: THREE.AdditiveBlending,
@@ -1369,7 +1587,7 @@ onMounted(() => {
       const anchor = route.id === 'lingzhou' ? [105.72, 37.62] : route.labelAt
       const [laX, laZ] = project(anchor)
       const laY = sampleGround(anchor[0], anchor[1]) * DISP_SCALE
-      const rlabelTex = makeRouteLabelTexture(route.name, route.color)
+      const rlabelTex = makeRouteLabelTexture(route.name, routeColor)
       const rlabelMat = new THREE.SpriteMaterial({
         map: rlabelTex,
         transparent: true,
@@ -1389,6 +1607,7 @@ onMounted(() => {
         tubes,
         labelMat: rlabelMat,
         labelTex: rlabelTex,
+        label: rlabel,
         start: 1.7 + ri * 0.28
       })
     })
@@ -1398,7 +1617,6 @@ onMounted(() => {
     // 完全无视DEM地形位移；而宁夏五市fillGeo顶点已贴合DEM（抬升0~4世界单位），
     // 导致省界衔接处出现垂直高度差，视觉上像"坐标系不匹配"。
     // 修复：遍历neighborObjects中的plate和line，反算经纬度后采样DEM得到正确Y值。
-    const _cos0 = Math.cos((CENTROID[1] * Math.PI) / 180)
     const NEIGHBOR_OFFSET = -0.35 // 邻省比宁夏五市略低一点，保证层级关系清晰
 
     neighborObjects.forEach((obj) => {
@@ -1408,11 +1626,11 @@ onMounted(() => {
         const geo = obj.geometry
         const pos = geo.attributes.position
         for (let i = 0; i < pos.count; i++) {
-          const lx = pos.getX(i) // shape.x = -(lng-C[0])*SCALE
-          const ly = pos.getY(i) // shape.y = -(lat-C[1])*SCALE*cosLat
+          const lx = pos.getX(i) // shape.x = -(lng-C[0])*SCALE*cos
+          const ly = pos.getY(i) // shape.y = -(lat-C[1])*SCALE
           // 反算经纬度
-          const lng = -lx / SCALE + CENTROID[0]
-          const lat = -ly / (SCALE * _cos0) + CENTROID[1]
+          const lng = -lx / (SCALE * COS_CENTROID) + CENTROID[0]
+          const lat = -ly / SCALE + CENTROID[1]
           const groundY = sampleGround(lng, lat) * DISP_SCALE + NEIGHBOR_OFFSET
           pos.setX(i, lx)
           pos.setY(i, groundY)
@@ -1430,8 +1648,8 @@ onMounted(() => {
           const wx = pos.getX(i)
           const wz = pos.getZ(i)
           // 反算经纬度（z=+y_project）
-          const lng = -wx / SCALE + CENTROID[0]
-          const lat = wz / (SCALE * _cos0) + CENTROID[1]
+          const lng = -wx / (SCALE * COS_CENTROID) + CENTROID[0]
+          const lat = wz / SCALE + CENTROID[1]
           const groundY = sampleGround(lng, lat) * DISP_SCALE + NEIGHBOR_OFFSET
           pos.setY(i, groundY)
         }
@@ -1461,7 +1679,19 @@ onMounted(() => {
     // 点位优先于古道与市域
     const itemHits = raycaster.intersectObjects(hitMeshes, false)
     if (itemHits.length) {
-      selected.value = itemHits[0].object.userData.item
+      // 同一拾取位置若覆盖多个点位（如回族刺绣与同心清真小吃坐标完全重合），
+      // 连续点击按命中顺序轮换选中，保证重叠范围内每个 POI 仍可访问；原始坐标不变
+      const items = []
+      for (const h of itemHits) {
+        const it = h.object.userData.item
+        if (it && !items.some((x) => x.id === it.id)) items.push(it)
+      }
+      if (items.length > 1) {
+        const cur = selected.value ? items.findIndex((i) => i.id === selected.value.id) : -1
+        selected.value = items[(cur + 1) % items.length]
+      } else {
+        selected.value = items[0]
+      }
       clearHoverCard()
       return
     }
@@ -1481,6 +1711,10 @@ onMounted(() => {
     }
   }
   onMoveHandler = (e) => {
+    // 拖动超过点击阈值：视为用户手动接管镜头，预设视角高亮失效
+    if (pointerDownAt && Math.hypot(e.clientX - pointerDownAt.x, e.clientY - pointerDownAt.y) > 6) {
+      activeViewpoint.value = ''
+    }
     setPointer(e)
     raycaster.setFromCamera(pointer, camera)
     let cursor = 'grab'
@@ -1514,10 +1748,16 @@ onMounted(() => {
     clearHoverCard()
     hoverRouteName = ''
   }
+  // 滚轮缩放同样视为用户接管镜头：取消飞行并清除预设视角高亮
+  onWheelHandler = () => {
+    cameraTween = null
+    activeViewpoint.value = ''
+  }
   renderer.domElement.addEventListener('pointerdown', onDownHandler)
   renderer.domElement.addEventListener('click', onClickHandler)
   renderer.domElement.addEventListener('pointermove', onMoveHandler)
   renderer.domElement.addEventListener('pointerleave', onLeaveHandler)
+  renderer.domElement.addEventListener('wheel', onWheelHandler, { passive: true })
 
   // ---- 动画 ----
   const clock = new THREE.Clock()
@@ -1588,7 +1828,10 @@ onMounted(() => {
 
       const tFill = isActive ? 0.3 : isHover ? 0.32 : anyCity ? 0.05 : 0.14
       const tLine = isActive ? 1 : anyCity ? 0.22 : 0.7
-      const tLabel = isActive ? 1 : anyCity ? 0.35 : 0.85
+      // 市名按相机距离淡出：默认/中景完整可读，极限放大时平滑隐去，避免 Sprite 铺满视口
+      c.label.getWorldPosition(_labelWorldTmp)
+      const labelFade = labelFadeByDistance(camera.position.distanceTo(_labelWorldTmp))
+      const tLabel = (isActive ? 1 : anyCity ? 0.35 : 0.85) * labelFade
 
       c.fillMat.opacity += (tFill * intro - c.fillMat.opacity) * 0.12
       c.lineMat.opacity += (tLine * intro - c.lineMat.opacity) * 0.12
@@ -1620,14 +1863,55 @@ onMounted(() => {
       const dim = uiState.route && !isFocus ? 0.18 : 1
       const boost = isFocus ? 1.4 : isHover ? 1.2 : 1
       for (const tb of r.tubes) if (tb.mat) tb.mat.opacity = Math.min(1, 0.9 * e * dim * boost)
-      r.labelMat.opacity = e * (uiState.route && !isFocus ? 0.3 : 1)
+      // 古道标牌同样按相机距离淡出，避免近距离放大遮挡地形
+      r.label.getWorldPosition(_labelWorldTmp)
+      const labelFade = labelFadeByDistance(camera.position.distanceTo(_labelWorldTmp))
+      r.labelMat.opacity = e * (uiState.route && !isFocus ? 0.3 : 1) * labelFade
+    }
+
+    // ---- 邻省省名按相机距离淡出 + 屏幕边缘安全区微调 ----
+    // 与市名/古道共用 38/68 阈值：默认远景完整显示，逼近时平滑隐去，避免铺满视口。
+    // 边缘微调只在文字会越出视口时，把 Sprite 沿相机右/上方向平移最少距离；
+    // 地理锚点不变，偏移量随投影连续变化，因此推拉/缩放时不会跳变。
+    camera.updateMatrixWorld()
+    for (const n of neighborLabelSprites) {
+      n.sprite.position.copy(n.base)
+      n.sprite.getWorldPosition(_labelWorldTmp)
+      const dist = camera.position.distanceTo(_labelWorldTmp)
+      const fade = labelFadeByDistance(dist)
+      n.mat.opacity = NEIGHBOR_LABEL_BASE_OPACITY * fade
+      if (fade <= 0.02) continue
+      _labelNdcTmp.copy(_labelWorldTmp).project(camera)
+      const halfV = Math.tan((camera.fov * Math.PI) / 360)
+      const px = dist * halfV * camera.aspect
+      const py = dist * halfV
+      // 贴图有透明留白，按 0.86 估算实际文字半宽/半高
+      const halfW = ((n.sprite.scale.x * 0.86) / 2) / px
+      const halfH = ((n.sprite.scale.y * 0.86) / 2) / py
+      const limX = Math.max(0, NEIGHBOR_SAFE_NDC - halfW)
+      const limY = Math.max(0, NEIGHBOR_SAFE_NDC - halfH)
+      const nx = Math.min(limX, Math.max(-limX, _labelNdcTmp.x))
+      const ny = Math.min(limY, Math.max(-limY, _labelNdcTmp.y))
+      if (nx === _labelNdcTmp.x && ny === _labelNdcTmp.y) continue
+      _camRightTmp.setFromMatrixColumn(camera.matrixWorld, 0)
+      _camUpTmp.setFromMatrixColumn(camera.matrixWorld, 1)
+      n.sprite.position
+        .addScaledVector(_camRightTmp, (nx - _labelNdcTmp.x) * px)
+        .addScaledVector(_camUpTmp, (ny - _labelNdcTmp.y) * py)
     }
 
     // ---- 地形分层设色：透明 ↔ 有色 平滑过渡 ----
-    if (terrainTintMat) {
-      const tintTarget = showTerrain.value ? 0.92 : 0
+    if (terrainTintMat && terrainTintMesh) {
+      // 0.38 为普通混合下的目标不透明度：能读出高程色带，又保留卫星纹理细节
+      const tintTarget = showTerrain.value ? 0.38 : 0
       const u = terrainTintMat.uniforms.uOpacity
+      if (showTerrain.value) terrainTintMesh.visible = true
       u.value += (tintTarget - u.value) * 0.12
+      // 淡出到位后彻底停止绘制（关闭态不再产生任何片元开销）
+      if (!showTerrain.value && u.value < 0.004) {
+        u.value = 0
+        terrainTintMesh.visible = false
+      }
     }
 
     controls.update()
@@ -1635,15 +1919,51 @@ onMounted(() => {
   }
   animate()
 
-  resizeHandler = () => {
+  // 尺寸同步：只在布局稳定后读取容器尺寸，避免 resize 事件早于 flex/媒体查询重排时读到上一帧尺寸
+  const syncRendererSize = () => {
+    resizeFrame = 0
+    if (!renderer || !camera || !container) return
     const w = container.clientWidth
     const h = container.clientHeight
+    if (!w || !h) return
+    // 尺寸未变则跳过：既避免重复更新，也避免 ResizeObserver 与 renderer.setSize 相互触发
+    if (w === lastContainerW && h === lastContainerH) return
+    lastContainerW = w
+    lastContainerH = h
+    isNarrow.value = window.innerWidth <= 1024
+    // 旋转/缩窗进入窄屏时同步互斥，避免残留的抽屉面板压住已打开的详情卡
+    if (isNarrow.value && selected.value) mobilePanel.value = 0
     camera.aspect = w / h
     camera.updateProjectionMatrix()
+    const pr = Math.min(window.devicePixelRatio || 1, 2)
+    if (renderer.getPixelRatio() !== pr) renderer.setPixelRatio(pr)
     renderer.setSize(w, h)
+    // 旋转/缩窗后重新判定竖屏构图：尺寸或比例变化时按当前预设视角重建取景
+    const nextAspect = w / h
+    const aspectChanged = Math.abs(nextAspect - lastCameraAspect) > 0.02
+    lastCameraAspect = nextAspect
+    const nextPortrait = window.innerWidth <= 900 && nextAspect < 0.9
+    const framingChanged = nextPortrait !== portraitFraming
+    portraitFraming = nextPortrait
+    const neighborScale = 11 * (portraitFraming ? 0.78 : 1)
+    for (const n of neighborLabelSprites) {
+      n.sprite.scale.set(neighborScale, neighborScale * (140 / 512), 1)
+    }
+    if ((framingChanged || aspectChanged) && activeViewpoint.value) applyViewpoint(activeViewpoint.value, true)
     charts.forEach((c) => c && c.resize())
   }
+  // 合并同一帧内的多次请求（连续拖拽窗口只更新一次）
+  resizeHandler = () => {
+    if (resizeFrame) cancelAnimationFrame(resizeFrame)
+    resizeFrame = requestAnimationFrame(syncRendererSize)
+  }
   window.addEventListener('resize', resizeHandler)
+  // 容器自身尺寸变化（侧栏宽度切换等）不一定会触发 window resize，用 ResizeObserver 兜底
+  if (typeof ResizeObserver !== 'undefined') {
+    containerResizeObserver = new ResizeObserver(resizeHandler)
+    containerResizeObserver.observe(container)
+  }
+  syncRendererSize()
 
   initCharts()
   startClock()
@@ -1658,6 +1978,19 @@ function itemMatches(item) {
   if (uiState.period && item.period !== uiState.period) return false
   if (uiState.itemId && item.id !== uiState.itemId) return false
   return true
+}
+
+// 世界坐标 → 地表高度（世界单位）：project() 的解析逆变换 + 现有 DEM 采样器。
+// 越界、DEM 尚未加载或采样异常时返回 null，由调用方回退到原固定高度。
+function groundWorldAt(x, z) {
+  if (!groundSamplerWorld || !terrainBounds) return null
+  const pad = 2
+  if (x < terrainBounds.minX - pad || x > terrainBounds.maxX + pad) return null
+  if (z < terrainBounds.minZ - pad || z > terrainBounds.maxZ + pad) return null
+  const lng = CENTROID[0] - x / (SCALE * COS_CENTROID)
+  const lat = CENTROID[1] + z / SCALE
+  const h = groundSamplerWorld(lng, lat)
+  return Number.isFinite(h) ? h : null
 }
 
 function flyCamera(toPos, toTarget, duration = 1.3) {
@@ -1680,16 +2013,58 @@ function flyCamera(toPos, toTarget, duration = 1.3) {
 function focusCity(name) {
   const cityDef = citiesGeo.cities.find((c) => c.name === name)
   if (!cityDef) return
+  activeViewpoint.value = '' // 聚焦地市后不再对应任何预设视角
   const entry = cityEntries.find((c) => c.name === name)
   const [cx, cyN] = project(cityDef.center)
-  const target = new THREE.Vector3(cx, 0.8, cyN)
+  // 注视点高程化：按城市真实位置的 DEM 高度抬升，并等量抬高相机以保持既有构图；
+  // 采样未就绪/越界时回退到原固定 0.8，避免 NaN 或镜头跳变
+  const groundY = groundWorldAt(cx, cyN)
+  const targetY = groundY === null ? 0.8 : groundY + TARGET_GROUND_CLEARANCE
+  const lift = targetY - 0.8
+  const target = new THREE.Vector3(cx, targetY, cyN)
   const span = entry?.latSpan ?? 1
   const d = 42 + span * 13
-  flyCamera(new THREE.Vector3(cx, d * 0.98, cyN - d), target)
+  flyCamera(new THREE.Vector3(cx, d * 0.98 + lift, cyN - d), target)
 }
 
 function resetView() {
-  flyCamera(new THREE.Vector3(0, 114, -114), new THREE.Vector3(0, 2, 0))
+  activeViewpoint.value = 'all'
+  const pose = defaultCameraPose()
+  flyCamera(pose.pos, pose.target)
+}
+
+// 切换预设观赏视角：复用 flyCamera 的缓动与中断机制
+// instant=true 仅用于屏幕比例变化时立即重建当前视角构图，不播放动画
+function applyViewpoint(id, instant = false) {
+  const vp = viewpoints.find((v) => v.id === id)
+  if (!vp) return
+  activeViewpoint.value = id
+  if (vp.id === 'all') {
+    const pose = defaultCameraPose()
+    if (instant) {
+      camera.position.copy(pose.pos)
+      controls.target.copy(pose.target)
+      controls.update()
+    } else {
+      flyCamera(pose.pos, pose.target, 1.5)
+    }
+    return
+  }
+  // 注视点按 DEM 高程化；相机与注视点同步抬升，保持审计确定的构图与俯角
+  const groundY = groundWorldAt(vp.x, vp.z)
+  const targetY = groundY === null ? vp.baseY : groundY + TARGET_GROUND_CLEARANCE
+  // 竖屏采用更陡的俯角；手机竖屏略收近前距提高占比，平板竖屏适度拉远避免两侧被裁切
+  const ratio = viewPitchRatio()
+  const spanScale = !portraitFraming ? 1 : camera.aspect < 0.6 ? 0.92 : 1.12
+  const pos = new THREE.Vector3(vp.x, targetY + ratio * vp.L * spanScale, vp.z - vp.L * spanScale)
+  const target = new THREE.Vector3(vp.x, targetY, vp.z)
+  if (instant) {
+    camera.position.copy(pos)
+    controls.target.copy(target)
+    controls.update()
+    return
+  }
+  flyCamera(pos, target, 1.5)
 }
 
 function toggleDim(dim, val) {
@@ -1814,6 +2189,8 @@ const activeChips = computed(() => {
 watch(selected, (v) => {
   const id = v ? v.id : null
   if (uiState.itemId !== id) uiState.itemId = id
+  // 窄屏互斥：详情卡打开时收起抽屉面板，保证卡片完整可见、按钮可操作
+  if (v && isNarrow.value) mobilePanel.value = 0
 })
 watch(
   () => uiState.itemId,
@@ -1920,7 +2297,7 @@ function makeNeighborLabelTexture(name) {
   ctx.textBaseline = 'middle'
   ctx.shadowColor = 'rgba(0,0,0,0.85)'
   ctx.shadowBlur = 10
-  ctx.fillStyle = '#9fd0ea'
+  ctx.fillStyle = '#fff3da'
   ctx.fillText(name, 256, 74)
   const tex = new THREE.CanvasTexture(c)
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy()
@@ -1978,7 +2355,8 @@ function initCharts() {
     .map((c) => ({ name: c, value: heritageData.filter((d) => d.category === c).length }))
     .filter((d) => d.value > 0)
 
-  const palette = ['#ffc857', '#54d8ff', '#c792ea', '#7ee787', '#ff9d76', '#82aaff', '#f78c6c']
+  // 类别色板改为品牌色系（鎏金/琥珀/赭石 + 低饱和对比色），去掉青蓝
+  const palette = ['#ffc857', '#d9a05b', '#c792ea', '#7ee787', '#ff9d76', '#e8c468', '#f78c6c']
   const pie = echarts.init(pieRef.value)
   pie.setOption({
     color: palette,
@@ -2081,7 +2459,7 @@ function initCharts() {
         itemStyle: {
           borderRadius: [0, 4, 4, 0],
           color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: '#2f9ec4' }, { offset: 1, color: '#54d8ff' }
+            { offset: 0, color: '#8b4513' }, { offset: 1, color: '#c9a84c' }
           ])
         },
         label: { show: true, position: 'right', color: AXIS, fontSize: 10 }
@@ -2106,12 +2484,16 @@ function startClock() {
 
 onBeforeUnmount(() => {
   cancelAnimationFrame(animationId)
+  if (resizeFrame) cancelAnimationFrame(resizeFrame)
+  containerResizeObserver?.disconnect()
+  containerResizeObserver = null
   if (resizeHandler) window.removeEventListener('resize', resizeHandler)
   if (renderer) {
     onDownHandler && renderer.domElement.removeEventListener('pointerdown', onDownHandler)
     onClickHandler && renderer.domElement.removeEventListener('click', onClickHandler)
     onMoveHandler && renderer.domElement.removeEventListener('pointermove', onMoveHandler)
     onLeaveHandler && renderer.domElement.removeEventListener('pointerleave', onLeaveHandler)
+    onWheelHandler && renderer.domElement.removeEventListener('wheel', onWheelHandler)
   }
   arcGeometries.forEach((g) => g.dispose())
   arcMaterial?.dispose()
@@ -2464,7 +2846,7 @@ onBeforeUnmount(() => {
 .level-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, #54d8ff, #82aaff);
+  background: linear-gradient(90deg, #c9a84c, #e8c468);
 }
 .level-val { width: 18px; flex: none; text-align: right; color: rgba(255, 248, 231, 0.7); }
 
@@ -2504,8 +2886,8 @@ onBeforeUnmount(() => {
   color: rgba(255, 248, 231, 0.45);
 
   &.lv-国家级 { color: #ffc857; }
-  &.lv-自治区级 { color: #5ed68a; }
-  &.lv-市级 { color: #7fb4d8; }
+  &.lv-自治区级 { color: #c2a878; }
+  &.lv-市级 { color: #a99b86; }
 }
 
 /* ---- 筛选状态条 ---- */
@@ -2544,17 +2926,17 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   padding: 6px 13px;
-  border: 1px solid rgba(124, 192, 228, 0.42);
+  border: 1px solid rgba(201, 168, 76, 0.42);
   border-radius: var(--radius-full);
   background: rgba(33, 23, 17, 0.78);
   backdrop-filter: blur(6px);
   font-size: 12px;
-  color: #9fd0ea;
+  color: #e8d9b0;
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover { background: rgba(124, 192, 228, 0.18); }
-  &.is-on { border-color: rgba(124, 192, 228, 0.75); background: rgba(124, 192, 228, 0.16); }
+  &:hover { background: rgba(201, 168, 76, 0.18); }
+  &.is-on { border-color: rgba(201, 168, 76, 0.75); background: rgba(201, 168, 76, 0.16); }
   .reset-ico { font-size: 14px; line-height: 1; }
 }
 
@@ -2565,19 +2947,83 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   padding: 5px 8px 5px 12px;
-  border: 1px solid rgba(84, 216, 255, 0.4);
+  border: 1px solid rgba(201, 168, 76, 0.4);
   border-radius: var(--radius-full);
   background: rgba(33, 23, 17, 0.82);
   font-size: 12px;
-  color: #9fe4ff;
+  color: #ffe9c2;
   cursor: pointer;
 
   i { font-style: normal; opacity: 0.6; }
-  &:hover { border-color: #54d8ff; }
+  &:hover { border-color: #c9a84c; }
 }
 
 .chip-enter-active, .chip-leave-active { transition: all 0.25s var(--ease-out); }
 .chip-enter-from, .chip-leave-to { opacity: 0; transform: translateY(-6px); }
+
+/* ---- 观赏视角切换器 ---- */
+/* 置于场景右侧中部：不遮挡左上筛选栏、左下地形图例与中央地形主体 */
+.viewpoint-switcher {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 7px 9px 9px;
+  border: 1px solid rgba(212, 160, 23, 0.22);
+  border-radius: 3px;
+  background: rgba(26, 19, 14, 0.78);
+  backdrop-filter: blur(6px);
+  transform: translateY(-50%);
+
+  .vs-caption {
+    padding: 0 7px 7px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255, 248, 231, 0.4);
+    white-space: nowrap;
+  }
+
+  .vs-item {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    padding: 6px 9px 6px 8px;
+    border: none;
+    border-left: 2px solid transparent;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12.5px;
+    letter-spacing: 1.5px;
+    color: rgba(255, 248, 231, 0.6);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+
+    .vs-index {
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0;
+      color: rgba(212, 160, 23, 0.5);
+      transition: color 0.2s;
+    }
+
+    &:hover {
+      color: #ffe9bd;
+      background: rgba(212, 160, 23, 0.07);
+    }
+
+    &.is-active {
+      border-left-color: #d4a017;
+      background: rgba(212, 160, 23, 0.1);
+      color: #ffd98a;
+
+      .vs-index { color: #d4a017; }
+    }
+  }
+}
 
 /* ---- 图例 ---- */
 .stage-legend {
@@ -2597,8 +3043,8 @@ onBeforeUnmount(() => {
 
   .lg-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
   .lg-dot.gold { background: #ffc857; box-shadow: 0 0 7px #ffc857; }
-  .lg-dot.green { background: #5ed68a; box-shadow: 0 0 7px #5ed68a; }
-  .lg-dot.bluegray { background: #7fb4d8; box-shadow: 0 0 7px #7fb4d8; }
+  .lg-dot.green { background: #c2a878; box-shadow: 0 0 7px #c2a878; }
+  .lg-dot.bluegray { background: #a99b86; box-shadow: 0 0 7px #a99b86; }
 
   .lg-route {
     display: inline-flex;
@@ -2609,7 +3055,7 @@ onBeforeUnmount(() => {
       width: 18px;
       height: 3px;
       border-radius: 2px;
-      background: linear-gradient(90deg, #8b5a2b, #d4af37 55%, #2e8b57);
+      background: linear-gradient(90deg, #8b4513, #c9a84c 55%, #e8c468);
       box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
     }
   }
@@ -2641,7 +3087,7 @@ onBeforeUnmount(() => {
 .poi-tags { display: flex; gap: 8px; margin-bottom: 12px; }
 .poi-level, .poi-cat { padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; }
 .poi-level.is-national { background: rgba(255, 200, 87, 0.16); color: #ffc857; border: 1px solid rgba(255, 200, 87, 0.4); }
-.poi-level.is-local { background: rgba(84, 216, 255, 0.13); color: #54d8ff; border: 1px solid rgba(84, 216, 255, 0.38); }
+.poi-level.is-local { background: rgba(194, 168, 120, 0.14); color: #c2a878; border: 1px solid rgba(194, 168, 120, 0.38); }
 .poi-cat { background: rgba(255, 255, 255, 0.07); color: rgba(255, 248, 231, 0.65); }
 
 .poi-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 19px; font-weight: 600; color: #fff8e7; }
@@ -2686,6 +3132,31 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+// 无可靠对应模型时的中性占位（不展示任何与项目语义不符的通用器物）
+.poi-artifact-empty {
+  height: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-style: dashed;
+  border-color: rgba(255, 248, 231, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+
+  .poi-artifact-empty-title {
+    font-size: 12.5px;
+    letter-spacing: 1px;
+    color: rgba(255, 248, 231, 0.55);
+  }
+
+  .poi-artifact-empty-note {
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    color: rgba(255, 248, 231, 0.32);
+  }
+}
+
 .poi-link {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; border: 1px solid rgba(212, 160, 23, 0.5);
@@ -2724,13 +3195,86 @@ onBeforeUnmount(() => {
   .back-text { display: none; }
   .screen-title { font-size: 17px; letter-spacing: 3px; }
   .title-decor { display: none; }
+
+  // 浮层互斥：详情卡打开时图例隐藏，避免遮挡卡片按钮；抽屉面板在详情卡出现时已自动收起
+  .stage-legend.is-hidden { display: none; }
+  // 窄屏下详情卡可能高于可视区，允许内部滚动保证文字/按钮完整可达
+  .poi-card { max-height: calc(100% - 40px); overflow-y: auto; z-index: 16; }
+}
+
+// 竖屏（含平板 768×1024）：切换器从右侧中部上移到地形上方的空白区，避免压住地形主体
+@media (max-aspect-ratio: 9/10) and (max-width: 1024px) {
+  .viewpoint-switcher { top: 96px; transform: none; }
 }
 
 @media (max-width: 560px) {
-  .screen-header { padding: 0 14px; height: 56px; }
+  // 标题栏：窄屏压缩字距与左右内边距，避免标题被挤压换行 / 与右侧按钮相撞
+  .screen-header { padding: 0 12px; height: 54px; gap: 8px; }
+  .title-group { min-width: 0; }
+  .screen-title {
+    font-size: 15px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .back-btn { flex: none; }
+  .back-ico { font-size: 18px; }
+  .header-right { flex: none; }
+  .panel-toggle { padding: 4px 10px; font-size: 11.5px; }
   .clock { display: none; }
-  .poi-card { top: auto; right: 12px; bottom: 12px; left: 12px; width: auto; }
-  .stage-legend { left: 12px; bottom: 12px; }
-  .filter-bar { top: 10px; left: 10px; max-width: calc(100% - 20px); }
+
+  .poi-card { top: auto; right: 12px; bottom: 12px; left: 12px; width: auto; max-height: calc(100% - 24px); }
+
+  // 图例：收紧内边距与条目间距，避免在 390 宽度下几乎占满整行
+  .stage-legend { left: 10px; bottom: 10px; gap: 10px; padding: 6px 10px; font-size: 11px; }
+  .stage-legend .lg-route i { width: 14px; }
+
+  // 筛选栏：缩小按钮内边距与间距，chip 换行后仍保持两行以内的高度
+  .filter-bar { top: 8px; left: 8px; gap: 6px; max-width: calc(100% - 16px); }
+  .reset-btn, .layer-btn {
+    padding: 5px 10px;
+    font-size: 11.5px;
+    gap: 4px;
+
+    .reset-ico { font-size: 12px; }
+  }
+  .chip { padding: 4px 6px 4px 10px; font-size: 11.5px; }
+
+  // 视角切换器：改为底部紧凑横条，横向铺开贴底排列，让出地形中部空间；
+  // 四个预设入口全部保留，触达高度仍 ≥28px
+  .viewpoint-switcher {
+    top: auto;
+    right: 10px;
+    bottom: 46px;
+    left: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3px;
+    padding: 5px 7px;
+    transform: none;
+
+    .vs-caption { padding: 0 4px 0 0; font-size: 9px; letter-spacing: 0.5px; }
+    .vs-item {
+      flex: 1 1 auto;
+      justify-content: center;
+      align-items: center;
+      gap: 3px;
+      padding: 7px 4px;
+      border-left: none;
+      border-bottom: 2px solid transparent;
+      font-size: 10.5px;
+      letter-spacing: 0;
+
+      .vs-index { font-size: 9px; }
+
+      &.is-active {
+        border-left-color: transparent;
+        border-bottom-color: #d4a017;
+        background: rgba(212, 160, 23, 0.1);
+      }
+    }
+  }
 }
 </style>
