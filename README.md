@@ -17,7 +17,7 @@
 - **前端框架**：Vue 3（Composition API + `<script setup>`）+ Vite
 - **UI 组件库**：Element Plus
 - **路由**：Vue Router（History 模式）
-- **地图引擎**：Leaflet —— 底图采用天地图矢量/卫星/地形服务，并以高德矢量作为兜底，保证国内访问可用
+- **地图引擎**：Leaflet —— 街道底图使用天地图矢量服务并以高德矢量兜底，影像和地形底图使用随站点发布的静态图片
 - **三维引擎**：Three.js —— 卫星影像 + 高程位移的 3D 地形、市域边界、丝路古道与三维数据大屏
 - **数据可视化**：ECharts
 - **样式**：SCSS
@@ -62,7 +62,8 @@ ningxia-silk-heritage-gis/
 │   │   ├── Screen.vue         # 三维数据大屏（全屏沉浸路由 /screen）
 │   │   └── NotFound.vue       # 404 兜底页
 │   ├── data/
-│   │   ├── heritageData.js            # 非遗图文数据、古道、黄河、三维模型索引
+│   │   ├── heritageData.js            # 非遗图文数据、古道、三维模型索引
+│   │   ├── yellow-river.geo.json      # 黄河宁夏段干流中心线
 │   │   ├── artifactModels.js          # 器物模型映射（按类别配 Poly Haven CC0 模型）
 │   │   └── ningxia-neighbors.geo.json # 邻省（甘肃/内蒙古/陕西）行政边界
 │   ├── composables/
@@ -144,11 +145,11 @@ ningxia-silk-heritage-gis/
 
 ## 快速开始
 
-环境要求：Node.js 16+。
+环境要求：Node.js 22+（与当前锁文件中的 `@playcanvas/splat-transform` 要求一致）。
 
 ```bash
 # 安装依赖
-npm install
+npm ci
 
 # 启动开发服务器（默认 http://localhost:3000，端口被占用时 Vite 自动递增）
 npm run dev
@@ -160,16 +161,18 @@ npm run build
 npm run preview
 ```
 
-> 地图底图使用天地图服务，如需替换可在 `src/pages/Map.vue` 中更换为自己的天地图浏览器端 key。
+> 街道底图使用天地图服务，如需替换可在 `src/pages/Map.vue` 中更换为自己的天地图浏览器端 key。影像和地形底图不需要地图服务 key。
 
 ## 数据说明
+
+二维地图的影像和地形底图位于 `src/assets/basemaps/`。外围概览覆盖东经 95.625°–118.125°、北纬 27.059°–45.089°，宁夏核心区保留更细的底图。地图缩放到 9 级起，按视野叠加核心区的四块高清图，核心区图幅由 2048 × 2816 提升到 4096 × 5632。影像来自 [EOX Sentinel‑2 cloudless 2016](https://new.eox.at/2017/08/sentinel-2-global-cloudless-mosaic/)（[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)）。地形由 [Mapzen Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) 的 Terrarium 和 GeoTIFF 高程数据生成晕渲及分层设色，SRTM 数据由美国地质调查局提供。
 
 当前为纯前端应用，结构化数据集中在 `src/data/heritageData.js`：
 
 - 20 条宁夏代表性非遗项目，每条含项目概述、技艺特色、文化价值三段文字，以及地理坐标、历史时期、传承人、保护级别等属性
 - 项目照片位于 `public/heritage/NN/`（`cover.jpg` 封面、`thumb.jpg` 缩略图、图集 `01.jpg` 起），经统一压缩优化
 - 4 条丝路古道坐标（灵州道含主线、南线、北线三段）
-- 黄河宁夏段河道坐标（取自 OpenStreetMap）
+- 黄河宁夏段干流中心线取自 [OpenStreetMap 黄河关系](https://www.openstreetmap.org/relation/171843) 的主河道，按本项目宁夏边界取入境至出境的连续段。© OpenStreetMap contributors，[ODbL 1.0](https://www.openstreetmap.org/copyright)
 - 类别、地市、时期、等级等字典数据
 - 3 件实景三维场景索引（详见下方「三维场景模型」）
 - 器物三维预览模型映射（`src/data/artifactModels.js`，按非遗类别关联 `public/models/polyhaven/` 下的 Poly Haven CC0 模型）

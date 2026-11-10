@@ -130,7 +130,8 @@
 import { computed } from 'vue'
 import outline from '../assets/ningxia-outline.json'
 import cityGeo from '../data/ningxia-cities.geo.json'
-import { heritageData, silkRoadRoutes, yellowRiver } from '../data/heritageData'
+import { heritageData, silkRoadRoutes } from '../data/heritageData'
+import yellowRiverGeo from '../data/yellow-river.geo.json'
 import satImage from '../assets/textures/nx_sat.webp'
 
 // ============ 投影：与卫星纹理同为 Web Mercator ============
@@ -195,7 +196,7 @@ const imageRect = {
 }
 
 // ============ 黄河 ============
-const riverPath = yellowRiver.coordinates.map(([lon, lat], i) => {
+const riverPath = yellowRiverGeo.geometry.coordinates.map(([lon, lat], i) => {
   const [x, y] = project(lon, lat)
   return `${i === 0 ? 'M' : 'L'}${fixed(x)} ${fixed(y)}`
 }).join(' ')
