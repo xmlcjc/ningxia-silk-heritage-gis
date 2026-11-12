@@ -396,15 +396,12 @@ watch(totalPages, (pages) => {
 // 页头
 // ============================================
 .archive-head {
-  padding: var(--space-16) 0 var(--space-12);
+  // 内容页 Hero 统一留白与光晕（main.scss --hero-pad-* / --hero-glow）
+  padding: var(--hero-pad-top) 0 var(--hero-pad-bottom);
   background:
-    radial-gradient(880px 420px at 88% 0%, rgba(212, 160, 23, 0.1), transparent 62%),
-    var(--color-paper);
+    var(--hero-glow),
+    var(--hero-surface);
   border-bottom: 1px solid var(--color-border-light);
-
-  @media (max-width: 768px) {
-    padding: var(--space-12) 0 var(--space-8);
-  }
 }
 
 .arch-eyebrow {
@@ -412,6 +409,7 @@ watch(totalPages, (pages) => {
   align-items: center;
   gap: var(--space-3);
   margin: 0 0 var(--space-4);
+  font-family: var(--font-ui);
   font-size: var(--text-label);
   letter-spacing: var(--tracking-wider);
   color: var(--color-primary);

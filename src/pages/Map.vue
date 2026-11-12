@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="map-page">
     <!-- 页面头部：压缩为地图工作台的标题条，把首屏高度尽可能留给地图 -->
     <div class="page-hero">
@@ -2860,7 +2860,7 @@ onBeforeUnmount(() => {
   outline: none;
   // 白底 + 朱砂双环，压在国家级金色描边之上仍清晰可辨
   box-shadow:
-    0 0 0 3px #FFFDF7,
+    0 0 0 3px var(--map-paper-light),
     0 0 0 6px var(--color-interactive),
     0 4px 14px rgba(0, 0, 0, 0.32) !important;
   transform: translateY(-2px) scale(1.06);
@@ -2875,7 +2875,7 @@ onBeforeUnmount(() => {
   outline: 3px solid var(--color-primary);
   outline-offset: 3px;
   border-radius: 8px;
-  box-shadow: 0 0 0 2px #FFFDF7;
+  box-shadow: 0 0 0 2px var(--map-paper-light);
 }
 
 // 悬停标签（Leaflet Tooltip）：与地图配色统一
@@ -3843,7 +3843,7 @@ onBeforeUnmount(() => {
 
 // 测距结果气泡
 :deep(.measure-tip) {
-  background: #C62828;
+  background: var(--color-interactive);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -4143,7 +4143,7 @@ onBeforeUnmount(() => {
     width: 16px;
     height: 16px;
     border: 1px solid var(--level-regional);
-    background: #FDFBF7;
+    background: var(--color-paper);
   }
 
   &.municipal {
@@ -4186,7 +4186,7 @@ onBeforeUnmount(() => {
   width: 20px;
   height: 10px;
   border-radius: 2px;
-  background: linear-gradient(90deg, #F7E8CB, #EAC582, #D4A017, #9F6E1E, #6D4812);
+  background: linear-gradient(90deg, #F7E8CB, #EAC582, var(--color-secondary), #9F6E1E, #6D4812);
 }
 
 .legend-empty {
@@ -4423,7 +4423,7 @@ onBeforeUnmount(() => {
     box-shadow: var(--shadow-md);
 
     .action-arrow {
-      color: #fff8e7;
+      color: var(--color-background);
       background: var(--color-secondary);
       transform: translateX(4px);
     }
@@ -4445,7 +4445,7 @@ onBeforeUnmount(() => {
   height: 86px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: linear-gradient(135deg, #d8c6a6 0%, #c2ac85 100%);
+  background: linear-gradient(135deg, var(--map-sand-light) 0%, var(--map-sand) 100%);
   box-shadow: inset 0 0 0 1px rgba(62, 42, 8, 0.08);
 
   img {
@@ -4517,7 +4517,7 @@ onBeforeUnmount(() => {
 
   &.badge-silver {
     background: linear-gradient(135deg, #a0825a 0%, var(--color-primary) 100%);
-    color: #fdf6e3;
+    color: var(--map-cream);
   }
 }
 
@@ -4536,9 +4536,9 @@ onBeforeUnmount(() => {
   font-size: 11px;
   line-height: 1.6;
 
-  &.tag-category { background: rgba(212, 160, 23, 0.16); color: #8a6708; }
-  &.tag-location { background: rgba(139, 69, 19, 0.10); color: #6d3410; }
-  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: #23634a; }
+  &.tag-category { background: rgba(212, 160, 23, 0.16); color: var(--map-gold-ink); }
+  &.tag-location { background: rgba(139, 69, 19, 0.10); color: var(--map-ink); }
+  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: var(--map-success-ink); }
 }
 
 .item-action {
@@ -4660,7 +4660,7 @@ onBeforeUnmount(() => {
   margin: 0;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: linear-gradient(135deg, #D8C6A6 0%, #C2AC85 100%);
+  background: linear-gradient(135deg, var(--map-sand-light) 0%, var(--map-sand) 100%);
 
   img {
     position: absolute;
@@ -4750,9 +4750,9 @@ onBeforeUnmount(() => {
   font-size: 11px;
   line-height: 1.6;
 
-  &.tag-category { background: rgba(212, 160, 23, 0.16); color: #8A6708; }
-  &.tag-location { background: rgba(139, 69, 19, 0.10); color: #6D3410; }
-  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: #23634A; }
+  &.tag-category { background: rgba(212, 160, 23, 0.16); color: var(--map-gold-ink); }
+  &.tag-location { background: rgba(139, 69, 19, 0.10); color: var(--map-ink); }
+  &.tag-period   { background: rgba(46, 109, 87, 0.12);  color: var(--map-success-ink); }
 }
 
 .detail-intro {
@@ -4831,7 +4831,7 @@ onBeforeUnmount(() => {
 
 .btn-primary {
   background: linear-gradient(135deg, #A05A2C 0%, var(--color-primary) 100%);
-  color: #FDF6E3;
+  color: var(--map-cream);
   box-shadow: 0 3px 10px rgba(139, 69, 19, 0.28);
 
   &:hover {
@@ -4925,6 +4925,8 @@ onBeforeUnmount(() => {
 .chart-card {
   padding: 20px 20px 12px;
   border-radius: var(--radius-lg);
+  // 内容卡规范：补 1px 边界，与全站内容卡一致（浮层卡才使用阴影）
+  border: 1px solid var(--color-border-light);
   overflow: hidden;
 }
 
@@ -5268,7 +5270,7 @@ onBeforeUnmount(() => {
     h1 {
       margin: 0 0 4px;
       font-size: 18pt;
-      color: #6d3410;
+      color: var(--map-ink);
     }
 
     p {

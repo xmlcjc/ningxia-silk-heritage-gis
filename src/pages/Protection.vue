@@ -16,8 +16,9 @@
     <section class="section">
       <div class="container">
         <div class="section-head" data-reveal>
-          <p class="eyebrow"><span>01</span></p>
+          <p class="eyebrow"><span>01</span>现状</p>
           <h2>现状分析</h2>
+          <p class="section-desc">传承、传播、资料与空间分布的四类现实问题</p>
         </div>
         <div class="problems-grid" data-reveal-stagger>
           <div class="problem-card">
@@ -47,8 +48,9 @@
     <section class="section section--surface">
       <div class="container">
         <div class="section-head" data-reveal>
-          <p class="eyebrow"><span>02</span></p>
+          <p class="eyebrow"><span>02</span>建议</p>
           <h2>GIS支持下的保护建议</h2>
+          <p class="section-desc">分级、分类、集聚与线路串联的保护策略</p>
         </div>
         <div class="strategies-grid" data-reveal-stagger>
           <div class="strategy-card">
@@ -78,8 +80,9 @@
     <section class="section section--paper">
       <div class="container">
         <div class="section-head" data-reveal>
-          <p class="eyebrow"><span>03</span></p>
+          <p class="eyebrow"><span>03</span>融合</p>
           <h2>非遗与乡村振兴结合</h2>
+          <p class="section-desc">非遗与旅游、社区结合的乡村振兴方向</p>
         </div>
         <div class="combine-grid" data-reveal-stagger>
           <div class="combine-card">
@@ -109,8 +112,9 @@
     <section class="section path-section">
       <div class="container">
         <div class="section-head" data-reveal>
-          <p class="eyebrow"><span>04</span></p>
+          <p class="eyebrow"><span>04</span>路径</p>
           <h2>协同发展路径</h2>
+          <p class="section-desc">从资源普查到实施推广的推进顺序</p>
         </div>
         <div class="path-flow" data-reveal-stagger>
           <div class="path-step">
@@ -157,7 +161,8 @@ import { Icon } from '@iconify/vue'
   background: var(--color-background);
 
   .section {
-    padding: clamp(64px, 7vw, 88px) 0;
+    // 标准内容区块间距（main.scss --section-gap）
+    padding: var(--section-gap) 0;
   }
 }
 
@@ -166,10 +171,11 @@ import { Icon } from '@iconify/vue'
 // ============================================
 .protection-hero {
   position: relative;
-  padding: clamp(56px, 6vw, 80px) 0 clamp(40px, 4vw, 56px);
+  // 内容页 Hero 统一留白与光晕（main.scss --hero-pad-* / --hero-glow）
+  padding: var(--hero-pad-top) 0 var(--hero-pad-bottom);
   background:
-    radial-gradient(880px 420px at 88% 0%, rgba(212, 160, 23, 0.1), transparent 62%),
-    var(--color-paper);
+    var(--hero-glow),
+    var(--hero-surface);
   border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -215,19 +221,11 @@ import { Icon } from '@iconify/vue'
   margin-bottom: var(--space-8);
 }
 
+// 眉标字体 / 字号 / 字距 / 颜色由 main.scss 的 .eyebrow 统一提供
+// 本页仅保留下方间距与编号后的装饰线（页面专属装饰，不覆盖基础规范）
 .eyebrow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
   margin: 0 0 var(--space-3);
-  font-family: var(--font-en);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-wider);
-  color: var(--color-gold-refined);
-
-  span {
-    font-family: var(--font-en);
-  }
+  gap: var(--space-2);
 
   &::after {
     content: '';

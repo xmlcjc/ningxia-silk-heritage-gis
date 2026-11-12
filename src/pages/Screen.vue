@@ -2688,7 +2688,7 @@ onBeforeUnmount(() => {
 .screen-page {
   // 大屏主题色板（呼应主站：赭石 · 鎏金 · 宣纸）
   --scr-gold-light: var(--color-secondary-light);
-  --scr-text: #f5e6c8;
+  --scr-text: var(--screen-cream);
   --scr-border: rgba(212, 160, 23, 0.16);
   --scr-warm: rgba(33, 23, 17, 0.78);
 
@@ -2701,7 +2701,7 @@ onBeforeUnmount(() => {
     radial-gradient(ellipse 95% 55% at 50% -10%, rgba(212, 160, 23, 0.15), transparent 62%),
     radial-gradient(ellipse 65% 48% at 10% 108%, rgba(139, 69, 19, 0.24), transparent 60%),
     radial-gradient(ellipse 65% 48% at 90% 108%, rgba(139, 69, 19, 0.2), transparent 60%),
-    linear-gradient(180deg, #23190f 0%, #1d1510 46%, #150e0a 100%);
+    linear-gradient(180deg, #23190f 0%, var(--screen-ink) 46%, #150e0a 100%);
 
   // 极淡丝绸斜纹（全局，位于内容之下）
   &::before {
@@ -2741,7 +2741,7 @@ onBeforeUnmount(() => {
   text-decoration: none;
   transition: color 0.2s;
 
-  &:hover { color: #ffd98a; }
+  &:hover { color: var(--screen-gold-soft); }
   .back-ico { font-size: 20px; line-height: 1; }
 }
 
@@ -2757,7 +2757,7 @@ onBeforeUnmount(() => {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 6px;
-  color: #ffe9bd;
+  color: var(--screen-cream-strong);
   text-shadow: 0 2px 14px rgba(255, 200, 87, 0.35);
 }
 
@@ -2784,7 +2784,7 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-full);
   background: none;
   font-size: 12px;
-  color: #ffd98a;
+  color: var(--screen-gold-soft);
   cursor: pointer;
 }
 
@@ -2866,7 +2866,7 @@ onBeforeUnmount(() => {
 
     b {
       font-weight: 600;
-      color: #ffd98a;
+      color: var(--screen-gold-soft);
     }
   }
 
@@ -2899,7 +2899,7 @@ onBeforeUnmount(() => {
   min-height: 100%;
   padding: 24px;
   text-align: center;
-  color: #f5e6c8;
+  color: var(--screen-cream);
 
   p { max-width: 32ch; margin: 12px 0 20px; }
   a { text-decoration: none; }
@@ -2920,7 +2920,7 @@ onBeforeUnmount(() => {
   gap: 2px;
   padding: 14px 6px 12px;
   border: 1px solid var(--scr-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-hud);
   background: linear-gradient(160deg, rgba(212, 160, 23, 0.08), rgba(0, 0, 0, 0.16));
   overflow: hidden;
 
@@ -2947,7 +2947,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-item.is-gold .stat-num {
-  color: #ffc857;
+  color: var(--screen-gold);
   text-shadow: 0 0 18px rgba(255, 200, 87, 0.45);
 }
 
@@ -2960,7 +2960,7 @@ onBeforeUnmount(() => {
   flex: none;
   padding: 14px 15px 15px;
   border: 1px solid var(--scr-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-hud);
   background: linear-gradient(160deg, rgba(212, 160, 23, 0.055), rgba(0, 0, 0, 0.14));
 
   // 需要纵向伸展填满面板的卡片
@@ -2976,7 +2976,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   color: rgba(255, 248, 231, 0.9);
 
-  .bar { width: 3px; height: 13px; border-radius: 2px; background: linear-gradient(180deg, #ffd98a, #c07f2e); }
+  .bar { width: 3px; height: 13px; border-radius: 2px; background: linear-gradient(180deg, var(--screen-gold-soft), var(--screen-amber-deep)); }
 }
 
 .chart-box { flex: 1 1 auto; width: 100%; min-height: 150px; }
@@ -2999,8 +2999,8 @@ onBeforeUnmount(() => {
   transition: opacity 0.2s;
   &:hover .level-name { color: rgba(255, 248, 231, 0.95); }
   &.is-active {
-    .level-name { color: #ffc857; }
-    .level-fill { background: linear-gradient(90deg, #ffc857, #ffd98a); }
+    .level-name { color: var(--screen-gold); }
+    .level-fill { background: linear-gradient(90deg, var(--screen-gold), var(--screen-gold-soft)); }
   }
 }
 .level-name { width: 56px; flex: none; color: rgba(255, 248, 231, 0.7); }
@@ -3009,7 +3009,7 @@ onBeforeUnmount(() => {
   display: block;
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--color-gold-refined), #e8c468);
+  background: linear-gradient(90deg, var(--color-gold-refined), var(--screen-gold-mid));
 }
 .level-val { width: 18px; flex: none; text-align: right; color: rgba(255, 248, 231, 0.7); }
 
@@ -3056,15 +3056,15 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.top-index { font-family: var(--font-display); color: #ffc857; font-weight: 600; }
+.top-index { font-family: var(--font-display); color: var(--screen-gold); font-weight: 600; }
 .top-name { flex: 1; color: rgba(255, 248, 231, 0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .top-city {
   flex: none;
   color: rgba(255, 248, 231, 0.45);
 
-  &.lv-国家级 { color: #ffc857; }
-  &.lv-自治区级 { color: #c2a878; }
-  &.lv-市级 { color: #a99b86; }
+  &.lv-国家级 { color: var(--screen-gold); }
+  &.lv-自治区级 { color: var(--screen-sand); }
+  &.lv-市级 { color: var(--screen-muted); }
 }
 
 /* ---- 筛选状态条 ---- */
@@ -3090,7 +3090,7 @@ onBeforeUnmount(() => {
   background: rgba(33, 23, 17, 0.78);
   backdrop-filter: blur(6px);
   font-size: 12px;
-  color: #ffd98a;
+  color: var(--screen-gold-soft);
   cursor: pointer;
   transition: background 0.2s;
 
@@ -3189,14 +3189,14 @@ onBeforeUnmount(() => {
     }
 
     &:hover {
-      color: #ffe9bd;
+      color: var(--screen-cream-strong);
       background: rgba(212, 160, 23, 0.07);
     }
 
     &.is-active {
       border-left-color: var(--color-secondary);
       background: rgba(212, 160, 23, 0.1);
-      color: #ffd98a;
+      color: var(--screen-gold-soft);
 
       .vs-index { color: var(--color-secondary); }
     }
@@ -3220,9 +3220,9 @@ onBeforeUnmount(() => {
   color: rgba(255, 248, 231, 0.8);
 
   .lg-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
-  .lg-dot.gold { background: #ffc857; box-shadow: 0 0 7px #ffc857; }
-  .lg-dot.green { background: #c2a878; box-shadow: 0 0 7px #c2a878; }
-  .lg-dot.bluegray { background: #a99b86; box-shadow: 0 0 7px #a99b86; }
+  .lg-dot.gold { background: var(--screen-gold); box-shadow: 0 0 7px var(--screen-gold); }
+  .lg-dot.green { background: var(--screen-sand); box-shadow: 0 0 7px var(--screen-sand); }
+  .lg-dot.bluegray { background: var(--screen-muted); box-shadow: 0 0 7px var(--screen-muted); }
 
   .lg-route {
     display: inline-flex;
@@ -3233,7 +3233,7 @@ onBeforeUnmount(() => {
       width: 18px;
       height: 3px;
       border-radius: 2px;
-      background: linear-gradient(90deg, var(--color-primary), var(--color-gold-refined) 55%, #e8c468);
+      background: linear-gradient(90deg, var(--color-primary), var(--color-gold-refined) 55%, var(--screen-gold-mid));
       box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
     }
   }
@@ -3264,11 +3264,11 @@ onBeforeUnmount(() => {
 
 .poi-tags { display: flex; gap: 8px; margin-bottom: 12px; }
 .poi-level, .poi-cat { padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; }
-.poi-level.is-national { background: rgba(255, 200, 87, 0.16); color: #ffc857; border: 1px solid rgba(255, 200, 87, 0.4); }
-.poi-level.is-local { background: rgba(194, 168, 120, 0.14); color: #c2a878; border: 1px solid rgba(194, 168, 120, 0.38); }
+.poi-level.is-national { background: rgba(255, 200, 87, 0.16); color: var(--screen-gold); border: 1px solid rgba(255, 200, 87, 0.4); }
+.poi-level.is-local { background: rgba(194, 168, 120, 0.14); color: var(--screen-sand); border: 1px solid rgba(194, 168, 120, 0.38); }
 .poi-cat { background: rgba(255, 255, 255, 0.07); color: rgba(255, 248, 231, 0.65); }
 
-.poi-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 19px; font-weight: 600; color: #fff8e7; }
+.poi-name { margin: 0 0 6px; font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--color-background); }
 .poi-meta { margin: 0 0 12px; font-size: 12px; color: rgba(255, 248, 231, 0.5); }
 .poi-intro { margin: 0 0 16px; font-size: 13px; line-height: 1.7; color: rgba(255, 248, 231, 0.78); }
 
@@ -3338,7 +3338,7 @@ onBeforeUnmount(() => {
 .poi-link {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 16px; border: 1px solid rgba(212, 160, 23, 0.5);
-  border-radius: var(--radius-full); font-size: 13px; color: #ffd98a; text-decoration: none;
+  border-radius: var(--radius-full); font-size: 13px; color: var(--screen-gold-soft); text-decoration: none;
   transition: all 0.25s var(--ease-out);
   &:hover { background: var(--color-secondary-soft); gap: 10px; }
 }
@@ -3414,7 +3414,7 @@ onBeforeUnmount(() => {
     height: 44px;
     border: 0;
     background: transparent;
-    color: #f5e6c8;
+    color: var(--screen-cream);
     font-size: 22px;
     line-height: 1;
     cursor: pointer;

@@ -15,7 +15,7 @@
           <p class="hero-meta">大学生创新创业项目</p>
           <div class="hero-actions">
             <a href="#results" class="btn btn-primary">查看项目成果</a>
-            <a href="#intro" class="btn btn-ghost">了解项目内容</a>
+            <a href="#intro" class="btn btn-secondary">了解项目内容</a>
           </div>
         </div>
       </div>
@@ -653,9 +653,11 @@ const directionLabel = (id) => directionLabels[id] || '项目成果'
   scroll-margin-top: 132px;
 }
 
+// 长文档页例外：为控制阅读长度，章节间距使用紧凑档
+// （main.scss --section-gap-longform；1440 下总高需保持 ≤6000px）
 .project-page .section {
-  padding-top: clamp(26px, 2.1vw, 30px);
-  padding-bottom: clamp(26px, 2.1vw, 30px);
+  padding-top: var(--section-gap-longform);
+  padding-bottom: var(--section-gap-longform);
 }
 
 @media (max-width: 768px) {
@@ -672,23 +674,25 @@ const directionLabel = (id) => directionLabels[id] || '项目成果'
 .page-hero {
   position: relative;
   background:
-    radial-gradient(1100px 620px at 86% 12%, rgba(212, 160, 23, 0.12), transparent 62%),
-    radial-gradient(760px 520px at 4% 0%, rgba(139, 69, 19, 0.07), transparent 66%),
-    var(--color-paper);
+    var(--hero-glow),
+    var(--hero-surface);
   border-bottom: 1px solid var(--color-border-light);
   overflow: hidden;
 }
 
 .hero-grid {
-  padding-top: clamp(32px, 3.6vw, 48px);
-  padding-bottom: clamp(32px, 3.6vw, 48px);
+  // 内容页 Hero 统一留白（main.scss --hero-pad-*）
+  padding-top: var(--hero-pad-top);
+  padding-bottom: var(--hero-pad-bottom);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  margin-top: var(--space-6);
+  // 次按钮由 ghost 改为 secondary 后增加 2px 描边高度，
+  // 上边距同步减 2px，保持 Hero 总高不变（1440 下仍为 357px）
+  margin-top: calc(var(--space-6) - 2px);
 }
 
 .hero-copy {
@@ -701,7 +705,7 @@ const directionLabel = (id) => directionLabels[id] || '项目成果'
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-ui);
-  font-size: var(--text-caption);
+  font-size: var(--text-label);
   letter-spacing: var(--tracking-wider);
   color: var(--color-primary);
 
@@ -1756,24 +1760,26 @@ const directionLabel = (id) => directionLabels[id] || '项目成果'
   .meta-tag {
     display: inline-block;
     padding: 3px 9px;
-    background: rgba(212, 160, 23, 0.1);
+    // 状态徽章（badge）：紧凑矩形 + 语义 token；
+    // 分类/主题标签使用 main.scss 中胶囊形的 .tag，两者不要混用
+    background: var(--color-secondary-soft);
     color: var(--color-secondary-dark);
     border-radius: var(--radius-sm);
-    font-size: 12px;
+    font-size: var(--text-label);
 
     &.is-verified {
-      background: rgba(46, 139, 87, 0.12);
-      color: #2E7D57;
+      background: var(--color-success-soft);
+      color: var(--color-success-ink);
     }
 
     &.is-conditional {
-      background: rgba(212, 160, 23, 0.16);
-      color: #8A5A00;
+      background: var(--color-warning-soft);
+      color: var(--color-warning-ink);
     }
 
     &.is-unverified {
-      background: rgba(126, 106, 85, 0.14);
-      color: #6B5B4A;
+      background: var(--color-surface);
+      color: var(--color-text-medium);
     }
   }
 
@@ -1950,25 +1956,10 @@ const directionLabel = (id) => directionLabels[id] || '项目成果'
 // 公共样式
 // ============================================
 
-// 编辑式章节标题：与 Home 同源的 eyebrow + 左对齐 H2
+// 编辑式章节标题：eyebrow 基础样式由 main.scss 统一提供，此处只保留版式
 .section-head {
   max-width: 660px;
   margin-bottom: clamp(24px, 2.2vw, 32px);
-
-  .eyebrow {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-family: var(--font-ui);
-    font-size: var(--text-label);
-    letter-spacing: var(--tracking-wider);
-    color: var(--color-primary);
-
-    span {
-      font-family: var(--font-en);
-      color: var(--color-primary);
-    }
-  }
 
   h2 {
     margin: var(--space-3) 0 var(--space-4);

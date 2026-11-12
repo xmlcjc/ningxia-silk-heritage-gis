@@ -139,6 +139,36 @@
   --color-on-dark-success-soft: rgba(143, 211, 168, 0.14);
   --color-on-dark-success-border: rgba(143, 211, 168, 0.35);
   --color-on-dark-divider: rgba(255, 255, 255, 0.10);  // 深色底分隔线
+
+  // ===================
+  // 三维数据大屏（/screen）专用 HUD 色板
+  // 深色语境下的金色层级与暖灰，值与页面既有渲染保持一致；
+  // 仅用于大屏，不参与浅色页面配色
+  // ===================
+  --screen-gold: #FFC857;          // 高亮金（统计数字、重点数值）
+  --screen-gold-soft: #FFD98A;     // 柔和金（按钮、图标）
+  --screen-gold-mid: #E8C468;      // 中间金（标题、分隔）
+  --screen-sand: #C2A878;          // 沙金（次级文字）
+  --screen-amber: #D9A05B;         // 琥珀（图表系列）
+  --screen-amber-deep: #C07F2E;    // 深琥珀（图表系列）
+  --screen-ink: #1D1510;           // HUD 深底
+  --screen-ink-soft: #8C7B63;      // 暖灰文字
+  --screen-muted: #A99B86;         // 辅助文字
+  --screen-cream: #F5E6C8;         // 暖白文字
+  --screen-cream-strong: #FFE9BD;  // 高对比暖白
+
+  // ===================
+  // GIS 地图（/map）局部色板
+  // 地图工具栏、图例与深色面板中反复出现、但数值不等于浅色品牌 token 的颜色；
+  // 保持既有渲染值，仅集中管理
+  // ===================
+  --map-ink: #6D3410;              // 工具栏深棕底
+  --map-sand: #C2AC85;             // 浮层沙色描边
+  --map-sand-light: #D8C6A6;       // 浅沙色分隔
+  --map-cream: #FDF6E3;            // 深色底上的暖白图标
+  --map-paper-light: #FFFDF7;      // 图例浅纸底
+  --map-gold-ink: #8A6708;         // 金底上的深金文字
+  --map-success-ink: #23634A;      // 成功态深绿
   
   // ===================
   // 字体系统（方案A 墨韵丝路：毛笔楷书标题 / 书宋副题 / 明朝正文 / 峄山碑篆体印章 / Georgia 英文）
@@ -218,10 +248,22 @@
   --container-wide: 1920px;
   --gutter: var(--space-6);        // 页面左右留白
   --gutter-sm: var(--space-4);     // 移动端留白
-  --section-gap: 96px;             // 桌面区块间距
+  --section-gap: clamp(64px, 7vw, 88px); // 桌面区块间距（标准内容页实际取值）
   --section-gap-sm: var(--space-12); // 移动端区块间距
+  --section-gap-compact: clamp(40px, 4vw, 48px); // 紧凑变体（工具页 / 详情页）
+  --section-gap-longform: clamp(26px, 2.1vw, 30px); // 长文档页专用（受高度预算约束，仅 Project 使用）
   --card-gap: var(--space-6);      // 卡片网格间距
   --card-padding: var(--space-6);  // 卡片内边距
+
+  // 内容页 Hero（Project / About / Archive / Detail / Protection）
+  // 统一顶/底留白；高度仍由各页内容决定，不强行等高
+  --hero-pad-top: clamp(32px, 3.6vw, 48px);
+  --hero-pad-bottom: clamp(32px, 3.6vw, 48px);
+  // 统一背景光晕（纸色底 + 两层品牌径向渐变）
+  --hero-glow:
+    radial-gradient(1100px 620px at 86% 12%, rgba(212, 160, 23, 0.12), transparent 62%),
+    radial-gradient(760px 520px at 4% 0%, rgba(139, 69, 19, 0.07), transparent 66%);
+  --hero-surface: var(--color-paper);
   
   // ===================
   // 圆角系统（常规控件 8 / 卡片 12 / 面板 16）
@@ -238,6 +280,8 @@
   --radius-card: var(--radius-lg);      // 卡片
   --radius-panel: var(--radius-xl);     // 模态 / 抽屉 / 浮层
   --radius-pill: var(--radius-full);    // 胶囊标签
+  // 深色 HUD（三维数据大屏）语境：同一 8px，但语义独立，避免误以为漏用卡片圆角
+  --radius-hud: var(--radius-md);
   
   // ===================
   // 阴影系统（弱阴影：默认只用 sm/md，浮层才用 lg/xl）
@@ -376,6 +420,38 @@ h6 {
 }
 
 // ============================================
+// 章节眉标（Eyebrow）
+// 全站统一：正文字体 / 12px / 0.18em 字距 / 品牌赭石
+// 页面只负责布局与装饰（编号、分隔线），不覆盖字体、字号与颜色
+// ============================================
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-primary);
+
+  span {
+    font-family: var(--font-en);
+    color: var(--color-primary);
+  }
+}
+
+// ============================================
+// 章节说明（Section description）
+// 与章节眉标配套的说明行：16px 正文、浅棕、宽松行高
+// ============================================
+
+.section-desc {
+  color: var(--color-text-light);
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
+}
+
+// ============================================
 // 角色字体：副题（方正书宋，--font-sub）/ 英文展示（Georgia，--font-en）
 // ============================================
 
@@ -484,9 +560,16 @@ a {
 }
 
 // ============================================
-// 卡片系统 - 博物馆质感
+// 卡片体系（三种语义，不要混用）
+// A. 内容卡：12px 圆角 + 1px 边框 + 无默认阴影（paper/surface 底）
+//    页面类：.research-card / .h-card / .problem-card / .result-card 等
+// B. 浮层卡：12px 圆角 + 1px 边框 + --shadow-sm（地图图例、悬浮信息窗）
+// C. HUD 卡：--radius-hud（8px）+ 深色底 + 金色低透明边框（三维大屏）
+// 说明：.card 为通用内容卡基类，当前页面未直接使用；新页面可直接复用，
+//       但不要在内容卡上叠加悬浮位移，避免长列表产生“漂浮”噪声。
 // ============================================
 
+// 卡片系统 - 博物馆质感
 .card {
   background: linear-gradient(
     135deg,
@@ -504,27 +587,8 @@ a {
     var(--shadow-card),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
   
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 
-      var(--shadow-raised),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    border-color: var(--color-secondary);
-    
-    // 金色光晕
-    &::before {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: -1px;
-      right: -1px;
-      bottom: -1px;
-      border-radius: var(--radius-card);
-      border: 1px solid var(--color-secondary);
-      opacity: 0.5;
-      pointer-events: none;
-    }
-  }
+  // 内容卡默认不做悬浮位移：长列表反复上浮会形成视觉噪声。
+  // 需要强调的浮层请使用 .map-legend 等浮层卡（阴影表达层次）。
 }
 
 // 高级卡片 - 带丝绸纹理
@@ -708,7 +772,11 @@ a {
 }
 
 // ============================================
-// 标签/徽章系统
+// 标签 / 徽章系统
+// 两类组件，不要混用：
+// - .tag：分类 / 主题 / 属性标签，胶囊形（--radius-pill），无状态语义
+// - .badge：状态徽章（已核验 / 计划 / 警告等），紧凑矩形（--radius-sm），
+//   颜色只取语义 token（success / warning / danger / neutral）
 // ============================================
 
 .tag {
@@ -1108,14 +1176,13 @@ html.motion-ready {
   background-repeat: no-repeat;
 }
 
-// ---------- 徽章 ----------
+// ---------- 状态徽章（紧凑矩形，区别于胶囊形 .tag） ----------
 .badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  height: 24px;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-ui);
   font-size: var(--text-label);
   font-weight: var(--weight-medium);

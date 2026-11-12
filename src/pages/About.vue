@@ -328,9 +328,8 @@ const credits = [
 .page-hero {
   position: relative;
   background:
-    radial-gradient(1100px 620px at 86% 12%, rgba(212, 160, 23, 0.12), transparent 62%),
-    radial-gradient(760px 520px at 4% 0%, rgba(139, 69, 19, 0.07), transparent 66%),
-    var(--color-paper);
+    var(--hero-glow),
+    var(--hero-surface);
   border-bottom: 1px solid var(--color-border-light);
   overflow: hidden;
 }
@@ -340,8 +339,9 @@ const credits = [
   grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
   gap: clamp(32px, 5vw, 88px);
   align-items: center;
-  padding-top: clamp(52px, 6vw, 84px);
-  padding-bottom: clamp(52px, 6vw, 84px);
+  // 内容页 Hero 统一留白（main.scss --hero-pad-*）
+  padding-top: var(--hero-pad-top);
+  padding-bottom: var(--hero-pad-bottom);
 }
 
 .hero-copy {
@@ -354,7 +354,7 @@ const credits = [
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-ui);
-  font-size: var(--text-caption);
+  font-size: var(--text-label);
   letter-spacing: var(--tracking-wider);
   color: var(--color-primary);
 
@@ -534,25 +534,10 @@ const credits = [
 // 公共标题
 // ============================================
 
-// 编辑式章节标题：与 Home / Project 同源的 eyebrow + 左对齐 H2
+// 编辑式章节标题：eyebrow 基础样式由 main.scss 统一提供，此处只保留版式
 .section-head {
   max-width: 660px;
   margin-bottom: var(--spacing-2xl);
-
-  .eyebrow {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-family: var(--font-ui);
-    font-size: var(--text-label);
-    letter-spacing: var(--tracking-wider);
-    color: var(--color-primary);
-
-    span {
-      font-family: var(--font-en);
-      color: var(--color-primary);
-    }
-  }
 
   h2 {
     margin: var(--space-3) 0 var(--space-4);
@@ -577,7 +562,7 @@ const credits = [
 
 .platform-section {
   background: var(--color-background);
-  padding: clamp(64px, 7vw, 88px) 0;
+  padding: var(--section-gap) 0;
 }
 
 .platform-grid {
@@ -626,7 +611,8 @@ const credits = [
   padding: clamp(48px, 5.5vw, 72px) 0 clamp(32px, 4vw, 48px);
 
   .section-head {
-    margin-bottom: var(--spacing-xl);
+    // 团队区块沿用全站统一的章节头间距（48px），与平台介绍 / 项目理念一致
+    margin-bottom: var(--spacing-2xl);
   }
 }
 
@@ -746,7 +732,7 @@ const credits = [
 
 .mission-section {
   background: var(--color-surface);
-  padding: clamp(64px, 7vw, 88px) 0;
+  padding: var(--section-gap) 0;
 }
 
 .mission-values {
@@ -822,7 +808,7 @@ const credits = [
 
 .sources-section {
   background: var(--color-background);
-  padding: clamp(64px, 7vw, 88px) 0;
+  padding: var(--section-gap) 0;
 }
 
 .source-note {

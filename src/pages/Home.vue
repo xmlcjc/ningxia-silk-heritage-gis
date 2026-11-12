@@ -500,7 +500,8 @@ const statusLabel = (status) => STATUS_LABELS[status] || status
   overflow-x: clip;
 
   .section {
-    padding: clamp(64px, 7vw, 88px) 0;
+    // 标准内容区块间距（main.scss --section-gap）
+    padding: var(--section-gap) 0;
   }
 }
 
@@ -519,20 +520,7 @@ const statusLabel = (status) => STATUS_LABELS[status] || status
   }
 }
 
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-ui);
-  font-size: var(--text-label);
-  letter-spacing: var(--tracking-wider);
-  color: var(--color-primary);
-
-  span {
-    font-family: var(--font-en);
-    color: var(--color-primary);
-  }
-}
+// 章节眉标统一由 main.scss 的 .eyebrow 提供（字体 / 字号 / 字距 / 颜色）
 
 .section-desc {
   color: var(--color-text-light);
@@ -618,7 +606,7 @@ const statusLabel = (status) => STATUS_LABELS[status] || status
   align-items: center;
   gap: var(--space-3);
   font-family: var(--font-ui);
-  font-size: var(--text-caption);
+  font-size: var(--text-label);
   letter-spacing: var(--tracking-wider);
   color: var(--color-primary);
 }
