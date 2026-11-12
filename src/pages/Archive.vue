@@ -26,19 +26,23 @@
       </div>
     </header>
 
-    <main class="archive-main">
+    <div class="archive-main">
       <div class="container">
         <!-- ==================== 分类入口 ==================== -->
         <div class="cat-rail" role="tablist" aria-label="按遗产类别筛选" data-reveal data-reveal-delay="80">
           <button
-            v-for="tab in categoryTabs"
+            v-for="(tab, index) in categoryTabs"
+            :id="`archive-tab-${index}`"
             :key="tab.name"
             type="button"
             role="tab"
             class="cat-tab"
             :class="{ 'is-active': filterCategory === tab.value }"
             :aria-selected="filterCategory === tab.value"
+            :aria-controls="'archive-results'"
+            :tabindex="activeTabIndex === index ? 0 : -1"
             @click="setCategory(tab.value)"
+            @keydown="onTabKeydown($event, index)"
           >
             {{ tab.name }}
             <span class="cat-tab__count">{{ tab.count }}</span>
@@ -84,10 +88,16 @@
         </div>
 
         <!-- ==================== 结果统计与已选条件 ==================== -->
+        <div
+          id="archive-results"
+          role="tabpanel"
+          :aria-labelledby="`archive-tab-${activeTabIndex}`"
+        >
         <div class="result-bar">
-          <p class="result-count">
+          <p class="result-count" role="status" aria-live="polite" aria-atomic="true">
             共 <strong>{{ filteredData.length }}</strong> 项
             <span class="result-scope">· {{ scopeLabel }}</span>
+            <span v-if="!filteredData.length" class="sr-only">没有符合条件的项目</span>
           </p>
 
           <ul v-if="activeConditions.length" class="result-chips" aria-label="已选筛选条件">
@@ -165,8 +175,9 @@
           />
           <p class="pagination-info">第 {{ currentPage }} / {{ totalPages }} 页 · 每页 {{ pageSize }} 项</p>
         </div>
+        </div>
       </div>
-    </main>
+    </div>
   </div>
 </template>
 
@@ -280,6 +291,26 @@ const levelKey = (level) => {
 
 const setCategory = (value) => {
   filterCategory.value = value
+}
+
+// 当前选中分类的序号：用于 roving tabindex 与 tabpanel 关联
+const activeTabIndex = computed(() => {
+  const index = categoryTabs.value.findIndex((tab) => tab.value === filterCategory.value)
+  return index < 0 ? 0 : index
+})
+
+// Tabs 键盘模式（自动激活）：方向键 / Home / End 移动焦点并同步筛选
+const onTabKeydown = (event, index) => {
+  const last = categoryTabs.value.length - 1
+  let next = null
+  if (event.key === 'ArrowRight') next = index === last ? 0 : index + 1
+  else if (event.key === 'ArrowLeft') next = index === 0 ? last : index - 1
+  else if (event.key === 'Home') next = 0
+  else if (event.key === 'End') next = last
+  if (next === null) return
+  event.preventDefault()
+  setCategory(categoryTabs.value[next].value)
+  nextTick(() => document.getElementById(`archive-tab-${next}`)?.focus())
 }
 
 const resetFilters = () => {
@@ -398,15 +429,18 @@ watch(totalPages, (pages) => {
 .arch-title {
   margin: 0 0 var(--space-4);
   font-family: var(--font-title);
-  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
   font-weight: 400;
   line-height: var(--leading-tight);
   letter-spacing: 0.02em;
-  color: var(--color-text);
+  color: var(--color-primary-dark);
+  // 11 字长标题在窄屏换行时避免单字孤行（渐进增强）
+  text-wrap: balance;
 
-  // 手机端收小字号，避免“宁夏丝路非物质文化遗产”出现单字孤行
-  @media (max-width: 640px) {
-    font-size: 1.8rem;
+  // 移动端 H1：字号由 clamp 下限 2.2rem 接管，此处只统一行高与字距
+  @media (max-width: 768px) {
+    line-height: 1.2;
+    letter-spacing: 0.02em;
   }
 }
 
@@ -539,7 +573,7 @@ watch(totalPages, (pages) => {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -572,7 +606,7 @@ watch(totalPages, (pages) => {
   }
 
   &.is-focus {
-    box-shadow: 0 0 0 1px var(--color-secondary) inset, var(--focus-ring);
+    box-shadow: 0 0 0 1px var(--color-primary) inset, 0 0 0 3px rgba(139, 69, 19, 0.25);
   }
 }
 
@@ -601,8 +635,13 @@ watch(totalPages, (pages) => {
     }
 
     &.is-focus {
-      box-shadow: 0 0 0 1px var(--color-secondary) inset;
+      box-shadow: 0 0 0 1px var(--color-primary) inset, 0 0 0 3px rgba(139, 69, 19, 0.25);
     }
+  }
+
+  // Element Plus 下拉：焦点边界改用品牌赭石（默认蓝色 1px 对比不足）
+  :deep(.el-select__wrapper.is-focused) {
+    box-shadow: 0 0 0 1px var(--color-primary) inset, 0 0 0 3px rgba(139, 69, 19, 0.25);
   }
 }
 
@@ -628,6 +667,12 @@ watch(totalPages, (pages) => {
   &:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+  }
+
+  // 金色在暖白纸面上对比不足（约 2.3:1），改用更深的品牌赭石色（约 6.9:1）
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 }
 
@@ -679,6 +724,7 @@ watch(totalPages, (pages) => {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: 24px;
   padding: 4px var(--space-3);
   background: var(--color-primary-soft);
   border: 1px solid transparent;
@@ -690,6 +736,12 @@ watch(totalPages, (pages) => {
 
   &:hover {
     border-color: var(--color-secondary);
+  }
+
+  // 与清空按钮一致：暖白纸面上用深赭石色保证可见对比
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 
   &__x {
@@ -751,7 +803,7 @@ watch(totalPages, (pages) => {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -1037,6 +1089,44 @@ watch(totalPages, (pages) => {
 
   .h-card__body {
     padding: var(--space-4);
+  }
+}
+
+// ============================================
+// 移动端 / 平板触控热区（≤768 生效，桌面端不变）
+// ============================================
+@media (max-width: 768px) {
+  .cat-tab {
+    min-height: 44px;
+  }
+
+  .search-input :deep(.el-input__wrapper) {
+    min-height: 44px;
+  }
+
+  .filter-select :deep(.el-select__wrapper) {
+    min-height: 44px;
+  }
+
+  .tools-reset {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  // 已选条件 chip 本身是删除按钮：整体增高到 44，文字与 × 仍由 inline-flex 居中
+  .chip {
+    min-height: 44px;
+  }
+
+  // 分页按钮：移动端热区 ≥44（Element Plus 内部按钮）
+  .custom-pagination {
+    :deep(.btn-prev),
+    :deep(.btn-next),
+    :deep(.el-pager li) {
+      min-width: 44px;
+      min-height: 44px;
+      line-height: 44px;
+    }
   }
 }
 </style>

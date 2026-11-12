@@ -68,7 +68,7 @@ import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { heritageData } from '../data/heritageData'
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'open'])
 const router = useRouter()
 
 const isOpen = ref(false)
@@ -109,6 +109,7 @@ watch(keyword, () => {
 
 const open = () => {
   isOpen.value = true
+  emit('open')
 }
 
 const close = () => {

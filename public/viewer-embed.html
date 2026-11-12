@@ -25,6 +25,92 @@
             .sse-time {
                 display: none !important;
             }
+
+            /*
+             * P2-10 · 操作提示面板（.sse-controlsHint）
+             * 短 iframe 中该面板以 bottom:86px 固定定位且没有高度上限，顶部会越界。
+             * 这里限制最大高度，并让「标题 + 关闭按钮」固定、仅提示条目内部滚动。
+             */
+            .sse-viewer .sse-controlsHint {
+                display: flex;
+                flex-direction: column;
+                max-height: calc(100% - 100px);
+            }
+
+            .sse-viewer .sse-controlsHint > .sse-controlsHintHeader {
+                flex: 0 0 auto;
+            }
+
+            .sse-viewer .sse-controlsHint > .sse-controlsHintRows {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-y: auto;
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+            }
+
+            .sse-viewer .sse-controlsHint > .sse-controlsHintRows * {
+                touch-action: pan-y;
+            }
+
+            /*
+             * P2-10 · 信息面板触摸滚动
+             * 查看器的 .sse-viewer * { touch-action: none } 会禁用原生触摸滚动，
+             * 导致 overflow-y:auto 的信息面板在手机上无法翻到底部。
+             * 仅恢复滚动容器及其内容；画布、工具栏与 .sse-ui 根层保持原有
+             * touch-action:none，环视 / 飞行手势不受影响。
+             */
+            .sse-viewer .sse-infoPanel > .sse-infoPanelContent {
+                touch-action: pan-y;
+                overscroll-behavior: contain;
+            }
+
+            .sse-viewer .sse-infoPanel > .sse-infoPanelContent * {
+                touch-action: pan-y;
+            }
+
+            /*
+             * P2-10 · 触屏设备提示内容
+             * 只隐藏键盘 / 鼠标专有说明，保留点击、拖动、捏合、双击等手势行。
+             * 桌面端为 fine pointer，本节规则不生效，WASD / Shift / Ctrl / R / H 照常显示。
+             */
+            @media (pointer: coarse) {
+                .sse-viewer .sse-infoShortcuts {
+                    display: none !important;
+                }
+
+                .sse-viewer .sse-controlsHint:has(.sse-key),
+                .sse-viewer .sse-controlsHint:has(.sse-mouse) {
+                    display: none !important;
+                }
+            }
+
+            /*
+             * P2-10 · 触控热区
+             * 信息面板关闭按钮与五个工具栏按钮放大到 44×44。
+             * 操作提示面板标题行只有 26px 高，直接放大按钮会挤掉提示内容，
+             * 因此保持布局高度 26px（上下各 -9px 外边距），实际可点区域为 44×44。
+             */
+            @media (pointer: coarse) {
+                .sse-viewer .sse-infoPanel > .sse-infoPanelContent > .sse-infoClose {
+                    top: 4px;
+                    right: 4px;
+                    width: 44px;
+                    height: 44px;
+                }
+
+                .sse-viewer .sse-controlsHint > .sse-controlsHintHeader > .sse-controlsHintClose {
+                    flex: 0 0 auto;
+                    width: 44px;
+                    height: 44px;
+                    margin: -9px 0;
+                }
+
+                .sse-viewer .sse-controlsWrap > .sse-buttonsContainer .sse-controlButton {
+                    width: 44px;
+                    height: 44px;
+                }
+            }
         </style>
     </head>
     <body>

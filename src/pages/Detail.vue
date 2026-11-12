@@ -284,7 +284,6 @@
         aria-label="图片查看器"
         tabindex="-1"
         @click.self="closeLightbox"
-        @keydown="onLightboxKeydown"
       >
         <button type="button" class="lightbox-close" aria-label="关闭" @click="closeLightbox">×</button>
         <button type="button" class="lightbox-nav prev" aria-label="上一张" @click="shiftImage(-1)">‹</button>
@@ -409,20 +408,26 @@ const jumpTo = (id) => {
   window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
 }
 
+let bodyOverflowBefore = ''
 const openLightbox = (index) => {
   if (!heritage.value?.gallery.length) return
   lightboxFailed.value = false
-  lightboxIndex.value = index
   lastFocused = document.activeElement
+  bodyOverflowBefore = document.body.style.overflow
+  lightboxIndex.value = index
   document.body.style.overflow = 'hidden'
+  window.addEventListener('keydown', onLightboxKeydown)
   nextTick(() => lightboxEl.value?.focus())
 }
 
 const closeLightbox = () => {
+  if (lightboxIndex.value === null) return
   lightboxIndex.value = null
   lightboxFailed.value = false
-  document.body.style.overflow = ''
-  if (lastFocused instanceof HTMLElement) lastFocused.focus()
+  window.removeEventListener('keydown', onLightboxKeydown)
+  document.body.style.overflow = bodyOverflowBefore || ''
+  if (lastFocused instanceof HTMLElement && lastFocused.isConnected) lastFocused.focus()
+  else document.getElementById('main')?.focus()
 }
 
 const shiftImage = (delta) => {
@@ -431,10 +436,47 @@ const shiftImage = (delta) => {
   lightboxIndex.value = (lightboxIndex.value + delta + len) % len
 }
 
+const lightboxFocusables = () => {
+  const root = lightboxEl.value
+  if (!root) return []
+  return [...root.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')]
+}
+
+// 灯箱打开期间挂在 window：即使焦点意外离开对话框，Esc / 方向键仍然有效
 const onLightboxKeydown = (event) => {
-  if (event.key === 'Escape') closeLightbox()
-  else if (event.key === 'ArrowLeft') shiftImage(-1)
-  else if (event.key === 'ArrowRight') shiftImage(1)
+  if (lightboxIndex.value === null) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeLightbox()
+    return
+  }
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    shiftImage(-1)
+    return
+  }
+  if (event.key === 'ArrowRight') {
+    event.preventDefault()
+    shiftImage(1)
+    return
+  }
+  if (event.key !== 'Tab') return
+  const items = lightboxFocusables()
+  if (!items.length) return
+  const first = items[0]
+  const last = items[items.length - 1]
+  if (!lightboxEl.value?.contains(document.activeElement)) {
+    event.preventDefault()
+    first.focus()
+    return
+  }
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
 }
 
 const loadHeritage = (id) => {
@@ -463,7 +505,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  document.body.style.overflow = ''
+  window.removeEventListener('keydown', onLightboxKeydown)
+  document.body.style.overflow = bodyOverflowBefore || ''
 })
 </script>
 
@@ -479,7 +522,7 @@ onBeforeUnmount(() => {
 .detail-head {
   padding: var(--space-8) 0 var(--space-12);
   background:
-    radial-gradient(760px 380px at 92% 0%, rgba(212, 160, 23, 0.1), transparent 64%),
+    radial-gradient(880px 420px at 88% 0%, rgba(212, 160, 23, 0.1), transparent 62%),
     var(--color-paper);
   border-bottom: 1px solid var(--color-border-light);
 
@@ -551,10 +594,18 @@ onBeforeUnmount(() => {
 .detail-title {
   margin: 0 0 var(--space-4);
   font-family: var(--font-title);
-  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
   font-weight: 400;
   line-height: var(--leading-tight);
-  color: var(--color-text);
+  color: var(--color-primary-dark);
+  // 11 字长标题在窄屏换行时避免单字孤行（渐进增强）
+  text-wrap: balance;
+
+  // 移动端 H1：字号由 clamp 下限 2.2rem 接管，此处只统一行高与字距
+  @media (max-width: 768px) {
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+  }
 }
 
 .detail-meta {
@@ -610,7 +661,7 @@ onBeforeUnmount(() => {
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-secondary);
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
   }
@@ -623,7 +674,7 @@ onBeforeUnmount(() => {
     padding: 4px 10px;
     border-radius: var(--radius-sm);
     background: rgba(46, 26, 15, 0.66);
-    color: #fff;
+    color: var(--color-white);
     font-size: var(--text-label);
     letter-spacing: 0.04em;
   }
@@ -711,6 +762,9 @@ onBeforeUnmount(() => {
 }
 
 .prose {
+  // 长文阅读行宽：约 42 个汉字/行，避免 1440 下一行超过 60 字；
+  // 仅约束文字段落，图集、主图与三维器物仍在 .d-section 中保持全宽
+  max-width: 42em;
   margin: 0;
   font-size: var(--text-body);
   line-height: var(--leading-relaxed);
@@ -931,7 +985,7 @@ onBeforeUnmount(() => {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -943,7 +997,7 @@ onBeforeUnmount(() => {
     padding: 2px 8px;
     border-radius: var(--radius-sm);
     background: rgba(46, 26, 15, 0.6);
-    color: #fff;
+    color: var(--color-white);
     font-family: var(--font-en);
     font-size: var(--text-label);
     letter-spacing: 0.04em;
@@ -1136,6 +1190,12 @@ onBeforeUnmount(() => {
     cursor: not-allowed;
   }
 
+  // 暖白纸面背景：用深赭石色焦点环保证键盘可见性
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
   &--next {
     justify-content: flex-end;
     text-align: right;
@@ -1232,7 +1292,7 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
   transition: background-color 0.25s var(--ease-out, ease);
 
@@ -1284,6 +1344,33 @@ onBeforeUnmount(() => {
   .lightbox-fade-enter-active,
   .lightbox-fade-leave-active {
     transition: none;
+  }
+}
+
+// ============================================
+// 移动端 / 平板触控热区（≤768 生效，桌面端不变）
+// ============================================
+@media (max-width: 768px) {
+  .toc a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  // 独立链接：加高盒子保证点击面积；下划线改用文字装饰，避免随盒高远离文字
+  .route-link {
+    min-height: 44px;
+    border-bottom: none;
+    text-decoration: underline;
+    text-decoration-color: var(--color-gold-refined-line);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+
+  // 灯箱关闭按钮：移动端热区提升到 44×44，位置与图标不变
+  .lightbox-close {
+    width: 44px;
+    height: 44px;
   }
 }
 </style>

@@ -120,6 +120,25 @@
   --color-interactive-soft: rgba(198, 40, 40, 0.10);  // 选中项底色 / 标记光晕
   --color-interactive-soft-hover: rgba(198, 40, 40, 0.16); // 选中项悬停底色
   --color-interactive-contrast: #FFF8E7;              // 朱砂实底上的文字（暖白）
+
+  // ===================
+  // 深色语境 · Footer / 地图页头 / 深色区块
+  // 仅补充深棕底上的语义化文字、分隔与状态色，不改动浅色品牌色板
+  // ===================
+  --color-dark-surface: #3D2B1F;                       // 深棕底（Footer 渐变起点）
+  --color-dark-surface-deep: #33241A;                  // 更深棕（Footer 渐变终点）
+  --color-dark-surface-sunken: rgba(0, 0, 0, 0.16);    // 深色区内的下沉条带
+  --color-on-dark-strong: #FFFFFF;                     // 深色底上的最高对比标题
+  --color-on-dark: rgba(255, 255, 255, 0.78);          // 深色底正文
+  --color-on-dark-soft: rgba(255, 255, 255, 0.68);     // 深色底次级正文
+  --color-on-dark-muted: rgba(255, 255, 255, 0.55);    // 深色底辅助文字
+  --color-on-dark-faint: rgba(255, 255, 255, 0.50);    // 深色底版权/来源等弱信息
+  --color-on-dark-gold: #E8C66A;                       // 深色底上的金色文字/图标
+  --color-on-dark-gold-soft: rgba(232, 198, 106, 0.14);// 深色底金色浅底
+  --color-on-dark-success: #8FD3A8;                    // 深色底上的成功绿
+  --color-on-dark-success-soft: rgba(143, 211, 168, 0.14);
+  --color-on-dark-success-border: rgba(143, 211, 168, 0.35);
+  --color-on-dark-divider: rgba(255, 255, 255, 0.10);  // 深色底分隔线
   
   // ===================
   // 字体系统（方案A 墨韵丝路：毛笔楷书标题 / 书宋副题 / 明朝正文 / 峄山碑篆体印章 / Georgia 英文）
@@ -386,7 +405,7 @@ a {
   }
   
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -554,7 +573,7 @@ a {
   overflow: hidden;
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 

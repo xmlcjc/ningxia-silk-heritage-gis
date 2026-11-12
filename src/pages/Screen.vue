@@ -15,7 +15,14 @@
 
       <div class="header-right">
         <span class="clock">{{ clockText }}</span>
-        <button class="panel-toggle" @click="cycleMobilePanel">
+        <button
+          ref="panelToggleRef"
+          type="button"
+          class="panel-toggle"
+          aria-controls="screen-panel-left screen-panel-right"
+          :aria-expanded="mobilePanel !== 0 ? 'true' : 'false'"
+          @click="cycleMobilePanel"
+        >
           {{ mobilePanel === 0 ? '查看数据' : mobilePanel === 2 ? '收起数据' : '查看图表' }}
         </button>
       </div>
@@ -23,8 +30,15 @@
 
     <!-- ============ 主体三栏 ============ -->
     <div class="screen-body">
+      <div v-if="mobilePanel !== 0" class="panel-mask" aria-hidden="true" @click="closeMobilePanel"></div>
       <!-- 左栏 -->
-      <aside class="panel panel-left" :class="{ 'panel-open': mobilePanel === 1 }">
+      <aside
+        id="screen-panel-left"
+        class="panel panel-left"
+        aria-label="统计数据"
+        :class="{ 'panel-open': mobilePanel === 1 }"
+      >
+        <button type="button" class="panel-close" aria-label="关闭统计数据面板" @click="closeMobilePanel">×</button>
         <div class="stat-grid">
           <div class="stat-item">
             <span class="stat-num">{{ stats.total }}</span>
@@ -45,33 +59,44 @@
         </div>
 
         <div class="chart-card">
-          <h3 class="chart-title"><i class="bar"></i>项目类别分布</h3>
+          <h2 class="chart-title"><i class="bar"></i>项目类别分布</h2>
           <div ref="pieRef" class="chart-box pie-box"></div>
+          <p class="sr-only">{{ categorySummaryText }}</p>
         </div>
 
         <div class="chart-card">
-          <h3 class="chart-title"><i class="bar"></i>保护级别构成</h3>
+          <h2 class="chart-title"><i class="bar"></i>保护级别构成</h2>
           <div class="level-list">
-            <div
+            <button
               v-for="lv in levelStats"
               :key="lv.name"
+              type="button"
               class="level-row"
               :class="{ 'is-active': uiState.level === lv.name }"
+              :aria-pressed="uiState.level === lv.name"
               @click="toggleDim('level', lv.name)"
             >
               <span class="level-name">{{ lv.name }}</span>
-              <div class="level-track">
-                <div class="level-fill" :style="{ width: (lv.value / levelTotal * 100) + '%' }"></div>
-              </div>
+              <span class="level-track">
+                <span class="level-fill" :style="{ width: (lv.value / levelTotal * 100) + '%' }"></span>
+              </span>
               <span class="level-val">{{ lv.value }}</span>
-            </div>
+            </button>
           </div>
         </div>
       </aside>
 
       <!-- 中央 3D -->
-      <main class="stage">
-        <div ref="containerRef" class="canvas-container"></div>
+      <div class="stage">
+        <div
+          ref="containerRef"
+          class="canvas-container"
+          role="img"
+          aria-label="宁夏非遗三维地形场景：20 个非遗项目按保护级别分布于黄河沿岸与古道节点；可使用观赏视角按钮切换视角，等级筛选与项目榜单支持键盘操作"
+        ></div>
+        <p class="sr-only">
+          三维场景以宁夏地形为底图，展示非遗项目的地理分布与保护级别。键盘用户可使用观赏视角按钮、保护级别筛选与项目榜单浏览内容，无需旋转三维场景。
+        </p>
         <div v-if="terrainUnavailable" class="terrain-fallback" role="status">
           <h2>无法显示三维地图</h2>
           <p>当前浏览器或设备无法启动 WebGL。请尝试开启浏览器的硬件加速，或换用支持 WebGL 的浏览器。</p>
@@ -100,24 +125,26 @@
         </div>
 
         <div v-if="!terrainUnavailable" class="filter-bar">
-          <button class="reset-btn" @click="resetAll">
+          <button type="button" class="reset-btn" @click="resetAll">
             <span class="reset-ico">⟲</span>复位视图
           </button>
-          <button class="layer-btn" :class="{ 'is-on': showNeighbors }" @click="toggleNeighbors">
+          <button type="button" class="layer-btn" :class="{ 'is-on': showNeighbors }" @click="toggleNeighbors">
             <span class="reset-ico">◈</span>{{ showNeighbors ? '周边省份' : '仅看宁夏' }}
           </button>
-          <button class="layer-btn" :class="{ 'is-on': showTerrain }" @click="toggleTerrain">
+          <button type="button" class="layer-btn" :class="{ 'is-on': showTerrain }" @click="toggleTerrain">
             <span class="reset-ico">▲</span>{{ showTerrain ? '隐藏地形' : '分层设色' }}
           </button>
           <transition-group name="chip" tag="div" class="chip-wrap">
-            <span
+            <button
               v-for="chip in activeChips"
               :key="chip.dim"
+              type="button"
               class="chip"
+              :aria-label="`移除筛选条件：${chip.label}`"
               @click="clearDim(chip.dim)"
             >
-              {{ chip.label }}<i>×</i>
-            </span>
+              {{ chip.label }}<i aria-hidden="true">×</i>
+            </button>
           </transition-group>
         </div>
 
@@ -127,6 +154,7 @@
           <button
             v-for="vp in viewpoints"
             :key="vp.id"
+            type="button"
             class="vs-item"
             :class="{ 'is-active': activeViewpoint === vp.id }"
             :aria-pressed="activeViewpoint === vp.id"
@@ -139,14 +167,14 @@
 
         <transition name="card">
           <div v-if="selected" class="poi-card">
-            <button class="poi-close" @click="selected = null" aria-label="关闭">×</button>
+            <button type="button" class="poi-close" @click="selected = null" aria-label="关闭">×</button>
             <div class="poi-tags">
               <span class="poi-level" :class="selected.level === '国家级' ? 'is-national' : 'is-local'">
                 {{ selected.level }}
               </span>
               <span class="poi-cat">{{ selected.category }}</span>
             </div>
-            <h3 class="poi-name">{{ selected.name }}</h3>
+            <h2 class="poi-name">{{ selected.name }}</h2>
             <p class="poi-meta">{{ selected.city }} · {{ selected.county }}</p>
             <p class="poi-intro">{{ selected.intro }}</p>
 
@@ -177,34 +205,48 @@
           <span><i class="lg-dot bluegray"></i>市级</span>
           <span class="lg-route"><i></i>丝路古道</span>
         </div>
-      </main>
+      </div>
 
       <!-- 右栏 -->
-      <aside class="panel panel-right" :class="{ 'panel-open': mobilePanel === 2 }">
+      <aside
+        id="screen-panel-right"
+        class="panel panel-right"
+        aria-label="图表与榜单"
+        :class="{ 'panel-open': mobilePanel === 2 }"
+      >
+        <button type="button" class="panel-close" aria-label="关闭图表与榜单面板" @click="closeMobilePanel">×</button>
         <div class="chart-card flex-card">
-          <h3 class="chart-title"><i class="bar"></i>五地市项目数量</h3>
+          <h2 class="chart-title"><i class="bar"></i>五地市项目数量</h2>
           <div ref="cityRef" class="chart-box"></div>
+          <p class="sr-only">{{ citySummaryText }}</p>
         </div>
 
         <div class="chart-card flex-card">
-          <h3 class="chart-title"><i class="bar"></i>历史源流年代</h3>
+          <h2 class="chart-title"><i class="bar"></i>历史源流年代</h2>
           <div ref="periodRef" class="chart-box"></div>
+          <p class="sr-only">{{ periodSummaryText }}</p>
         </div>
 
         <div class="chart-card flex-card">
-          <h3 class="chart-title"><i class="bar"></i>{{ listTitle }}</h3>
+          <h2 class="chart-title"><i class="bar"></i>{{ listTitle }}</h2>
           <ul class="top-list">
             <li
-              v-for="item in cityItemList"
+              v-for="(item, index) in cityItemList"
               :key="item.id"
               :class="{ 'is-active': selected && selected.id === item.id }"
-              @click="selected = item"
             >
-              <span class="top-index">{{ String(item.id).padStart(2, '0') }}</span>
-              <span class="top-name">{{ item.name }}</span>
-              <span class="top-city" :class="`lv-${uiState.city ? item.level : ''}`">
-                {{ uiState.city ? item.level : item.city }}
-              </span>
+              <button
+                type="button"
+                class="top-item"
+                :aria-label="`${item.name}，${uiState.city ? item.level : item.city}，第 ${index + 1} 项`"
+                @click="selected = item"
+              >
+                <span class="top-index">{{ String(item.id).padStart(2, '0') }}</span>
+                <span class="top-name">{{ item.name }}</span>
+                <span class="top-city" :class="`lv-${uiState.city ? item.level : ''}`">
+                  {{ uiState.city ? item.level : item.city }}
+                </span>
+              </button>
             </li>
           </ul>
         </div>
@@ -214,7 +256,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onBeforeUnmount, onMounted, defineAsyncComponent } from 'vue'
+import { ref, reactive, computed, watch, nextTick, onBeforeUnmount, onMounted, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import * as THREE from 'three'
 import * as echarts from 'echarts'
@@ -267,10 +309,27 @@ const isNarrow = ref(typeof window !== 'undefined' && window.innerWidth <= 1024)
 // 窄屏数据面板开关：单键循环 0 收起 → 1 左栏总览 → 2 右栏图表/名录；
 // 避免两块 280px 面板在 <1024px 窄屏同时展开相互遮挡导致内容被裁切
 const mobilePanel = ref(0)
+const panelToggleRef = ref(null)
+// 关闭抽屉：焦点返回顶部切换按钮，避免键盘焦点落到已隐藏的面板内
+const closeMobilePanel = () => {
+  mobilePanel.value = 0
+  panelToggleRef.value?.focus()
+}
 const cycleMobilePanel = () => {
   // 窄屏互斥：打开抽屉面板前先关闭 POI 详情卡，避免两块浮层争抢同一显示区域
   if (isNarrow.value && selected.value) selected.value = null
   mobilePanel.value = (mobilePanel.value + 1) % 3
+  if (mobilePanel.value !== 0) {
+    nextTick(() => document.querySelector('.panel-open .panel-close')?.focus())
+  }
+}
+// 抽屉打开时支持 Escape 关闭（非模态，不做焦点陷阱）
+const onScreenKeydown = (event) => {
+  if (event.key !== 'Escape') return
+  if (mobilePanel.value !== 0) {
+    event.preventDefault()
+    closeMobilePanel()
+  }
 }
 const clockText = ref('')
 // 悬停地级市时的信息卡
@@ -310,6 +369,30 @@ const levelStats = computed(() =>
 )
 
 const levelTotal = computed(() => levelStats.value.reduce((s, d) => s + d.value, 0))
+
+// 图表文本替代：与 initCharts 使用同一份数据口径，供屏幕阅读器读取
+const categorySummaryText = computed(() => {
+  const rows = categories
+    .slice(1)
+    .map((c) => ({ name: c, value: heritageData.filter((d) => d.category === c).length }))
+    .filter((d) => d.value > 0)
+  return `项目类别分布：${rows.map((d) => `${d.name} ${d.value} 项`).join('，')}。`
+})
+
+const citySummaryText = computed(() => {
+  const rows = cities
+    .slice(1)
+    .map((c) => ({ name: c.replace('市', ''), value: heritageData.filter((d) => d.city === c).length }))
+  return `五地市项目数量：${rows.map((d) => `${d.name} ${d.value} 项`).join('，')}。`
+})
+
+const periodSummaryText = computed(() => {
+  const rows = periods
+    .slice(1)
+    .map((p) => ({ name: p, value: heritageData.filter((d) => d.period === p).length }))
+    .filter((d) => d.value > 0)
+  return `历史源流年代：${rows.map((d) => `${d.name} ${d.value} 项`).join('，')}。`
+})
 
 // 右栏名录：默认国家级；选中地市或古道时展示对应范围的全部项目
 const listTitle = computed(() => {
@@ -435,6 +518,7 @@ const showTerrain = ref(false)
 let terrainTintMat = null
 let terrainTintMesh = null
 let reduceMotion = false
+let motionQuery = null
 let pointerDownAt = null
 let onClickHandler = null
 let onMoveHandler = null
@@ -585,7 +669,13 @@ onMounted(() => {
   const width = container.clientWidth
   const height = container.clientHeight
 
-  reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  reduceMotion = motionQuery.matches
+  motionQuery.addEventListener('change', onMotionPreferenceChange)
+  document.addEventListener('keydown', onScreenKeydown)
+
+  // 1024 级窄桌面：默认展开左栏统计，保证首屏至少能看到一组数据
+  if (window.innerWidth >= 900 && window.innerWidth <= 1024) mobilePanel.value = 1
 
   initCharts()
   startClock()
@@ -1181,7 +1271,8 @@ onMounted(() => {
   scene.add(dust)
 
   controls = new OrbitControls(camera, renderer.domElement)
-  controls.enableDamping = true
+  // 减少动态效果时不启用惯性阻尼，避免静止画面持续漂移
+  controls.enableDamping = !reduceMotion
   controls.dampingFactor = 0.08
   controls.minDistance = 30
   controls.maxDistance = 400
@@ -1794,10 +1885,14 @@ onMounted(() => {
     const delta = clock.getDelta()
     elapsed += delta
 
-    uniforms.uRiseTime.value =
-      uniforms.uRiseTime.value >= 0.5 ? -0.8 : uniforms.uRiseTime.value + 0.003
-
-    updateFly(delta)
+    if (reduceMotion) {
+      // 减少动态效果：金色扫描线停在不可见位置，飘浮粒子不推进
+      uniforms.uRiseTime.value = 2
+    } else {
+      uniforms.uRiseTime.value =
+        uniforms.uRiseTime.value >= 0.5 ? -0.8 : uniforms.uRiseTime.value + 0.003
+      updateFly(delta)
+    }
 
     // ---- 相机飞行 ----
     if (cameraTween) {
@@ -1816,23 +1911,33 @@ onMounted(() => {
       m.headMat.opacity = m.active
     }
 
-    for (const r of pulseRings) {
-      const t = (elapsed * 0.55 + r.phase) % 1
-      const s = 0.7 + t * 1.9
-      r.mesh.scale.set(s, s, s)
-      r.material.opacity = (1 - t) * 0.85 * r.marker.active
+    if (reduceMotion) {
+      // 减少动态效果：脉冲环、光晕头与古道流光使用固定值
+      for (const r of pulseRings) {
+        r.mesh.scale.set(1, 1, 1)
+        r.material.opacity = 0.35 * r.marker.active
+      }
+      for (const h of glowHeads) h.mesh.scale.set(1, 1, 1)
+      if (arcMaterial) arcMaterial.uniforms.uTime.value = 0
+    } else {
+      for (const r of pulseRings) {
+        const t = (elapsed * 0.55 + r.phase) % 1
+        const s = 0.7 + t * 1.9
+        r.mesh.scale.set(s, s, s)
+        r.material.opacity = (1 - t) * 0.85 * r.marker.active
+      }
+      for (const h of glowHeads) {
+        const s = 1 + 0.18 * Math.sin(elapsed * 3.2 + h.phase)
+        h.mesh.scale.set(s, s, s)
+      }
+      if (arcMaterial) arcMaterial.uniforms.uTime.value = elapsed
     }
-    for (const h of glowHeads) {
-      const s = 1 + 0.18 * Math.sin(elapsed * 3.2 + h.phase)
-      h.mesh.scale.set(s, s, s)
-    }
-    if (arcMaterial) arcMaterial.uniforms.uTime.value = elapsed
 
     // ---- 背景：鎏金网格与星尘淡入 ----
     const bgIn = reduceMotion ? 1 : Math.min(1, Math.max(0, (elapsed - 0.15) / 1.6))
     if (gridFloorMat) gridFloorMat.uniforms.uOpacity.value = bgIn * 0.7
     if (dustMat) {
-      dustMat.uniforms.uTime.value = elapsed
+      dustMat.uniforms.uTime.value = reduceMotion ? 0 : elapsed
       dustMat.uniforms.uOpacity.value = bgIn
     }
 
@@ -1872,7 +1977,7 @@ onMounted(() => {
       c.lineMat.color.lerp(targetCol, 0.1)
       c.labelMat.color.lerp(targetCol, 0.1)
 
-      c.runT = (c.runT + delta * 0.14) % 1
+      if (!reduceMotion) c.runT = (c.runT + delta * 0.14) % 1
       sampleRing(c, c.runT, _runnerTmp)
       c.trailPos[0] = _runnerTmp.x
       c.trailPos[1] = _runnerTmp.y
@@ -2372,6 +2477,11 @@ function makeRouteLabelTexture(name, color) {
 
 // ================= ECharts =================
 const charts = []
+const onMotionPreferenceChange = (event) => {
+  reduceMotion = event.matches
+  if (controls) controls.enableDamping = !reduceMotion
+  charts.forEach((chart) => chart?.setOption({ animation: !reduceMotion }))
+}
 const AXIS = 'rgba(255,248,231,0.45)'
 const SPLIT = 'rgba(255,248,231,0.06)'
 
@@ -2512,6 +2622,8 @@ function startClock() {
 onBeforeUnmount(() => {
   cancelAnimationFrame(animationId)
   if (resizeFrame) cancelAnimationFrame(resizeFrame)
+  motionQuery?.removeEventListener('change', onMotionPreferenceChange)
+  document.removeEventListener('keydown', onScreenKeydown)
   containerResizeObserver?.disconnect()
   containerResizeObserver = null
   if (resizeHandler) window.removeEventListener('resize', resizeHandler)
@@ -2575,9 +2687,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .screen-page {
   // 大屏主题色板（呼应主站：赭石 · 鎏金 · 宣纸）
-  --scr-gold: #d4a017;
-  --scr-gold-light: #f0c040;
-  --scr-ochre: #8b4513;
+  --scr-gold-light: var(--color-secondary-light);
   --scr-text: #f5e6c8;
   --scr-border: rgba(212, 160, 23, 0.16);
   --scr-warm: rgba(33, 23, 17, 0.78);
@@ -2625,6 +2735,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+  min-height: 24px;
   font-size: 13px;
   color: rgba(255, 248, 231, 0.75);
   text-decoration: none;
@@ -2694,6 +2805,7 @@ onBeforeUnmount(() => {
   padding: 16px;
   gap: 14px;
   overflow-y: auto;
+  position: relative;
   background: linear-gradient(180deg, rgba(35, 24, 17, 0.6), rgba(22, 15, 11, 0.6));
 }
 
@@ -2875,6 +2987,14 @@ onBeforeUnmount(() => {
 
 .level-row {
   display: flex; align-items: center; gap: 10px; font-size: 12px;
+  width: 100%;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
   cursor: pointer; user-select: none;
   transition: opacity 0.2s;
   &:hover .level-name { color: rgba(255, 248, 231, 0.95); }
@@ -2884,11 +3004,12 @@ onBeforeUnmount(() => {
   }
 }
 .level-name { width: 56px; flex: none; color: rgba(255, 248, 231, 0.7); }
-.level-track { flex: 1; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+.level-track { display: block; flex: 1; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
 .level-fill {
+  display: block;
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, #c9a84c, #e8c468);
+  background: linear-gradient(90deg, var(--color-gold-refined), #e8c468);
 }
 .level-val { width: 18px; flex: none; text-align: right; color: rgba(255, 248, 231, 0.7); }
 
@@ -2907,18 +3028,32 @@ onBeforeUnmount(() => {
 .top-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
   margin: 0 -6px;
-  padding: 8px 6px;
+  padding: 0;
   border-radius: 6px;
   border-bottom: 1px solid rgba(255, 248, 231, 0.06);
   font-size: 12px;
-  cursor: pointer;
   transition: background 0.2s;
 
   &:last-child { border-bottom: none; }
   &:hover { background: rgba(255, 255, 255, 0.045); }
   &.is-active { background: rgba(255, 200, 87, 0.13); }
+}
+
+// 榜单条目：原生 button 承载交互，保留原有排版与状态
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 6px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .top-index { font-family: var(--font-display); color: #ffc857; font-weight: 600; }
@@ -2968,7 +3103,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   padding: 6px 13px;
-  border: 1px solid rgba(201, 168, 76, 0.42);
+  border: 1px solid var(--color-gold-refined-line);
   border-radius: var(--radius-full);
   background: rgba(33, 23, 17, 0.78);
   backdrop-filter: blur(6px);
@@ -2977,7 +3112,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: background 0.2s;
 
-  &:hover { background: rgba(201, 168, 76, 0.18); }
+  &:hover { background: var(--color-gold-refined-soft); }
   &.is-on { border-color: rgba(201, 168, 76, 0.75); background: rgba(201, 168, 76, 0.16); }
   .reset-ico { font-size: 14px; line-height: 1; }
 }
@@ -2992,12 +3127,13 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(201, 168, 76, 0.4);
   border-radius: var(--radius-full);
   background: rgba(33, 23, 17, 0.82);
+  font-family: inherit;
   font-size: 12px;
   color: #ffe9c2;
   cursor: pointer;
 
   i { font-style: normal; opacity: 0.6; }
-  &:hover { border-color: #c9a84c; }
+  &:hover { border-color: var(--color-gold-refined); }
 }
 
 .chip-enter-active, .chip-leave-active { transition: all 0.25s var(--ease-out); }
@@ -3058,11 +3194,11 @@ onBeforeUnmount(() => {
     }
 
     &.is-active {
-      border-left-color: #d4a017;
+      border-left-color: var(--color-secondary);
       background: rgba(212, 160, 23, 0.1);
       color: #ffd98a;
 
-      .vs-index { color: #d4a017; }
+      .vs-index { color: var(--color-secondary); }
     }
   }
 }
@@ -3097,7 +3233,7 @@ onBeforeUnmount(() => {
       width: 18px;
       height: 3px;
       border-radius: 2px;
-      background: linear-gradient(90deg, #8b4513, #c9a84c 55%, #e8c468);
+      background: linear-gradient(90deg, var(--color-primary), var(--color-gold-refined) 55%, #e8c468);
       box-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
     }
   }
@@ -3204,11 +3340,39 @@ onBeforeUnmount(() => {
   padding: 8px 16px; border: 1px solid rgba(212, 160, 23, 0.5);
   border-radius: var(--radius-full); font-size: 13px; color: #ffd98a; text-decoration: none;
   transition: all 0.25s var(--ease-out);
-  &:hover { background: rgba(212, 160, 23, 0.14); gap: 10px; }
+  &:hover { background: var(--color-secondary-soft); gap: 10px; }
 }
 
 .card-enter-active, .card-leave-active { transition: all 0.3s var(--ease-out); }
 .card-enter-from, .card-leave-to { opacity: 0; transform: translateX(24px); }
+
+/* ============ 键盘焦点（HUD 深色背景） ============ */
+// 上述按钮此前只依赖浏览器默认焦点环（近黑 1px），在深色 HUD 上不可见；
+// 这里仅为已有键盘交互能力的控件补充局部焦点样式，不改尺寸、位置与交互。
+.panel-toggle,
+.reset-btn,
+.layer-btn,
+.vs-item,
+.poi-close,
+.level-row,
+.chip,
+.top-item {
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// 关闭按钮与遮罩仅在窄屏抽屉模式出现
+.panel-close,
+.panel-mask {
+  display: none;
+}
+
+// 详情卡在窄屏是滚动容器，关闭钮的外扩描边会被裁切，改用内描边
+.poi-close:focus-visible {
+  outline-offset: -4px;
+}
 
 /* ============ 响应式 ============ */
 @media (max-width: 1180px) {
@@ -3226,6 +3390,41 @@ onBeforeUnmount(() => {
     transition: transform 0.3s var(--ease-out);
     background: rgba(26, 18, 13, 0.97);
   }
+
+  // 抽屉遮罩：挡住三维场景点击，点击即关闭（非模态，不做焦点陷阱）
+  .panel-mask {
+    display: block;
+    position: fixed;
+    top: 64px;
+    left: 0; right: 0; bottom: 0;
+    z-index: 14;
+    background: rgba(18, 12, 8, 0.42);
+  }
+
+  // 抽屉关闭按钮：打开后一次点击即可收起
+  .panel-close {
+    display: flex;
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    z-index: 2;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: #f5e6c8;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+  }
   .panel-right {
     right: 0; left: auto;
     transform: translateX(100%);
@@ -3233,10 +3432,31 @@ onBeforeUnmount(() => {
   .panel-left.panel-open { transform: translateX(0); }
   .panel-right.panel-open { transform: translateX(0); }
 
-  .panel-toggle { display: block; }
-  .back-text { display: none; }
+  // UI 2.0 第二阶段第二批：移动端关键控件触控热区 ≥44×44
+  // 仅调整按钮盒模型与返回文字显隐，不改模板、事件与场景逻辑；桌面端（>1024）不命中。
+  .panel-toggle { display: block; min-height: 44px; padding: 0 16px; }
+  .back-btn { min-height: 44px; padding: 0 10px 0 4px; }
+  .back-text { display: inline; }
   .screen-title { font-size: 17px; letter-spacing: 3px; }
   .title-decor { display: none; }
+
+  // 舞台浮层：复位 / 图层 / 视角 / 级别筛选 / 详情关闭 / 列表与档案入口
+  .reset-btn,
+  .layer-btn { min-height: 44px; }
+  .vs-item { min-height: 44px; }
+  .level-row { min-height: 44px; }
+  .top-list li { min-height: 44px; }
+  .top-item { min-height: 44px; }
+  .chip { min-height: 44px; }
+  .poi-link { min-height: 44px; }
+  .poi-close {
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+  }
 
   // 浮层互斥：详情卡打开时图例隐藏，避免遮挡卡片按钮；抽屉面板在详情卡出现时已自动收起
   .stage-legend.is-hidden { display: none; }
@@ -3255,7 +3475,7 @@ onBeforeUnmount(() => {
   .title-group { min-width: 0; }
   .screen-title {
     font-size: 15px;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -3284,11 +3504,11 @@ onBeforeUnmount(() => {
   .chip { padding: 4px 6px 4px 10px; font-size: 11.5px; }
 
   // 视角切换器：改为底部紧凑横条，横向铺开贴底排列，让出地形中部空间；
-  // 四个预设入口全部保留，触达高度仍 ≥28px
+  // 四个预设入口全部保留，触达高度 ≥44px；bottom 按实测抬高，与图例留出约 9px 间距
   .viewpoint-switcher {
     top: auto;
     right: 10px;
-    bottom: 46px;
+    bottom: 52px;
     left: 10px;
     flex-direction: row;
     align-items: center;
@@ -3313,7 +3533,7 @@ onBeforeUnmount(() => {
 
       &.is-active {
         border-left-color: transparent;
-        border-bottom-color: #d4a017;
+        border-bottom-color: var(--color-secondary);
         background: rgba(212, 160, 23, 0.1);
       }
     }

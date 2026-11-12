@@ -79,7 +79,7 @@
           <section class="panel-section" :class="{ 'is-open': openSections.filters }">
             <button class="panel-section-head" :aria-expanded="openSections.filters" @click="toggleSection('filters')">
               <Icon class="icon" icon="gis:map-bookmark" width="16" height="16" />
-              <h4>筛选条件</h4>
+              <span class="panel-section-title">筛选条件</span>
               <span class="section-state">{{ activeFilterCount ? activeFilterCount + ' 项已选' : '全部' }}</span>
               <span class="section-chevron">▾</span>
             </button>
@@ -164,7 +164,7 @@
           <section class="panel-section" :class="{ 'is-open': openSections.layers }">
             <button class="panel-section-head" :aria-expanded="openSections.layers" @click="toggleSection('layers')">
               <Icon class="icon" icon="gis:layers" width="16" height="16" />
-              <h4>图层控制</h4>
+              <span class="panel-section-title">图层控制</span>
               <span class="section-state">{{ activeLayerCount }} / 5 开启</span>
               <span class="section-chevron">▾</span>
             </button>
@@ -199,7 +199,7 @@
           <section class="panel-section" :class="{ 'is-open': openSections.timeline }">
             <button class="panel-section-head" :aria-expanded="openSections.timeline" @click="toggleSection('timeline')">
               <Icon class="icon" icon="gis:map-time" width="16" height="16" />
-              <h4>时期演变</h4>
+              <span class="panel-section-title">时期演变</span>
               <span class="section-state">{{ currentPeriod }}<template v-if="timePeriodEnabled"> · 筛选中</template></span>
               <span class="section-chevron">▾</span>
             </button>
@@ -260,21 +260,26 @@
         </transition>
 
         <!-- 地图主区域 -->
-        <main class="map-main">
+        <div class="map-main">
           <!-- 移动端：筛选与图层面板入口（桌面端隐藏） -->
-          <button class="sidebar-mobile-toggle" @click="sidebarOpen = true" aria-label="打开筛选与图层面板">
+          <button class="sidebar-mobile-toggle" v-show="!listOpen" @click="sidebarOpen = true" aria-label="打开筛选与图层面板">
             <Icon icon="gis:layers-poi" width="16" height="16" />
             <span>图层 / 筛选</span>
             <span class="toggle-badge">{{ filteredData.length }}</span>
           </button>
           <!-- 打印专用抬头：屏幕端隐藏，打印输出时提供标题与数据来源说明 -->
-          <div class="print-only print-header">
+          <div class="print-only print-header" aria-hidden="true">
             <h1>宁夏丝路非遗地理志 · 丝路非遗 GIS 地图</h1>
             <p>数据来源：宁夏丝路非遗地理志项目（当前筛选 {{ filteredData.length }} 项非遗点位） · 底图：{{ baseSources[activeBase] }}<template v-if="layers.yellowRiver"> · 黄河：© OpenStreetMap contributors</template> · 制图日期：{{ printDate }}</p>
           </div>
           <div class="map-view">
             <!-- Leaflet 真实地图容器（v-show 保持地图实例存活，切换列表视图后无需重建） -->
-            <div v-show="viewMode === 'map'" id="heritage-leaflet-map" class="leaflet-container"></div>
+            <div
+              v-show="viewMode === 'map'"
+              id="heritage-leaflet-map"
+              class="leaflet-container"
+              aria-label="宁夏非遗地理分布地图，可使用键盘缩放，或切换到列表视图浏览非遗项目"
+            ></div>
 
             <!-- 列表视图覆盖层 -->
             <transition name="slide-up">
@@ -283,6 +288,11 @@
                   <h3>非遗项目列表</h3>
                   <div class="list-header-right">
                     <span class="list-count">{{ filteredData.length }} 项结果</span>
+                    <!-- 移动端：左上抽屉入口在列表打开时隐藏，改由抬头提供同等入口，
+                         避免悬浮按钮压住列表标题 -->
+                    <button class="list-filter" @click="sidebarOpen = true" aria-label="打开筛选与图层面板" title="筛选与图层">
+                      <Icon icon="gis:layers-poi" width="16" height="16" />
+                    </button>
                     <!-- 列表打开时工具栏会一并折叠让位，故此处提供返回地图的入口，
                          避免只能靠工具栏第一个按钮切回地图 -->
                     <button class="list-back" @click="toggleView" aria-label="返回地图视图">
@@ -330,7 +340,7 @@
 
             <!-- 地图工具栏：统一图标与 Tooltip；图例/底图同样可折叠。
                  标记气泡、古道信息卡、列表视图打开时自动收起让位 -->
-            <div class="floating-toolbar" :class="{ collapsed: toolbarCollapsedUI }">
+            <div class="floating-toolbar" v-show="!listOpen" :class="{ collapsed: toolbarCollapsedUI }">
               <button class="toolbar-toggle" @click="toolbarCollapsed = !toolbarCollapsed"
                       :aria-expanded="!toolbarCollapsedUI" aria-label="折叠或展开地图工具栏">
                 <span>{{ toolbarCollapsedUI ? '▸' : '▾' }}</span> 工具
@@ -428,7 +438,7 @@
             </transition>
 
             <!-- 图例 -->
-            <div class="map-legend card-silk" :class="{ collapsed: legendCollapsedUI }">
+            <div class="map-legend card-silk" v-show="!listOpen" :class="{ collapsed: legendCollapsedUI }">
               <!-- 折叠开关沿用「答辩离线版」的原始交互：普通 button + @click，不做焦点/滚动干预
                    （此前为消除“点击图例时页面上跳”加的 @mousedown.prevent 已按要求移除）
                    显示态用 legendCollapsedUI：详情预览弹窗 / 标记气泡 / 古道信息卡 / 非遗项目列表
@@ -480,7 +490,7 @@
 
             <!-- 底图切换：与图例/工具栏一致可手动折叠（baseCollapsed），
                  详情预览弹窗 / 标记气泡 / 古道信息卡 / 非遗项目列表打开时由 baseCollapsedUI 自动收起让位 -->
-            <div class="base-switcher" :class="{ collapsed: baseCollapsedUI }">
+            <div class="base-switcher" v-show="!listOpen" :class="{ collapsed: baseCollapsedUI }">
               <button class="base-toggle" @click="baseCollapsed = !baseCollapsed"
                       :aria-expanded="!baseCollapsedUI" aria-label="折叠或展开底图切换">
                 <span>{{ baseCollapsedUI ? '▸' : '▾' }}</span> 底图
@@ -505,7 +515,7 @@
             <div v-if="mouseCoords" class="coord-readout">{{ mouseCoords }}</div>
 
           </div>
-        </main>
+        </div>
 
         <!-- 右侧详情面板：桌面端第三栏，窄屏转为底部面板；内容全部来自真实项目字段 -->
         <transition name="fade">
@@ -1211,6 +1221,29 @@ const renderMarkers = (data, animate = true) => {
       }
     )
     marker.addTo(markerLayer)
+    // 无障碍：可访问名称 + 键盘激活（Enter / Space 与鼠标点击等价）
+    const markerEl = marker.getElement()
+    if (markerEl) {
+      const markerLabel = isOverlap
+        ? `${items.length} 个同址项目：${items.slice(0, 3).map(i => i.name).join('、')}${items.length > 3 ? ' 等' : ''}`
+        : `${anchor.name} · ${anchor.level || '非遗项目'}`
+      markerEl.setAttribute('aria-label', markerLabel)
+      markerEl.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar' && event.code !== 'Space') return
+        event.preventDefault()
+        event.stopPropagation()
+        playMarkerRipple(markerEl)
+        if (isOverlap) {
+          selectedItem.value = null
+          marker.openPopup()
+          return
+        }
+        if (window.innerWidth < 1280) {
+          flyToItem(anchor, Math.max(leafletMap.getZoom(), 11))
+        }
+        openDetailPreview(anchor)
+      })
+    }
   })
 
   // 同时在热力图层生成 circleMarker
@@ -2457,7 +2490,7 @@ onBeforeUnmount(() => {
   position: relative;
   overflow: hidden;
   background: var(--gradient-primary);
-  border-bottom: 1px solid rgba(201, 168, 76, 0.42);
+  border-bottom: 1px solid var(--color-gold-refined-line);
 }
 
 .hero-bg {
@@ -2503,7 +2536,7 @@ onBeforeUnmount(() => {
   border-radius: var(--radius-pill);
   padding: 2px 10px;
   margin-bottom: 5px;
-  color: #FFF8E7;
+  color: var(--color-background);
   font-size: 12px;
   letter-spacing: 0.12em;
 }
@@ -2519,7 +2552,7 @@ onBeforeUnmount(() => {
   font-size: clamp(1.35rem, 2.1vw, 1.8rem);
   line-height: 1.25;
   letter-spacing: 0.06em;
-  color: #fff;
+  color: var(--color-on-dark-strong);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
 
@@ -2527,7 +2560,7 @@ onBeforeUnmount(() => {
   margin: 0;
   font-size: 12.5px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--color-on-dark);
 }
 
 .hero-stats {
@@ -2654,7 +2687,7 @@ onBeforeUnmount(() => {
   min-height: 0;
   position: relative;
   overflow: hidden;
-  background: #E8DCC8;
+  background: var(--color-sand);
 }
 
 // 移动端面板入口：仅 <992px 显示
@@ -2793,7 +2826,7 @@ onBeforeUnmount(() => {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-white);
   white-space: nowrap;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
   transition: transform 0.2s var(--ease-out);
@@ -2837,13 +2870,21 @@ onBeforeUnmount(() => {
   z-index: 680 !important;
 }
 
+// 键盘焦点：白底 + 深赭石双环，深浅底图上均可见；仅键盘导航时出现
+:deep(.heritage-marker:focus-visible) {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px #FFFDF7;
+}
+
 // 悬停标签（Leaflet Tooltip）：与地图配色统一
 :deep(.marker-name-tip) {
   padding: 3px 9px;
   border: none;
   border-radius: var(--radius-sm);
   background: rgba(62, 39, 35, 0.94);
-  color: #FFF8E7;
+  color: var(--color-background);
   font-size: 12px;
   line-height: 1.5;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -2862,9 +2903,9 @@ onBeforeUnmount(() => {
   padding: 0 3px;
   display: flex; align-items: center; justify-content: center;
   background: #FFF3D6;
-  border: 1.5px solid #8B4513;
+  border: 1.5px solid var(--color-primary);
   border-radius: 9px;
-  color: #8B4513;
+  color: var(--color-primary);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
@@ -2896,19 +2937,19 @@ onBeforeUnmount(() => {
   height: 100% !important;
   min-height: 400px;
   outline: none;
-  background: #E8DCC8;
+  background: var(--color-sand);
   font-family: var(--font-body);
 }
 
 // 自定义 popup 样式（匹配丝路主题）
 :deep(.leaflet-popup-content-wrapper) {
   border-radius: 10px;
-  background: #FDFBF7;
+  background: var(--color-paper);
   box-shadow: 0 4px 20px rgba(139, 69, 19, 0.2);
 }
 
 :deep(.leaflet-popup-tip) {
-  background: #FDFBF7;
+  background: var(--color-paper);
 }
 
 :deep(.leaflet-popup-content) {
@@ -2918,20 +2959,20 @@ onBeforeUnmount(() => {
 
 // Leaflet 控件主题化
 :deep(.leaflet-control-zoom a) {
-  background: #FDFBF7;
-  color: #8B4513;
-  border: 1px solid #D7CCC8;
+  background: var(--color-paper);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
   font-weight: bold;
 }
 
 :deep(.leaflet-control-zoom a:hover) {
-  background: #D4A017;
-  color: white;
+  background: var(--color-secondary);
+  color: var(--color-white);
 }
 
 :deep(.leaflet-control-attribution) {
   background: rgba(253, 251, 247, 0.85);
-  color: #5D4037;
+  color: var(--color-text-medium);
   font-size: 12px;
   margin: 0 8px 72px 0;
 }
@@ -3050,7 +3091,7 @@ onBeforeUnmount(() => {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -3177,7 +3218,7 @@ onBeforeUnmount(() => {
     flex: none;
   }
 
-  h4 {
+  .panel-section-title {
     margin: 0;
     font-size: 12.5px;
     font-weight: 600;
@@ -3203,7 +3244,7 @@ onBeforeUnmount(() => {
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-secondary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 1px;
     border-radius: var(--radius-sm);
   }
@@ -3255,6 +3296,15 @@ onBeforeUnmount(() => {
         &:hover {
           box-shadow: 0 0 0 1px var(--color-secondary) inset;
         }
+
+        &.is-focus {
+          box-shadow: 0 0 0 1px var(--color-primary) inset, 0 0 0 3px rgba(139, 69, 19, 0.25);
+        }
+      }
+
+      // 下拉焦点与搜索框统一为品牌赭石
+      :deep(.el-select__wrapper.is-focused) {
+        box-shadow: 0 0 0 1px var(--color-primary) inset, 0 0 0 3px rgba(139, 69, 19, 0.25);
       }
     }
 
@@ -3546,7 +3596,7 @@ onBeforeUnmount(() => {
     flex: none;
     width: 26px;
     height: 15px;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     background: var(--color-border);
     transition: background-color 0.25s var(--ease-out);
 
@@ -3557,7 +3607,7 @@ onBeforeUnmount(() => {
       width: 11px;
       height: 11px;
       border-radius: 50%;
-      background: #fff;
+      background: var(--color-white);
       transition: transform 0.25s var(--ease-out);
     }
   }
@@ -3587,7 +3637,7 @@ onBeforeUnmount(() => {
   border: none;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
-  color: #fff;
+  color: var(--color-white);
   font-size: 11px;
   line-height: 30px;
   text-align: center;
@@ -3708,7 +3758,7 @@ onBeforeUnmount(() => {
     padding: 4px 8px;
     border-radius: var(--radius-sm);
     background: rgba(62, 39, 35, 0.94);
-    color: #FFF8E7;
+    color: var(--color-background);
     font-family: var(--font-body);
     font-size: 11px;
     line-height: 1.4;
@@ -3750,7 +3800,7 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   padding: 7px 18px;
   background: rgba(198, 40, 40, 0.92);
-  color: #fff;
+  color: var(--color-white);
   border-radius: var(--radius-full);
   font-size: 13px;
   white-space: nowrap;
@@ -3776,7 +3826,7 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   padding: 7px 18px;
   background: rgba(62, 39, 35, 0.92);
-  color: #FFF8E7;
+  color: var(--color-background);
   border: 1px solid rgba(212, 160, 23, 0.5);
   border-radius: var(--radius-full);
   font-size: 13px;
@@ -3879,7 +3929,7 @@ onBeforeUnmount(() => {
   color: var(--color-primary);
   background: rgba(212, 160, 23, 0.12);
   border-left: 3px solid var(--color-secondary);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .route-card-items-title {
@@ -3923,7 +3973,7 @@ onBeforeUnmount(() => {
   .chip-level {
     font-size: 11px;
     color: var(--color-secondary-dark);
-    background: rgba(212, 160, 23, 0.14);
+    background: var(--color-secondary-soft);
     padding: 1px 7px;
     border-radius: var(--radius-full);
     white-space: nowrap;
@@ -4252,7 +4302,7 @@ onBeforeUnmount(() => {
   .chart-link-hint {
     display: table;
     margin-left: auto;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     white-space: nowrap;
   }
 }
@@ -4312,6 +4362,27 @@ onBeforeUnmount(() => {
   font-size: 12.5px;
   font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+
+  &:hover { background: rgba(212, 160, 23, 0.22); }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// 列表抬头内的筛选入口：仅移动端显示，替代列表态下被隐藏的左上抽屉按钮
+.list-filter {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: rgba(212, 160, 23, 0.12);
+  color: var(--color-primary);
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-out);
 
@@ -4439,13 +4510,13 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 
   &.badge-gold {
-    background: linear-gradient(135deg, #d4a017 0%, #b8860b 100%);
-    color: #fff8e7;
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
+    color: var(--color-background);
     box-shadow: 0 2px 6px rgba(184, 134, 11, 0.35);
   }
 
   &.badge-silver {
-    background: linear-gradient(135deg, #a0825a 0%, #8b4513 100%);
+    background: linear-gradient(135deg, #a0825a 0%, var(--color-primary) 100%);
     color: #fdf6e3;
   }
 }
@@ -4634,10 +4705,10 @@ onBeforeUnmount(() => {
   padding: 3px 11px;
   border-radius: var(--radius-full);
   font-size: 11px;
-  color: #FFF8E7;
+  color: var(--color-background);
 
   &.level-national {
-    background: linear-gradient(135deg, #D4A017 0%, #B8860B 100%);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-dark) 100%);
   }
 
   &.level-regional {
@@ -4759,7 +4830,7 @@ onBeforeUnmount(() => {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #A05A2C 0%, #8B4513 100%);
+  background: linear-gradient(135deg, #A05A2C 0%, var(--color-primary) 100%);
   color: #FDF6E3;
   box-shadow: 0 3px 10px rgba(139, 69, 19, 0.28);
 
@@ -5005,6 +5076,17 @@ onBeforeUnmount(() => {
   }
 
   .list-header { padding: 16px 18px 12px; }
+  // 列表抬头筛选入口：与左上抽屉按钮同尺寸，抽屉入口隐藏后由此接管
+  .list-filter {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    flex: none;
+  }
+  // 窄屏避让：抬头已提供筛选入口，隐藏重复的「N 项结果」计数，保证标题与两个按钮同行
+  @media (max-width: 480px) {
+    .list-header .list-count { display: none; }
+  }
   .list-items { padding: 14px 16px 20px; gap: 12px; }
   .list-item { gap: 13px; padding: 12px 14px; }
   .item-image { width: 64px; height: 64px; }
@@ -5024,6 +5106,38 @@ onBeforeUnmount(() => {
   }
 
   .section-title { font-size: 22px; }
+}
+
+// UI 2.0 第二阶段 P1：移动端关键控件触控热区 ≥44×44
+// 仅在抽屉断点（<992px）内放大按钮盒模型，图标与文字保持原有视觉尺寸；
+// 桌面端不命中该查询，控件尺寸与布局维持原样。
+@media (max-width: 991px) {
+  // 抽屉关闭按钮：26×26 → 44×44（箭头 7×7 不变）
+  .sidebar-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  // 时间轴播放/暂停：30×30 → 44×44（SVG 13×13 不变）
+  .play-btn {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
+
+  // 工具栏折叠开关：高度 14 → 44，横向补足到 44
+  .toolbar-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 4px;
+  }
+
+  // 图例折叠开关：高度 17 → 44，折叠态卡片宽度同步补足
+  .legend-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 6px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -5183,6 +5297,32 @@ onBeforeUnmount(() => {
     position: absolute !important;
     box-shadow: none !important;
     border: 1px solid #ccc;
+  }
+}
+
+// 无障碍热区：移动端关键控件统一 ≥44；桌面图例/底图折叠条至少 24
+@media (max-width: 991px) {
+  .toolbar-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .toolbar-body {
+    grid-template-columns: repeat(2, 44px);
+  }
+
+  .sidebar-mobile-toggle,
+  .legend-toggle,
+  .base-toggle,
+  .panel-section-head {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 992px) {
+  .legend-toggle,
+  .base-toggle {
+    min-height: 24px;
   }
 }
 </style>

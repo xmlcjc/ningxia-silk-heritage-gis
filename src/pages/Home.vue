@@ -87,6 +87,10 @@
             </div>
           </li>
         </ol>
+
+        <router-link to="/project#tech" class="text-link workflow-link" data-reveal>
+          查看技术路线 <span aria-hidden="true">→</span>
+        </router-link>
       </div>
     </section>
 
@@ -1708,5 +1712,15 @@ const statusLabel = (status) => STATUS_LABELS[status] || status
       width: 100%;
     }
   }
+}
+
+// 8A：首页只保留工作逻辑摘要，技术细节指向项目概况
+.workflow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: var(--space-4);
+  font-size: var(--text-caption);
 }
 </style>

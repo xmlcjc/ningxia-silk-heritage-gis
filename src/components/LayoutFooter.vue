@@ -31,7 +31,7 @@
           <!-- 项目入口 -->
           <nav class="footer-nav" aria-label="页脚导航">
             <div class="nav-group">
-              <h2 class="nav-title">探索</h2>
+              <h3 class="nav-title">探索</h3>
               <ul class="nav-list">
                 <li><router-link to="/">首页</router-link></li>
                 <li><router-link to="/map">GIS地图</router-link></li>
@@ -41,7 +41,7 @@
             </div>
 
             <div class="nav-group">
-              <h2 class="nav-title">项目</h2>
+              <h3 class="nav-title">项目</h3>
               <ul class="nav-list">
                 <li><router-link to="/project">项目概况</router-link></li>
                 <li><router-link to="/protection">保护路径</router-link></li>
@@ -50,7 +50,7 @@
             </div>
 
             <div class="nav-group">
-              <h2 class="nav-title">联系</h2>
+              <h3 class="nav-title">联系</h3>
               <ul v-if="contactVerified && hasContact" class="contact-list">
                 <li v-if="contact.address">
                   <Icon class="contact-icon" icon="gis:poi" width="16" height="16" />
@@ -133,9 +133,9 @@ const backToTop = () => {
 
 .layout-footer {
   position: relative;
-  background: linear-gradient(180deg, #3d2b1f 0%, #33241a 100%);
+  background: linear-gradient(180deg, var(--color-dark-surface) 0%, var(--color-dark-surface-deep) 100%);
   border-top: 1px solid var(--color-gold-refined-line);
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--color-on-dark);
 }
 
 .footer-main {
@@ -169,7 +169,7 @@ const backToTop = () => {
   transition: background-color var(--duration-fast) var(--ease-out);
 
   &:hover {
-    background: rgba(212, 160, 23, 0.1);
+    background: var(--color-on-dark-gold-soft);
   }
 
   &:focus-visible {
@@ -185,8 +185,8 @@ const backToTop = () => {
   height: 48px;
   flex: none;
   border-radius: 50%;
-  background: rgba(201, 168, 76, 0.12);
-  border: 1px solid rgba(201, 168, 76, 0.45);
+  background: var(--color-gold-refined-soft);
+  border: 1px solid var(--color-gold-refined-line);
 
   img {
     display: block;
@@ -207,7 +207,7 @@ const backToTop = () => {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #fff;
+  color: var(--color-on-dark-strong);
 }
 
 .brand-en {
@@ -216,13 +216,13 @@ const backToTop = () => {
   font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--color-on-dark-muted);
 }
 
 .brand-desc {
   max-width: 460px;
   margin-bottom: var(--space-6);
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--color-on-dark);
   font-size: var(--text-body-sm);
   line-height: var(--leading-relaxed);
 }
@@ -242,15 +242,15 @@ const backToTop = () => {
   }
 
   .tag-gold {
-    background: rgba(212, 160, 23, 0.14);
-    border: 1px solid rgba(212, 160, 23, 0.35);
-    color: #e8c66a;
+    background: var(--color-on-dark-gold-soft);
+    border: 1px solid var(--color-gold-refined-line);
+    color: var(--color-on-dark-gold);
   }
 
   .tag-green {
-    background: rgba(46, 139, 87, 0.14);
-    border: 1px solid rgba(46, 139, 87, 0.35);
-    color: #8fd3a8;
+    background: var(--color-on-dark-success-soft);
+    border: 1px solid var(--color-on-dark-success-border);
+    color: var(--color-on-dark-success);
   }
 }
 
@@ -308,7 +308,7 @@ const backToTop = () => {
     display: inline-flex;
     align-items: center;
     min-height: 36px;
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--color-on-dark);
     font-size: var(--text-body-sm);
     text-decoration: none;
     transition:
@@ -334,7 +334,7 @@ const backToTop = () => {
     align-items: flex-start;
     gap: var(--space-2);
     padding: 6px 0;
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--color-on-dark);
     font-size: var(--text-body-sm);
     line-height: var(--leading-snug);
   }
@@ -353,7 +353,7 @@ const backToTop = () => {
 
 .contact-empty {
   margin: 0;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-on-dark-muted);
   font-size: var(--text-body-sm);
   line-height: var(--leading-relaxed);
 
@@ -381,8 +381,8 @@ const backToTop = () => {
 // ============================================
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.16);
+  border-top: 1px solid var(--color-on-dark-divider);
+  background: var(--color-dark-surface-sunken);
   padding: var(--space-6) 0;
 }
 
@@ -409,13 +409,13 @@ const backToTop = () => {
   }
 
   .copyright {
-    color: rgba(255, 255, 255, 0.68);
+    color: var(--color-on-dark-soft);
     font-size: var(--text-body-sm);
   }
 
   .source,
   .credit {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--color-on-dark-faint);
     font-size: var(--text-caption);
     line-height: var(--leading-snug);
   }
@@ -437,17 +437,18 @@ const backToTop = () => {
   }
 
   a {
-    color: rgba(212, 175, 55, 0.85);
+    color: var(--color-on-dark-gold);
     text-decoration: none;
 
     &:hover {
-      color: var(--color-secondary);
+      color: var(--color-secondary-light);
       text-decoration: underline;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-secondary);
-      outline-offset: 2px;
+      outline: none;
+      box-shadow: var(--focus-ring);
+      border-radius: var(--radius-sm);
     }
   }
 }
@@ -468,7 +469,7 @@ const backToTop = () => {
   align-items: center;
   gap: 6px;
   margin: 0;
-  color: var(--color-gold-refined);
+  color: var(--color-on-dark-gold);
   font-size: var(--text-caption);
   white-space: nowrap;
 }
@@ -479,10 +480,10 @@ const backToTop = () => {
   gap: 8px;
   height: 38px;
   padding: 0 var(--space-4);
-  border: 1px solid rgba(201, 168, 76, 0.4);
+  border: 1px solid var(--color-gold-refined-line);
   border-radius: var(--radius-control);
   background: transparent;
-  color: var(--color-gold-refined);
+  color: var(--color-on-dark-gold);
   font-family: var(--font-ui);
   font-size: var(--text-caption);
   cursor: pointer;
@@ -492,14 +493,21 @@ const backToTop = () => {
     border-color var(--duration-fast) var(--ease-out);
 
   &:hover {
-    background: rgba(201, 168, 76, 0.14);
+    background: var(--color-on-dark-gold-soft);
     border-color: var(--color-gold-refined);
-    color: #f0d68a;
+    color: var(--color-secondary-light);
   }
 
   &:focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
   }
+}
+
+// 深色 Footer：焦点统一使用金色环，避免全局赭石环在深底上对比不足
+.layout-footer a:focus-visible,
+.layout-footer button:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
 }
 </style>

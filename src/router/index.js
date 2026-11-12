@@ -108,11 +108,14 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition
     }
-    // 带锚点的跳转（如 /project#results）→ 定位到对应区块，预留固定导航高度
-    // 目标页为懒加载组件，延迟一帧确保锚点元素已渲染
+    // 带锚点的跳转（如 /project#results）→ 定位到对应区块
+    // 偏移量与 Project.vue 的 scroll-margin-top 保持一致：顶栏 + 吸顶章节导航
     if (to.hash) {
       return new Promise((resolve) => {
-        setTimeout(() => resolve({ el: to.hash, top: 96 }), 300)
+        setTimeout(() => {
+          const offset = window.matchMedia('(max-width: 768px)').matches ? 124 : 132
+          resolve({ el: to.hash, top: offset })
+        }, 300)
       })
     }
     // 同路由仅 query 变化（如地图页选中非遗点同步 URL id 参数）→ 不滚动

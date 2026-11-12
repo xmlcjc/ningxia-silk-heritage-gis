@@ -35,6 +35,7 @@
             class="header-action search-trigger"
             aria-label="搜索非遗项目"
             aria-haspopup="dialog"
+            :aria-expanded="isSearchOpen"
             @click="openSearch"
           >
             <Icon icon="gis:zoom-in" width="17" height="17" />
@@ -127,7 +128,7 @@
     </Transition>
 
     <!-- 全站搜索面板 -->
-    <GlobalSearch ref="searchPanel" @close="restoreSearchFocus" />
+    <GlobalSearch ref="searchPanel" @open="isSearchOpen = true" @close="onSearchClose" />
   </header>
 </template>
 
@@ -140,6 +141,7 @@ import GlobalSearch from './GlobalSearch.vue'
 const route = useRoute()
 
 const isNavOpen = ref(false)
+const isSearchOpen = ref(false)
 const isScrolled = ref(false)
 
 const searchButton = ref(null)
@@ -176,6 +178,12 @@ const closeNav = () => {
 
 const openSearch = () => {
   searchPanel.value?.open()
+}
+
+// 关闭搜索：同步 aria-expanded 并恢复到触发按钮
+const onSearchClose = () => {
+  isSearchOpen.value = false
+  restoreSearchFocus()
 }
 
 const openSearchFromDrawer = () => {
@@ -770,6 +778,12 @@ onUnmounted(() => {
   .header-content {
     height: 64px;
     gap: var(--space-2);
+  }
+
+  // 移动端入口按钮保持 ≥44 热区
+  .header-action,
+  .header-cta {
+    min-height: 44px;
   }
 
   .brand {
